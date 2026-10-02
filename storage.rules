@@ -1,0 +1,61 @@
+rules_version = '2';
+
+// Costos Piso — Storage rules. DEFAULT DENY.
+// House membership is checked against Firestore (houses/{houseId}/members/{uid}) with firestore.get()/exists(),
+// so only ACTIVE members read bill files and only ACTIVE ADMINs write them.
+// Deploying these rules needs the "Firebase Rules Firestore Service Agent" IAM role (the CLI offers to grant it).
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+
+    function memberDoc(houseId) {
+      return /databases/(default)/documents/houses/$(houseId)/members/$(request.auth.uid);
+    }
+    function isActiveMember(houseId) {
+      return signedIn()
+        && firestore.exists(memberDoc(houseId))
+        && firestore.get(memberDoc(houseId)).data.status == 'ACTIVE';
+    }
+    function isActiveAdmin(houseId) {
+      return isActiveMember(houseId) && firestore.get(memberDoc(houseId)).data.role == 'ADMIN';
+    }
+
+    function imageType() {
+      return request.resource.contentType in ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+    }
+    function docType() {
+      return imageType() || request.resource.contentType == 'application/pdf';
+    }
+    function underBytes(n) { return request.resource.size < n; }
+
+    // Account deletion lists the owner's own folders (users/{uid}/**).
+    match /users/{uid}/{allPaths=**} {
+      allow list: if isOwner(uid);
+    }
+
+    // Avatars: owner writes (images, < 2 MB); any signed-in user may read (shown to housemates).
+    match /users/{uid}/avatar/{fileName} {
+      allow read: if signedIn();
+      allow create, update: if isOwner(uid) && imageType() && underBytes(2 * 1024 * 1024);
+      allow delete: if isOwner(uid);
+    }
+
+    // Identity documents: STRICTLY owner-only (< 10 MB, image or PDF).
+    match /users/{uid}/documents/{docId}/{fileName} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && docType() && underBytes(10 * 1024 * 1024);
+    }
+
+    // Bills: active members read, active admins write/delete (< 10 MB, image or PDF).
+    match /houses/{houseId}/bills/{billId}/{fileName} {
+      allow read: if isActiveMember(houseId);
+      allow create, update: if isActiveAdmin(houseId) && docType() && underBytes(10 * 1024 * 1024);
+      allow delete: if isActiveAdmin(houseId);
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

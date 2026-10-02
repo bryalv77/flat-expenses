@@ -1,0 +1,353 @@
+rules_version = '2';
+
+// Costos Piso — Firestore security rules. DEFAULT DENY: anything not matched below is rejected.
+// Document model: docs/firestore-model.md. Rules tests: tests/rules/.
+//
+// Key ideas
+//  - Membership lives at houses/{houseId}/members/{uid} (doc id = uid) so every check is one document read.
+//  - Every write validates the COMPLETE resulting document (keys, types, ranges, enums). `request.time`
+//    is enforced for server timestamps so clients cannot forge them.
+//  - Joining a house is only possible through a valid invite, via a batch that creates the member document
+//    and increments invites/{code}.usedCount by exactly 1 (checked with get()/getAfter()).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- generic helpers ----------
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+
+    function isStr(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+    function optStr(d, k, max) { return d[k] == null || (d[k] is string && d[k].size() <= max); }
+    function isInt(v, lo, hi) { return v is int && v >= lo && v <= hi; }
+    function optInt(d, k, lo, hi) { return d[k] == null || isInt(d[k], lo, hi); }
+    function isDate(v) {
+      return v is string && v.matches('^20[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');
+    }
+    function optDate(d, k) { return d[k] == null || isDate(d[k]); }
+    function mimeAllowed(v) {
+      return v in ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+    }
+    function changed(d, existing) { return d.diff(existing).affectedKeys(); }
+
+    // ---------- membership helpers ----------
+    function housePath(houseId) { return /databases/$(database)/documents/houses/$(houseId); }
+    function memberPath(houseId, userId) {
+      return /databases/$(database)/documents/houses/$(houseId)/members/$(userId);
+    }
+    function isActiveMember(houseId) {
+      return signedIn()
+        && exists(memberPath(houseId, uid()))
+        && get(memberPath(houseId, uid())).data.status == 'ACTIVE';
+    }
+    function isActiveAdmin(houseId) {
+      return isActiveMember(houseId) && get(memberPath(houseId, uid())).data.role == 'ADMIN';
+    }
+
+    // ================= users/{uid} =================
+    match /users/{userId} {
+      function validUser(d) {
+        return d.keys().hasOnly(['email', 'displayName', 'photoPath', 'accountRole', 'locale', 'createdAt', 'updatedAt'])
+          && d.keys().hasAll(['email', 'displayName', 'photoPath', 'accountRole', 'locale', 'createdAt', 'updatedAt'])
+          && d.email is string && d.email.size() <= 254
+          && isStr(d.displayName, 1, 80)
+          && optStr(d, 'photoPath', 300)
+          && d.accountRole in ['ADMIN', 'ROOMMATE']
+          && d.locale in ['es', 'en']
+          && d.createdAt is timestamp
+          && d.updatedAt == request.time;
+      }
+
+      allow read: if signedIn() && uid() == userId;
+      allow create: if signedIn() && uid() == userId
+        && validUser(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if signedIn() && uid() == userId
+        && validUser(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if signedIn() && uid() == userId;
+
+      // Identity documents (passport / national id) metadata: STRICTLY owner-only.
+      match /documents/{docId} {
+        function validDocument(d) {
+          return d.keys().hasOnly(['type', 'storagePath', 'fileName', 'mimeType', 'sizeBytes', 'uploadedAt'])
+            && d.keys().hasAll(['type', 'storagePath', 'fileName', 'mimeType', 'sizeBytes', 'uploadedAt'])
+            && d.type in ['PASSPORT', 'NATIONAL_ID']
+            && isStr(d.storagePath, 1, 300)
+            && d.storagePath.matches('^users/' + userId + '/documents/.+')
+            && isStr(d.fileName, 1, 150)
+            && mimeAllowed(d.mimeType)
+            && isInt(d.sizeBytes, 0, 10485760)
+            && d.uploadedAt == request.time;
+        }
+
+        allow read: if signedIn() && uid() == userId;
+        allow create: if signedIn() && uid() == userId && validDocument(request.resource.data);
+        // No updates: "replace" = add the new document and delete the old one.
+        allow delete: if signedIn() && uid() == userId;
+      }
+    }
+
+    // ================= houses/{houseId} =================
+    match /houses/{houseId} {
+      function validHouse(d) {
+        return d.keys().hasOnly(['name', 'address', 'currency', 'splitMode', 'fixedContributionCents',
+            'contributionDayOfMonth', 'showBalanceToRoommates', 'createdBy', 'createdAt', 'updatedAt'])
+          && d.keys().hasAll(['name', 'address', 'currency', 'splitMode', 'fixedContributionCents',
+            'contributionDayOfMonth', 'showBalanceToRoommates', 'createdBy', 'createdAt', 'updatedAt'])
+          && isStr(d.name, 1, 80)
+          && optStr(d, 'address', 200)
+          && d.currency == 'EUR'
+          && d.splitMode in ['EQUAL', 'FIXED_CONTRIBUTION']
+          && optInt(d, 'fixedContributionCents', 0, 10000000)
+          && optInt(d, 'contributionDayOfMonth', 1, 31)
+          && d.showBalanceToRoommates is bool
+          && d.createdBy is string
+          && d.createdAt is timestamp
+          && d.updatedAt == request.time;
+      }
+
+      allow get: if isActiveMember(houseId);
+      // Bootstrap: the creator's ADMIN member document must be written in the same batch.
+      allow create: if signedIn()
+        && validHouse(request.resource.data)
+        && request.resource.data.createdBy == uid()
+        && request.resource.data.createdAt == request.time
+        && getAfter(memberPath(houseId, uid())).data.role == 'ADMIN'
+        && getAfter(memberPath(houseId, uid())).data.status == 'ACTIVE';
+      allow update: if isActiveAdmin(houseId)
+        && validHouse(request.resource.data)
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isActiveAdmin(houseId);
+
+      // ---------- members ----------
+      match /members/{memberId} {
+        function validMember(d) {
+          return d.keys().hasOnly(['uid', 'role', 'status', 'joinedAt', 'removedAt', 'individualContributionCents',
+              'displayName', 'email', 'photoPath', 'inviteCode'])
+            && d.keys().hasAll(['uid', 'role', 'status', 'joinedAt', 'removedAt', 'individualContributionCents',
+              'displayName', 'email', 'photoPath', 'inviteCode'])
+            && d.uid == memberId
+            && d.role in ['ADMIN', 'ROOMMATE']
+            && d.status in ['ACTIVE', 'REMOVED']
+            && d.joinedAt is timestamp
+            && (d.removedAt == null || d.removedAt is timestamp)
+            && optInt(d, 'individualContributionCents', 0, 10000000)
+            && isStr(d.displayName, 1, 80)
+            && d.email is string && d.email.size() <= 254
+            && optStr(d, 'photoPath', 300)
+            && (d.inviteCode == null || isStr(d.inviteCode, 8, 8));
+        }
+
+        function invitePath(code) { return /databases/$(database)/documents/invites/$(code); }
+
+        // A valid, usable invite for THIS house whose usedCount goes up by exactly one in the same batch.
+        function inviteAllowsJoin(code) {
+          return exists(invitePath(code))
+            && get(invitePath(code)).data.houseId == houseId
+            && get(invitePath(code)).data.status == 'ACTIVE'
+            && get(invitePath(code)).data.expiresAt > request.time
+            && get(invitePath(code)).data.usedCount < get(invitePath(code)).data.maxUses
+            && getAfter(invitePath(code)).data.usedCount == get(invitePath(code)).data.usedCount + 1;
+        }
+
+        allow get: if signedIn() && (uid() == memberId || isActiveMember(houseId));
+        allow list: if isActiveMember(houseId);
+
+        allow create: if signedIn() && memberId == uid() && validMember(request.resource.data)
+          && request.resource.data.joinedAt == request.time
+          && request.resource.data.removedAt == null
+          && request.resource.data.individualContributionCents == null
+          && request.resource.data.status == 'ACTIVE'
+          && (
+            // (a) house creator becomes ADMIN, house is created in the same batch
+            (request.resource.data.role == 'ADMIN'
+              && request.resource.data.inviteCode == null
+              && !exists(housePath(houseId))
+              && getAfter(housePath(houseId)).data.createdBy == uid())
+            ||
+            // (b) join through an invite as ROOMMATE
+            (request.resource.data.role == 'ROOMMATE'
+              && request.resource.data.inviteCode != null
+              && exists(housePath(houseId))
+              && inviteAllowsJoin(request.resource.data.inviteCode))
+          );
+
+        allow update: if signedIn() && validMember(request.resource.data)
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.joinedAt == resource.data.joinedAt
+          && request.resource.data.inviteCode == resource.data.inviteCode
+          && (
+            // member refreshes their own denormalized profile copy
+            (uid() == memberId
+              && changed(request.resource.data, resource.data).hasOnly(['displayName', 'email', 'photoPath']))
+            ||
+            // a roommate leaves the house (cannot undo it, cannot leave as ADMIN)
+            (uid() == memberId
+              && resource.data.role == 'ROOMMATE'
+              && resource.data.status == 'ACTIVE'
+              && changed(request.resource.data, resource.data).hasOnly(['status', 'removedAt'])
+              && request.resource.data.status == 'REMOVED'
+              && request.resource.data.removedAt == request.time)
+            ||
+            // admin manages roommates: remove/reactivate (never an ADMIN) and per-member contribution
+            (isActiveAdmin(houseId)
+              && changed(request.resource.data, resource.data).hasOnly(['status', 'removedAt', 'individualContributionCents'])
+              && (!changed(request.resource.data, resource.data).hasAny(['status', 'removedAt'])
+                || (resource.data.role == 'ROOMMATE'
+                  && ((request.resource.data.status == 'REMOVED' && request.resource.data.removedAt == request.time)
+                    || (request.resource.data.status == 'ACTIVE' && request.resource.data.removedAt == null)))))
+          );
+
+        // Admins only ever delete ROOMMATE docs (house cleanup); the last admin doc goes with the house.
+        allow delete: if signedIn() && (
+          (isActiveAdmin(houseId) && resource.data.role == 'ROOMMATE')
+          || (uid() == memberId && !existsAfter(housePath(houseId)))
+        );
+      }
+
+      // ---------- categories ----------
+      match /categories/{categoryId} {
+        function validCategory(d) {
+          return d.keys().hasOnly(['name', 'icon', 'color', 'amountType', 'expectedAmountCents', 'intervalUnit',
+              'intervalCount', 'anchorDate', 'isActive', 'sortOrder', 'notes', 'createdAt', 'updatedAt'])
+            && d.keys().hasAll(['name', 'icon', 'color', 'amountType', 'expectedAmountCents', 'intervalUnit',
+              'intervalCount', 'anchorDate', 'isActive', 'sortOrder', 'notes', 'createdAt', 'updatedAt'])
+            && isStr(d.name, 1, 60)
+            && isStr(d.icon, 1, 40)
+            && d.color is string && d.color.matches('^#[0-9A-Fa-f]{6}$')
+            && d.amountType in ['FIXED', 'VARIABLE']
+            && optInt(d, 'expectedAmountCents', 0, 10000000)
+            && (d.amountType != 'FIXED' || d.expectedAmountCents is int)
+            && d.intervalUnit in ['DAY', 'WEEK', 'MONTH', 'YEAR']
+            && isInt(d.intervalCount, 1, 1000)
+            && isDate(d.anchorDate)
+            && d.isActive is bool
+            && isInt(d.sortOrder, 0, 10000)
+            && optStr(d, 'notes', 500)
+            && d.createdAt is timestamp
+            && d.updatedAt == request.time;
+        }
+
+        allow read: if isActiveMember(houseId);
+        allow create: if isActiveAdmin(houseId) && validCategory(request.resource.data)
+          && request.resource.data.createdAt == request.time;
+        allow update: if isActiveAdmin(houseId) && validCategory(request.resource.data)
+          && request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isActiveAdmin(houseId);
+      }
+
+      // ---------- bills ----------
+      match /bills/{billId} {
+        function validBill(d) {
+          return d.keys().hasOnly(['categoryId', 'amountCents', 'chargeDate', 'periodStartDate', 'periodEndDate',
+              'effectiveDate', 'fileStoragePath', 'fileName', 'fileMimeType', 'fileSizeBytes', 'notes',
+              'ocrStatus', 'ocrData', 'createdBy', 'createdAt', 'updatedAt'])
+            && d.keys().hasAll(['categoryId', 'amountCents', 'chargeDate', 'periodStartDate', 'periodEndDate',
+              'effectiveDate', 'fileStoragePath', 'fileName', 'fileMimeType', 'fileSizeBytes', 'notes',
+              'ocrStatus', 'ocrData', 'createdBy', 'createdAt', 'updatedAt'])
+            && isStr(d.categoryId, 1, 64)
+            && exists(/databases/$(database)/documents/houses/$(houseId)/categories/$(d.categoryId))
+            && isInt(d.amountCents, 1, 9999999)
+            && optDate(d, 'chargeDate') && optDate(d, 'periodStartDate') && optDate(d, 'periodEndDate')
+            && isDate(d.effectiveDate)
+            && (d.chargeDate != null ? d.effectiveDate == d.chargeDate
+              : (d.periodEndDate != null ? d.effectiveDate == d.periodEndDate : true))
+            && (d.fileStoragePath == null
+              || (isStr(d.fileStoragePath, 1, 300) && d.fileStoragePath.matches('^houses/' + houseId + '/bills/.+')))
+            && optStr(d, 'fileName', 150)
+            && (d.fileMimeType == null || mimeAllowed(d.fileMimeType))
+            && optInt(d, 'fileSizeBytes', 0, 10485760)
+            && optStr(d, 'notes', 1000)
+            && d.ocrStatus in ['NONE', 'PENDING', 'DONE', 'FAILED']
+            && d.ocrData == null
+            && d.createdBy is string
+            && d.createdAt is timestamp
+            && d.updatedAt == request.time;
+        }
+
+        allow read: if isActiveMember(houseId);
+        allow create: if isActiveAdmin(houseId) && validBill(request.resource.data)
+          && request.resource.data.createdBy == uid()
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.ocrStatus == 'NONE';
+        allow update: if isActiveAdmin(houseId) && validBill(request.resource.data)
+          && request.resource.data.createdBy == resource.data.createdBy
+          && request.resource.data.createdAt == resource.data.createdAt;
+        allow delete: if isActiveAdmin(houseId);
+      }
+
+      // ---------- member payments (immutable: record or delete) ----------
+      match /payments/{paymentId} {
+        function validPayment(d) {
+          return d.keys().hasOnly(['memberId', 'month', 'amountCents', 'note', 'paidAt', 'recordedBy'])
+            && d.keys().hasAll(['memberId', 'month', 'amountCents', 'note', 'paidAt', 'recordedBy'])
+            && isStr(d.memberId, 1, 128)
+            && exists(memberPath(houseId, d.memberId))
+            && d.month is string && d.month.matches('^20[0-9]{2}-(0[1-9]|1[0-2])-01$')
+            && isInt(d.amountCents, 1, 9999999)
+            && optStr(d, 'note', 200)
+            && d.paidAt == request.time
+            && d.recordedBy == uid();
+        }
+
+        allow read: if isActiveMember(houseId);
+        allow create: if isActiveAdmin(houseId) && validPayment(request.resource.data);
+        allow delete: if isActiveAdmin(houseId);
+      }
+    }
+
+    // ================= members, collection-group (ListMyHouses) =================
+    // `collectionGroup('members').where('uid', '==', auth.uid)`: each user may read only their own memberships.
+    match /{path=**}/members/{memberId} {
+      allow read: if signedIn() && resource.data.uid == uid();
+    }
+
+    // ================= invites/{code} =================
+    // Code = 8 chars from an unambiguous alphabet (no I, L, O, 0, 1). Possessing the code is the credential.
+    match /invites/{code} {
+      function validCode() { return code.matches('^[A-HJKMNP-Z2-9]{8}$'); }
+      function validInvite(d) {
+        return d.keys().hasOnly(['houseId', 'status', 'expiresAt', 'maxUses', 'usedCount', 'createdBy', 'createdAt'])
+          && d.keys().hasAll(['houseId', 'status', 'expiresAt', 'maxUses', 'usedCount', 'createdBy', 'createdAt'])
+          && isStr(d.houseId, 1, 64)
+          && d.status == 'ACTIVE'
+          && d.expiresAt is timestamp
+          && d.expiresAt > request.time
+          && d.expiresAt <= request.time + duration.value(31, 'd')
+          && isInt(d.maxUses, 1, 50)
+          && d.usedCount == 0
+          && d.createdBy == uid()
+          && d.createdAt == request.time;
+      }
+
+      // Single-document get so a joiner can resolve the house from the code; listing is admin-only.
+      allow get: if signedIn() && validCode();
+      allow list: if signedIn() && isActiveAdmin(resource.data.houseId);
+
+      allow create: if signedIn() && validCode()
+        && validInvite(request.resource.data)
+        && isActiveAdmin(request.resource.data.houseId);
+
+      allow update: if signedIn() && (
+        // admin revokes
+        (isActiveAdmin(resource.data.houseId)
+          && changed(request.resource.data, resource.data).hasOnly(['status'])
+          && request.resource.data.status == 'REVOKED')
+        ||
+        // redemption: usedCount + 1, only together with the redeemer's new member document (same batch)
+        (changed(request.resource.data, resource.data).hasOnly(['usedCount'])
+          && request.resource.data.usedCount == resource.data.usedCount + 1
+          && request.resource.data.usedCount <= resource.data.maxUses
+          && resource.data.status == 'ACTIVE'
+          && resource.data.expiresAt > request.time
+          && !exists(memberPath(resource.data.houseId, uid()))
+          && existsAfter(memberPath(resource.data.houseId, uid()))
+          && getAfter(memberPath(resource.data.houseId, uid())).data.inviteCode == code)
+      );
+
+      allow delete: if signedIn() && isActiveAdmin(resource.data.houseId);
+    }
+  }
+}
