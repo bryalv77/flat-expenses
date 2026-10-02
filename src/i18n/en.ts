@@ -97,6 +97,11 @@ export const en: Messages = {
     passwordForDelete: 'Enter your password to confirm', recentLogin: 'Sign in again to delete your account.',
     activeHouse: 'Active flat', account: 'Account',
   },
+  schedule: {
+    day_one: 'Every day', day_other: 'Every {{n}} days', week_one: 'Every week', week_other: 'Every {{n}} weeks',
+    month_one: 'Every month', month_other: 'Every {{n}} months', year_one: 'Every year', year_other: 'Every {{n}} years',
+    variable: 'variable',
+  },
   errors: { generic: 'Something went wrong. Try again.', network: 'No connection.', fileTooLarge: 'The file is too large.', fileType: 'File type not allowed.' },
   billsUi: {
     searchPlaceholder: 'Search notes', range3: '3 months', range12: '12 months', rangeYear: 'This year', rangeMonth: 'This month',

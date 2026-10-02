@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { useUiStore } from '@/lib/uiStore';
@@ -18,8 +18,16 @@ interface ThemeValue {
 
 const ThemeContext = createContext<ThemeValue | null>(null);
 
+const subscribeNever = () => () => {};
+
+
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const system = useColorScheme();
+  const systemScheme = useColorScheme();
+  // The static web export is always rendered light. Until hydration is done, ignore the browser preference so the
+  // first client render matches the static HTML; the real scheme is applied right after (no hydration mismatch).
+  const isClient = useSyncExternalStore(subscribeNever, () => true, () => false);
+  const system = isClient ? systemScheme : 'light';
   const mode = useUiStore((s) => s.themeMode);
   const setMode = useUiStore((s) => s.setThemeMode);
 

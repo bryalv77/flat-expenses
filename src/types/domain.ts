@@ -1,4 +1,8 @@
 /** Shared domain types. Money is always integer cents. Dates are ISO strings (`YYYY-MM-DD`) unless noted. */
+import type { Locale } from '@/i18n/locales';
+
+/** The supported locales are defined once, in the registry (src/i18n/locales.ts). */
+export type { Locale };
 
 export type HouseRole = 'ADMIN' | 'ROOMMATE';
 export type SplitMode = 'EQUAL' | 'FIXED_CONTRIBUTION';
@@ -8,8 +12,6 @@ export type DocumentType = 'PASSPORT' | 'NATIONAL_ID';
 export type InviteStatus = 'ACTIVE' | 'REVOKED' | 'EXPIRED';
 export type MemberStatus = 'ACTIVE' | 'REMOVED';
 export type OcrStatus = 'NONE' | 'PENDING' | 'DONE' | 'FAILED';
-export type Locale = 'es' | 'en';
-
 export interface User {
   id: string;
   email: string;

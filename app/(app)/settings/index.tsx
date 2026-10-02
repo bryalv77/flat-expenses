@@ -18,7 +18,7 @@ import { useAuth } from '@/features/auth';
 import { reauthErrorKey } from '@/features/auth/errors';
 import { useMyHouses } from '@/features/houses/hooks';
 import { useUpdateProfile } from '@/features/profile/hooks';
-import { useT } from '@/i18n';
+import { LOCALES, useT } from '@/i18n';
 import { haptics } from '@/lib/haptics';
 import { useUiStore } from '@/lib/uiStore';
 import { spacing, useTheme, type ThemeMode } from '@/theme';
@@ -45,11 +45,6 @@ export default function SettingsScreen() {
     { value: 'light', label: t('profile.light') },
     { value: 'dark', label: t('profile.dark') },
   ];
-  const localeOptions: { value: Locale; label: string }[] = [
-    { value: 'es', label: 'Español' },
-    { value: 'en', label: 'English' },
-  ];
-
   const changeLocale = (next: Locale) => {
     setLocale(next);
     updateProfile.mutate({ locale: next });
@@ -82,9 +77,15 @@ export default function SettingsScreen() {
       </Section>
 
       <Section header={t('profile.language')}>
-        <View style={styles.control}>
-          <SegmentedControl options={localeOptions} value={locale} onChange={changeLocale} />
-        </View>
+        {LOCALES.map((l) => (
+          <ListRow
+            key={l.code}
+            title={l.label}
+            trailing={l.code === locale ? <Icon name="check" size={18} color={colors.tint} /> : undefined}
+            accessibilityLabel={l.label}
+            onPress={() => changeLocale(l.code)}
+          />
+        ))}
       </Section>
 
       {houseList.length > 1 ? (

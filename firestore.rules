@@ -52,7 +52,7 @@ service cloud.firestore {
           && isStr(d.displayName, 1, 80)
           && optStr(d, 'photoPath', 300)
           && d.accountRole in ['ADMIN', 'ROOMMATE']
-          && d.locale in ['es', 'en']
+          && d.locale in ['es', 'en', 'fr', 'de', 'pt', 'it', 'ca'] // keep in sync with src/i18n/locales.ts (tests/i18n enforces it)
           && d.createdAt is timestamp
           && d.updatedAt == request.time;
       }

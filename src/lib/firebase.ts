@@ -1,4 +1,4 @@
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 import { type FirebaseApp, type FirebaseOptions, getApp, getApps, initializeApp } from 'firebase/app';
 import { type Auth, connectAuthEmulator } from 'firebase/auth';
 import {
@@ -39,11 +39,11 @@ const isFirstInit = getApps().length === 0;
 
 export const app: FirebaseApp = isFirstInit ? initializeApp(firebaseConfig) : getApp();
 
-// App Check (web): proves requests come from this site. Enabled only when a reCAPTCHA v3 site key is configured,
+// App Check (web, reCAPTCHA Enterprise): proves requests come from this site. Enabled only when a reCAPTCHA Enterprise site key is configured,
 // and only worth enforcing in the console after it is live. Native needs App Attest / Play Integrity (EAS build).
-const recaptchaSiteKey = env.EXPO_PUBLIC_RECAPTCHA_SITE_KEY;
-if (isFirstInit && Platform.OS === 'web' && recaptchaSiteKey && env.EXPO_PUBLIC_USE_EMULATORS !== 'true') {
-  initializeAppCheck(app, { provider: new ReCaptchaV3Provider(recaptchaSiteKey), isTokenAutoRefreshEnabled: true });
+const recaptchaSiteKey = process.env.EXPO_PUBLIC_RECAPTCHA_SITE_KEY;
+if (isFirstInit && Platform.OS === 'web' && typeof document !== 'undefined' && recaptchaSiteKey && env.EXPO_PUBLIC_USE_EMULATORS !== 'true') {
+  initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey), isTokenAutoRefreshEnabled: true });
 }
 export const auth: Auth = createAuth(app);
 export const storage: FirebaseStorage = getStorage(app);

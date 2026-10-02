@@ -95,6 +95,11 @@ export const es = {
     passwordForDelete: 'Introduce tu contraseña para confirmar', recentLogin: 'Vuelve a iniciar sesión para eliminar tu cuenta.',
     activeHouse: 'Piso activo', account: 'Cuenta',
   },
+  schedule: {
+    day_one: 'Cada día', day_other: 'Cada {{n}} días', week_one: 'Cada semana', week_other: 'Cada {{n}} semanas',
+    month_one: 'Cada mes', month_other: 'Cada {{n}} meses', year_one: 'Cada año', year_other: 'Cada {{n}} años',
+    variable: 'variable',
+  },
   errors: { generic: 'Algo salió mal. Inténtalo de nuevo.', network: 'Sin conexión.', fileTooLarge: 'El archivo es demasiado grande.', fileType: 'Tipo de archivo no permitido.' },
   billsUi: {
     searchPlaceholder: 'Buscar en notas', range3: '3 meses', range12: '12 meses', rangeYear: 'Este año', rangeMonth: 'Este mes',

@@ -1,5 +1,6 @@
 import type { ExpenseCategory, IntervalUnit, Locale } from '@/types/domain';
 import { addDays, addMonthsClamped, toDayNumber } from '@/lib/dates';
+import { translate, translatePlural, type PluralKey } from '@/i18n/translate';
 import { formatMoney } from '@/lib/format';
 
 type ScheduleFields = Pick<ExpenseCategory, 'intervalUnit' | 'intervalCount' | 'anchorDate'>;
@@ -114,19 +115,11 @@ export function amortizedMonthlyCents(
   return Math.round(amountCents / cycleLengthInMonths(schedule));
 }
 
-const UNIT_LABELS: Record<Locale, Record<IntervalUnit, [string, string]>> = {
-  es: {
-    DAY: ['día', 'días'],
-    WEEK: ['semana', 'semanas'],
-    MONTH: ['mes', 'meses'],
-    YEAR: ['año', 'años'],
-  },
-  en: {
-    DAY: ['day', 'days'],
-    WEEK: ['week', 'weeks'],
-    MONTH: ['month', 'months'],
-    YEAR: ['year', 'years'],
-  },
+const UNIT_KEYS: Record<IntervalUnit, PluralKey> = {
+  DAY: 'schedule.day',
+  WEEK: 'schedule.week',
+  MONTH: 'schedule.month',
+  YEAR: 'schedule.year',
 };
 
 export interface ScheduleDescription {
@@ -142,11 +135,8 @@ export function describeSchedule(
   >,
   locale: Locale = 'es',
 ): ScheduleDescription {
-  const [singular, plural] = UNIT_LABELS[locale][category.intervalUnit];
-  const count = category.intervalCount;
-  const every = locale === 'es' ? 'Cada' : 'Every';
-  const interval = count === 1 ? `${every} ${singular}` : `${every} ${count} ${plural}`;
-  let amount = 'variable';
+  const interval = translatePlural(locale, UNIT_KEYS[category.intervalUnit], category.intervalCount);
+  let amount = translate(locale, 'schedule.variable');
   if (category.expectedAmountCents != null) {
     const money = formatMoney(category.expectedAmountCents, locale);
     amount = category.amountType === 'FIXED' ? money : `~${money}`;

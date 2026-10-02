@@ -7,6 +7,7 @@
  * Cost notes: one-shot reads only (no listeners), bounded queries, dates stored as ISO strings so a single
  * range query serves each screen.
  */
+import { DEFAULT_LOCALE, isLocale } from '@/i18n/locales';
 import {
   type DocumentData,
   type QueryDocumentSnapshot,
@@ -246,7 +247,7 @@ export const api = {
       displayName: u.displayName,
       photoPath: u.photoPath ?? null,
       accountRole: u.accountRole,
-      locale: u.locale === 'en' ? 'en' : 'es',
+      locale: isLocale(u.locale) ? u.locale : DEFAULT_LOCALE,
     };
   },
   updateMyProfile: async (v: { displayName?: string; photoPath?: string | null; locale?: Locale; accountRole?: HouseRole }): Promise<void> => {

@@ -2,7 +2,7 @@
 
 Shared household costs for roommates. One Expo (React Native) codebase for iOS, Android and Web, backed by Firebase Auth, **Cloud Firestore** and Cloud Storage.
 
-Roles: **admin** (creates the flat, categories, bills, invites, payments) and **roommie** (joins by code, read-only). Currency EUR, stored as integer cents. UI in Spanish (default) and English.
+Roles: **admin** (creates the flat, categories, bills, invites, payments) and **roommie** (joins by code, read-only). Currency EUR, stored as integer cents. UI in Spanish (default), English, French, German, Portuguese, Italian and Catalan (see Internationalisation).
 
 ## Architecture
 
@@ -42,6 +42,26 @@ Demo data: `node scripts/seed-demo.mjs` (add `--emulator` for local emulators). 
 ## Mobile builds
 
 `npx eas build -p ios` / `-p android` (bundle id `com.costospiso.app`).
+
+## Internationalisation
+
+Everything lives in `src/i18n/`:
+
+- `locales.ts` — the **registry** (`code`, native `label`, `intlLocale`, `dir`). `Locale` is derived from it, so the registry is the single source of truth.
+- `es.ts` — the source messages (defines the `Messages` shape). `en.ts`, `fr.ts`, `de.ts`, `pt.ts`, `it.ts`, `ca.ts` — one file per language.
+- `translate.ts` — pure `translate()` / `translatePlural()` (no React, usable from logic and tests). `index.ts` — the `useT()` hook returning `{ t, tp, locale }`.
+- Fallback chain for a missing key: the locale → English → Spanish → the key itself (a dev-only `console.warn` reports the miss). A new language can therefore ship incomplete.
+- First run: the device language (`expo-localization`) is matched to the registry, falling back to Spanish. An explicit choice in Settings (or the saved profile language) always wins and is persisted.
+- Numbers, money and dates use `Intl` with the registry's `intlLocale` (`src/lib/format.ts`); plurals use `Intl.PluralRules` through keys such as `schedule.week_one` / `schedule.week_other` (`tp('schedule.week', n)`).
+- Machine-assisted translations: have a native speaker review `fr`, `de`, `pt`, `it`, `ca` before launching in those markets.
+
+### Adding a language
+
+1. Add an entry to `LOCALES` in `src/i18n/locales.ts` (e.g. `{ code: 'nl', label: 'Nederlands', intlLocale: 'nl-NL', dir: 'ltr' }`).
+2. Create `src/i18n/nl.ts` exporting `nl: DeepPartial<Messages>` (copy `fr.ts` as a template; keep `{{placeholders}}` untouched; plural keys need `_one` and `_other`, plus `_few`/`_many`/`_zero`/`_two` if the language uses them).
+3. Register it in `dictionaries` in `src/i18n/translate.ts`.
+4. Add the code to the `d.locale in [...]` list in `firestore.rules` (the profile `locale` field is validated server-side) and deploy the rules. `npm test` fails if the list and the registry disagree.
+5. Run `npm test`: it checks that the new file has every key of `es.ts`, no extra keys, and matching placeholders. The language picker in Settings picks it up automatically.
 
 ## Security model
 
