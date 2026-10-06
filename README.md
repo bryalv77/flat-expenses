@@ -32,7 +32,8 @@ Security-rules tests (starts Firestore + Storage emulators, JDK 21+ required): `
 ```bash
 firebase login
 firebase deploy --only firestore,storage      # creates the (default) Firestore database in eur3 on first deploy + rules + indexes
-pnpm web:deploy                            # expo export --platform web && firebase deploy --only hosting
+pnpm deploy:web                            # export web + deploy Hosting and Firestore/Storage rules (checks the CSP hash first)
+pnpm deploy:mobile ["message"] [--production]   # EAS Update (OTA): preview channel by default
 ```
 
 Storage rules read Firestore, so the first Storage deploy asks to grant the *Firebase Rules Firestore Service Agent* role — accept it. Enable Email/Password (and optionally Google/Apple) in the Auth console. Native Google/Apple sign-in needs OAuth client ids and an EAS build; email/password works out of the box.
