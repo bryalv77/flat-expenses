@@ -12,11 +12,12 @@ import { ForecastSection } from '@/features/reports/components/ForecastSection';
 import { LookupSection } from '@/features/reports/components/LookupSection';
 import { OverviewSection } from '@/features/reports/components/OverviewSection';
 import { PeopleSection } from '@/features/reports/components/PeopleSection';
+import { WhoPaysSection } from '@/features/reports/components/WhoPaysSection';
 import { SeasonalitySection } from '@/features/reports/components/SeasonalitySection';
 import { useReportData } from '@/features/reports/components/useReportData';
 import { filterBills } from '@/features/reports';
 
-type SectionKey = 'overview' | 'category' | 'seasonality' | 'lookup' | 'forecast' | 'people';
+type SectionKey = 'overview' | 'whoPays' | 'category' | 'seasonality' | 'lookup' | 'forecast' | 'people';
 
 export default function ReportsScreen() {
   const { t } = useT();
@@ -28,6 +29,7 @@ export default function ReportsScreen() {
 
   const options: { value: SectionKey; label: string }[] = [
     { value: 'overview', label: t('reports.overview') },
+    ...(data.isAdmin ? [{ value: 'whoPays' as const, label: t('reportsUi.whoPays') }] : []),
     { value: 'category', label: t('reports.byCategory') },
     { value: 'seasonality', label: t('reports.seasonality') },
     { value: 'lookup', label: t('reports.lookup') },
@@ -87,6 +89,7 @@ export default function ReportsScreen() {
           ) : (
             <>
               {section === 'overview' ? <OverviewSection data={data} /> : null}
+              {section === 'whoPays' ? <WhoPaysSection data={data} /> : null}
               {section === 'category' ? <CategorySection data={data} /> : null}
               {section === 'seasonality' ? <SeasonalitySection data={data} /> : null}
               {section === 'lookup' ? <LookupSection data={data} /> : null}

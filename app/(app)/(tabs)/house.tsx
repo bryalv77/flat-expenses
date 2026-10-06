@@ -10,7 +10,7 @@ import { useAuth } from '@/features/auth';
 import { ConfirmSheet } from '@/features/houses/ConfirmSheet';
 import { useActiveHouse, useDeleteHouse, useUpdateHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
-import { useLeaveHouse } from '@/features/members/hooks';
+import { isGuestMember, useLeaveHouse } from '@/features/members/hooks';
 import { MemberAvatar } from '@/features/members/MemberAvatar';
 import { useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
@@ -106,6 +106,7 @@ export default function HouseScreen() {
             <>
               <ListRow icon="card" title={t('hub.paymentsLink')} chevron onPress={() => router.push('/payments')} />
               <ListRow icon="plus" title={t('hub.inviteLink')} chevron onPress={() => router.push('/members/invite')} />
+              <ListRow icon="plus" title={t('hub.addGuest')} chevron onPress={() => router.push('/members/new')} />
             </>
           ) : null}
         </Section>
@@ -117,9 +118,10 @@ export default function HouseScreen() {
               key={m.id}
               leading={<MemberAvatar name={m.displayName} photoPath={m.photoPath} />}
               title={m.userId === firebaseUser?.uid ? `${m.displayName} (${t('hub.youTag')})` : m.displayName}
-              subtitle={`${t('hub.joined')} ${formatDate(m.joinedAt.slice(0, 10), locale, 'medium')}`}
+              subtitle={`${t('hub.joined')} ${formatDate(m.joinedAt.slice(0, 10), locale, 'medium')}${m.removedAt ? ` → ${formatDate(m.removedAt.slice(0, 10), locale, 'medium')}` : ''}`}
               trailing={
                 <View style={{ flexDirection: 'row', gap: spacing.xs }}>
+                  {isGuestMember(m) ? <Badge label={t('hub.noAccount')} tone="neutral" /> : null}
                   {m.status === 'REMOVED' ? <Badge label={t('house.removed')} tone="red" /> : null}
                   <Badge label={m.role === 'ADMIN' ? t('house.admin') : t('house.roommate')} tone={m.role === 'ADMIN' ? 'blue' : 'neutral'} />
                 </View>

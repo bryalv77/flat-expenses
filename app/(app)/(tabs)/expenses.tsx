@@ -28,7 +28,7 @@ import { haptics } from '@/lib/haptics';
 import { spacing, useTheme } from '@/theme';
 import type { Bill } from '@/types/domain';
 
-type RangeKey = 'month' | '3' | '12' | 'year';
+type RangeKey = 'month' | '3' | '12' | 'year' | 'all';
 
 function rangeFor(key: RangeKey, today: string): { from: string; to: string } {
   const current = monthKey(today);
@@ -41,6 +41,8 @@ function rangeFor(key: RangeKey, today: string): { from: string; to: string } {
       return { from: monthStart(addMonthsToKey(current, -11)), to: monthEnd(current) };
     case 'year':
       return { from: `${today.slice(0, 4)}-01-01`, to: `${today.slice(0, 4)}-12-31` };
+    case 'all':
+      return { from: '0000-01-01', to: '9999-12-31' };
   }
 }
 
@@ -79,6 +81,7 @@ export default function ExpensesScreen() {
     { key: '3', label: t('billsUi.range3') },
     { key: '12', label: t('billsUi.range12') },
     { key: 'year', label: t('billsUi.rangeYear') },
+    { key: 'all', label: t('common.all') },
   ];
 
   const addButton = isAdmin ? (

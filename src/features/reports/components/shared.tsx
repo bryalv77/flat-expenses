@@ -2,7 +2,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Chip, Icon, isIconName, Text } from '@/components/ui';
 import { useT } from '@/i18n';
-import { addMonthsToKey } from '@/lib/dates';
+import { addMonthsToKey, monthEnd, monthStart } from '@/lib/dates';
 import { formatMonth } from '@/lib/format';
 import { MIN_TOUCH, spacing, useTheme } from '@/theme';
 import type { ExpenseCategory } from '@/types/domain';
@@ -98,3 +98,34 @@ const styles = StyleSheet.create({
   chips: { gap: spacing.sm, paddingVertical: spacing.xs },
   title: { marginTop: spacing.sm },
 });
+
+export type RangeKey = '3' | '6' | '12' | 'all';
+
+/** Time-range filter chips (3 / 6 / 12 months / all time). */
+export function RangeChips({ value, onChange }: { value: RangeKey; onChange: (r: RangeKey) => void }) {
+  const { t } = useT();
+  const options: [RangeKey, string][] = [
+    ['3', t('reportsUi.last3')],
+    ['6', t('reportsUi.last6')],
+    ['12', t('reportsUi.last12')],
+    ['all', t('reportsUi.allTime')],
+  ];
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={styles.chips}>
+      {options.map(([key, label]) => (
+        <Chip key={key} label={label} selected={value === key} onPress={() => onChange(key)} />
+      ))}
+    </ScrollView>
+  );
+}
+
+/** Keeps only items whose effective date falls in the last N months (current month included). */
+export function filterByRange<T>(items: T[], dateOf: (item: T) => string, range: RangeKey, currentMonth: string): T[] {
+  if (range === 'all') return items;
+  const from = monthStart(addMonthsToKey(currentMonth, -(Number(range) - 1)));
+  const to = monthEnd(currentMonth);
+  return items.filter((i) => {
+    const d = dateOf(i);
+    return d >= from && d <= to;
+  });
+}

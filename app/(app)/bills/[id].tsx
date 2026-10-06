@@ -65,7 +65,7 @@ export default function BillDetailScreen() {
             {formatDate(getEffectiveDate(b), locale, 'long')}
           </Text>
           <Text variant="largeTitle">{formatMoney(b.amountCents, locale)}</Text>
-          {category ? <Badge label={category.name} tone="blue" /> : null}
+          {category ? <Badge label={category.name} icon={category.icon} color={category.color} /> : null}
         </Card>
 
         <Section header={t('billsUi.details')}>

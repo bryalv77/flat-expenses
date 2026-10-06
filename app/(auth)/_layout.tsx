@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 
+import { backChevronOptions } from '@/components/ui';
 import { useT } from '@/i18n';
 import { useTheme } from '@/theme';
 
@@ -9,6 +10,7 @@ export default function AuthLayout() {
   return (
     <Stack
       screenOptions={{
+        ...backChevronOptions,
         headerShadowVisible: false,
         headerStyle: { backgroundColor: colors.background },
         headerTintColor: colors.tint,

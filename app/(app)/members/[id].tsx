@@ -7,7 +7,7 @@ import { Badge, Button, EmptyState, ListRow, MoneyInput, Screen, Section, Text, 
 import { ConfirmSheet } from '@/features/houses/ConfirmSheet';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
-import { useReactivateMember, useRemoveMember, useSetMemberContribution } from '@/features/members/hooks';
+import { isGuestMember, useReactivateMember, useRemoveMember, useSetMemberContribution } from '@/features/members/hooks';
 import { MemberAvatar } from '@/features/members/MemberAvatar';
 import { useMemberDocuments } from '@/features/profile/hooks';
 import { useT } from '@/i18n';
@@ -28,7 +28,7 @@ export default function MemberDetailScreen() {
   const remove = useRemoveMember(houseId);
   const reactivate = useReactivateMember(houseId);
   const setContribution = useSetMemberContribution(houseId);
-  const { data: docs = [] } = useMemberDocuments(house?.id, member?.userId, isAdmin && Boolean(member));
+  const { data: docs = [] } = useMemberDocuments(house?.id, member?.userId, isAdmin && Boolean(member) && !(member && isGuestMember(member)));
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [contribution, setLocalContribution] = useState<number | null | undefined>(undefined);
 
@@ -36,6 +36,7 @@ export default function MemberDetailScreen() {
 
   const value = contribution === undefined ? member.individualContributionCents : contribution;
   const isRoommate = member.role === 'ROOMMATE';
+  const guest = isGuestMember(member);
 
   const openDoc = async (path: string) => {
     try {
@@ -51,7 +52,7 @@ export default function MemberDetailScreen() {
         <View style={{ alignItems: 'center', gap: spacing.sm }}>
           <MemberAvatar name={member.displayName} photoPath={member.photoPath} size={80} />
           <Text variant="title2">{member.displayName}</Text>
-          <Text color="secondaryLabel">{member.email}</Text>
+          <Text color="secondaryLabel">{guest ? t('hub.noAccount') : member.email}</Text>
           <View style={{ flexDirection: 'row', gap: spacing.xs }}>
             <Badge label={member.role === 'ADMIN' ? t('house.admin') : t('house.roommate')} tone={member.role === 'ADMIN' ? 'blue' : 'neutral'} />
             {member.status === 'REMOVED' ? <Badge label={t('house.removed')} tone="red" /> : null}
@@ -79,7 +80,7 @@ export default function MemberDetailScreen() {
           </Section>
         ) : null}
 
-        <Section header={t('hub.memberDocs')} footer={t('hub.adminOnlySensitive')}>
+        {guest ? null : <Section header={t('hub.memberDocs')} footer={t('hub.adminOnlySensitive')}>
           {docs.length === 0 ? <ListRow icon="lock" iconColor={colors.orange} title={t('hub.noDocs')} /> : null}
           {docs.map((d) => (
             <ListRow
@@ -92,7 +93,7 @@ export default function MemberDetailScreen() {
               onPress={() => void openDoc(d.storagePath)}
             />
           ))}
-        </Section>
+        </Section>}
 
         {member.role !== 'ADMIN' ? (
           member.status === 'ACTIVE' ? (

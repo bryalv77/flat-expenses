@@ -22,6 +22,7 @@ import {
   monthlySeries,
   perPersonTable,
   totalsByMonth,
+  whoPays,
 } from './calculations';
 
 const gasBills = [
@@ -188,5 +189,30 @@ describe('buildBillsCsv', () => {
     );
     expect(lines[1]).toBe('2025-01-01,Alquiler,1200.00,2025-01-01,,,,');
     expect(lines[2]).toBe('2025-03-15,Gas,80.50,2025-03-15,,,gas.pdf,"He said ""hi"", ok"');
+  });
+});
+
+describe('whoPays', () => {
+  it('admin covers total minus roommates payments; counts who paid more per month', () => {
+    const bills = [makeBill('a', 100000, '2025-01-10'), makeBill('a', 50000, '2025-02-10'), makeBill('a', 60000, '2025-03-10')];
+    const payments = [
+      { month: '2025-01-01', amountCents: 40000 },
+      { month: '2025-01-01', amountCents: 30000 },
+      { month: '2025-02-01', amountCents: 10000 },
+      { month: '2025-03-01', amountCents: 30000 },
+    ];
+    const r = whoPays(bills, payments, '2025-01', '2025-04');
+    expect(r.rows.map((x) => [x.month, x.totalCents, x.roommatesCents, x.adminCents])).toEqual([
+      ['2025-01', 100000, 70000, 30000],
+      ['2025-02', 50000, 10000, 40000],
+      ['2025-03', 60000, 30000, 30000],
+      ['2025-04', 0, 0, 0],
+    ]);
+    expect(r.totalCents).toBe(210000);
+    expect(r.adminCents).toBe(100000);
+    expect(r.roommatesCents).toBe(110000);
+    expect(r.monthsAdminMore).toBe(1);
+    expect(r.monthsRoommatesMore).toBe(1);
+    expect(r.averageMonthlyCents).toBe(70000);
   });
 });

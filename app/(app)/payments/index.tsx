@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
-import { Badge, BottomSheet, Button, EmptyState, ListRow, MoneyInput, Screen, Section, SegmentedControl, Text, TextField, useToast } from '@/components/ui';
+import { Badge, BottomSheet, Button, Chip, EmptyState, ListRow, MoneyInput, Screen, Section, Text, TextField, useToast } from '@/components/ui';
 import { computePaymentStatus } from '@/features/finance';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
 import { MemberAvatar } from '@/features/members/MemberAvatar';
 import { useDeletePayment, usePayments, useRecordPayment } from '@/features/payments/hooks';
 import { useT } from '@/i18n';
-import { addMonthsToKey, monthEnd, monthKey, monthStart, todayISO } from '@/lib/dates';
+import { monthEnd, monthKey, monthRange, monthStart, todayISO } from '@/lib/dates';
 import { formatDate, formatMonth, formatMoney } from '@/lib/format';
 import { spacing } from '@/theme';
 
@@ -30,6 +30,11 @@ export default function PaymentsScreen() {
   const [note, setNote] = useState('');
 
   const summary = useMemo(() => (house ? computePaymentStatus(house, members, payments, month) : null), [house, members, payments, month]);
+  // Every month since the earliest member joined, newest first.
+  const allMonths = useMemo(() => {
+    const first = members.reduce((min, m) => (m.joinedAt.slice(0, 7) < min ? m.joinedAt.slice(0, 7) : min), thisMonth);
+    return monthRange(first, thisMonth).reverse();
+  }, [members, thisMonth]);
   const byId = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
 
   if (!house || !isAdmin) return <Screen><EmptyState icon="lock" title={t('hub.adminOnly')} /></Screen>;
@@ -66,14 +71,11 @@ export default function PaymentsScreen() {
       <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
         {house.splitMode !== 'FIXED_CONTRIBUTION' ? <Text variant="footnote" color="secondaryLabel">{t('hub.onlyFixedMode')}</Text> : null}
 
-        <SegmentedControl
-          value={month === thisMonth ? 'now' : month === addMonthsToKey(thisMonth, -1) ? 'prev' : 'other'}
-          onChange={(v) => setMonth(v === 'prev' ? addMonthsToKey(thisMonth, -1) : thisMonth)}
-          options={[
-            { value: 'prev', label: formatMonth(addMonthsToKey(thisMonth, -1), locale, 'long') },
-            { value: 'now', label: formatMonth(thisMonth, locale, 'long') },
-          ]}
-        />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: spacing.sm, alignItems: 'center' }}>
+          {allMonths.map((m) => (
+            <Chip key={m} label={formatMonth(m, locale, 'short')} selected={m === month} onPress={() => setMonth(m)} />
+          ))}
+        </ScrollView>
 
         {summary ? (
           <Section header={formatMonth(month, locale, 'long')} footer={`${t('hub.due')} ${formatMoney(summary.totalDueCents, locale)} · ${t('hub.paidTotal')} ${formatMoney(summary.totalPaidCents, locale)} · ${t('hub.pendingTotal')} ${formatMoney(summary.totalPendingCents, locale)}`}>
