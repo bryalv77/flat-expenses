@@ -28,7 +28,6 @@ export default function AppLayout() {
       <Stack.Screen name="members/invite" options={{ title: t('house.invite'), presentation: 'modal' }} />
       <Stack.Screen name="members/new" options={{ title: t('hub.addGuest'), presentation: 'modal' }} />
       <Stack.Screen name="members/[id]" options={{ title: t('house.members') }} />
-      <Stack.Screen name="import" options={{ title: 'Import' }} />
       <Stack.Screen name="payments/index" options={{ title: t('house.payments') }} />
     </Stack>
   );
