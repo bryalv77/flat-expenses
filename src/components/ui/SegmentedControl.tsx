@@ -28,7 +28,7 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
                 onChange(o.value);
               }
             }}
-            style={[styles.seg, selected && { backgroundColor: scheme === 'dark' ? colors.elevated : '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 3, shadowOffset: { width: 0, height: 1 } }]}
+            style={[styles.seg, selected && { backgroundColor: scheme === 'dark' ? colors.elevated : '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.12)' }]}
           >
             <Text variant="subhead" style={{ fontWeight: selected ? '600' : '400' }} numberOfLines={1}>
               {o.label}
