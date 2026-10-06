@@ -46,7 +46,8 @@
         "expo-image-picker",
         {
           "photosPermission": "Costos Piso accede a tus fotos para adjuntar facturas, documentos y tu foto de perfil.",
-          "cameraPermission": "Costos Piso usa la cámara para fotografiar facturas y documentos."
+          "cameraPermission": "Costos Piso usa la cámara para fotografiar facturas y documentos.",
+          "microphonePermission": false
         }
       ],
       "expo-apple-authentication",
@@ -55,6 +56,21 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/c0e525f7-8798-47ac-951a-d180768d0ce3"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "c0e525f7-8798-47ac-951a-d180768d0ce3"
+      }
+    },
+    "owner": "bryalv77"
   }
 }

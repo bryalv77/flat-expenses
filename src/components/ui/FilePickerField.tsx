@@ -1,7 +1,7 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { useT } from '@/i18n';
@@ -39,6 +39,26 @@ export function FilePickerField({ value, onChange, label, error, imageOnly }: Fi
   const { colors } = useTheme();
   const { t } = useT();
   const [sheet, setSheet] = useState(false);
+  const picking = useRef(false);
+
+  /**
+   * Runs one native picker at a time. iOS refuses to present a picker while the options sheet is still dismissing
+   * (and rejects a second one while one is open: PickingInProgressException), so wait for the sheet and ignore re-entry.
+   */
+  const launch = (pick: () => Promise<void>) => {
+    if (picking.current) return;
+    picking.current = true;
+    setTimeout(
+      () => {
+        pick()
+          .catch(() => undefined) // cancelled or denied: nothing to do
+          .finally(() => {
+            picking.current = false;
+          });
+      },
+      Platform.OS === 'ios' ? 450 : 0,
+    );
+  };
 
   const fromCamera = async () => {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
@@ -59,9 +79,9 @@ export function FilePickerField({ value, onChange, label, error, imageOnly }: Fi
   };
 
   const options = [
-    ...(Platform.OS !== 'web' ? [{ label: t('expenses.takePhoto'), onPress: () => void fromCamera() }] : []),
-    { label: t('expenses.library'), onPress: () => void fromLibrary() },
-    ...(!imageOnly ? [{ label: t('expenses.files'), onPress: () => void fromFiles() }] : []),
+    ...(Platform.OS !== 'web' ? [{ label: t('expenses.takePhoto'), onPress: () => launch(fromCamera) }] : []),
+    { label: t('expenses.library'), onPress: () => launch(fromLibrary) },
+    ...(!imageOnly ? [{ label: t('expenses.files'), onPress: () => launch(fromFiles) }] : []),
   ];
   const isImage = value?.mimeType.startsWith('image/');
 

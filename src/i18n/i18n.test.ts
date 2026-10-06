@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { centsToInputString, formatMonth, parseMoneyToCents } from '@/lib/format';
 
 import { LOCALES, LOCALE_CODES, isLocale, matchLocale, type Locale } from './locales';
-import { dictionaries, translate, translatePlural, type TranslationKey } from './translate';
+import { dictionaries, fallbackPluralCategory, pluralCategory, translate, translatePlural, type TranslationKey } from './translate';
 
 type Tree = { [k: string]: string | Tree };
 
@@ -123,5 +123,27 @@ describe('locale-aware formatting', () => {
     expect(formatMonth('2026-03', 'es')).toBe('marzo de 2026');
     expect(formatMonth('2026-03', 'de')).toBe('März 2026');
     expect(formatMonth('2026-03', 'en')).toBe('March 2026');
+  });
+});
+
+describe('plural rules without Intl.PluralRules (Hermes on iOS)', () => {
+  it('fallback agrees with Intl for every locale and common counts', () => {
+    for (const locale of LOCALE_CODES) {
+      for (const n of [0, 1, 2, 3, 4, 12, 21, 100]) {
+        expect([locale, n, fallbackPluralCategory(locale, n)]).toEqual([locale, n, pluralCategory(locale, n)]);
+      }
+    }
+  });
+
+  it('translatePlural keeps working when Intl.PluralRules is missing', () => {
+    const original = Intl.PluralRules;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (Intl as any).PluralRules = undefined;
+    try {
+      expect(translatePlural('es', 'schedule.month', 2)).toBe('Cada 2 meses');
+      expect(translatePlural('es', 'schedule.month', 1)).not.toContain('meses');
+    } finally {
+      (Intl as unknown as { PluralRules: unknown }).PluralRules = original;
+    }
   });
 });

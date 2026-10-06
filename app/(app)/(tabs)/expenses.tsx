@@ -28,6 +28,11 @@ import { haptics } from '@/lib/haptics';
 import { spacing, useTheme } from '@/theme';
 import type { Bill } from '@/types/domain';
 
+/** Lowercase and strip accents so `electrico` finds `Eléctrico`. */
+function normalizeText(text: string): string {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
 type RangeKey = 'month' | '3' | '12' | 'year' | 'all';
 
 function rangeFor(key: RangeKey, today: string): { from: string; to: string } {
@@ -58,7 +63,9 @@ export default function ExpensesScreen() {
   const [toDelete, setToDelete] = useState<Bill | null>(null);
 
   const today = todayISO();
-  const { from, to } = useMemo(() => rangeFor(range, today), [range, today]);
+  const searching = search.trim().length > 0;
+  // While searching, look through the whole history instead of the selected range.
+  const { from, to } = useMemo(() => rangeFor(searching ? 'all' : range, today), [range, today, searching]);
   const bills = useBills(house?.id, { from, to, categoryId });
   const categories = useCategories(house?.id);
   const remove = useDeleteBill(house?.id ?? '');
@@ -66,15 +73,34 @@ export default function ExpensesScreen() {
   const catById = useMemo(() => new Map((categories.data ?? []).map((c) => [c.id, c])), [categories.data]);
 
   const groups = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    const filtered = (bills.data ?? []).filter((b) => !q || (b.notes ?? '').toLowerCase().includes(q));
+    const q = normalizeText(search);
+    const amountQuery = q.replace(',', '.');
+    const matches = (b: Bill) => {
+      const cat = catById.get(b.categoryId);
+      const haystack = normalizeText(
+        [
+          cat?.name,
+          b.notes,
+          b.fileName,
+          formatDate(getEffectiveDate(b), locale, 'long'),
+          formatMonth(getEffectiveMonth(b), locale, 'long'),
+          getEffectiveDate(b),
+          formatMoney(b.amountCents, locale),
+          (b.amountCents / 100).toFixed(2),
+        ]
+          .filter(Boolean)
+          .join(' | '),
+      );
+      return haystack.includes(q) || (/^[\d.]+$/.test(amountQuery) && (b.amountCents / 100).toFixed(2).includes(amountQuery));
+    };
+    const filtered = (bills.data ?? []).filter((b) => !q || matches(b));
     const byMonth = new Map<string, Bill[]>();
     for (const b of filtered) {
       const key = getEffectiveMonth(b);
       byMonth.set(key, [...(byMonth.get(key) ?? []), b]);
     }
     return [...byMonth.entries()].sort(([a], [b]) => b.localeCompare(a));
-  }, [bills.data, search]);
+  }, [bills.data, search, catById, locale]);
 
   const rangeOptions: { key: RangeKey; label: string }[] = [
     { key: 'month', label: t('billsUi.rangeMonth') },
@@ -121,13 +147,16 @@ export default function ExpensesScreen() {
           placeholder={t('billsUi.searchPlaceholder')}
           accessibilityLabel={t('common.search')}
           clearButtonMode="while-editing"
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
         />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chips}>
           {rangeOptions.map((o) => (
-            <Chip key={o.key} label={o.label} selected={range === o.key} onPress={() => setRange(o.key)} />
+            <Chip key={o.key} label={o.label} selected={!searching && range === o.key} onPress={() => { setSearch(''); setRange(o.key); }} />
           ))}
         </ScrollView>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chips}>
           <Chip label={t('common.all')} selected={!categoryId} onPress={() => setCategoryId(undefined)} />
           {(categories.data ?? []).map((c) => (
             <Chip
@@ -194,7 +223,8 @@ export default function ExpensesScreen() {
 
 const styles = StyleSheet.create({
   filters: { gap: spacing.sm, paddingHorizontal: spacing.lg },
-  chips: { gap: spacing.sm, paddingVertical: spacing.xs },
+  chipsScroll: { flexGrow: 0 },
+  chips: { gap: spacing.sm, paddingVertical: spacing.xs, alignItems: 'center' },
   skeletons: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
   add: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

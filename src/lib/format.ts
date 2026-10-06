@@ -3,16 +3,23 @@ import { parseISODate, toISODate } from './dates';
 
 const separatorCache = new Map<Locale, { decimal: string; group: string }>();
 
-/** Decimal and grouping separators for the locale, taken from Intl (so any registry locale works). */
+/**
+ * Decimal and grouping separators for the locale, read from a formatted sample (so any registry locale works).
+ * Avoids `formatToParts`, which Hermes on iOS does not implement.
+ */
 function separators(locale: Locale): { decimal: string; group: string } {
   let sep = separatorCache.get(locale);
   if (!sep) {
-    const parts = new Intl.NumberFormat(intlLocaleOf(locale), { useGrouping: 'always' } as Intl.NumberFormatOptions).formatToParts(
-      11111.1,
-    );
+    const sample = new Intl.NumberFormat(intlLocaleOf(locale), {
+      useGrouping: 'always',
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    } as Intl.NumberFormatOptions).format(11111.1);
+    // e.g. "11.111,1" (es/de/it/pt), "11,111.1" (en), "11 111,1" (fr, narrow no-break space), "11.111,1" (ca)
+    const nonDigits = sample.replace(/\d/g, '');
     sep = {
-      decimal: parts.find((p) => p.type === 'decimal')?.value ?? '.',
-      group: parts.find((p) => p.type === 'group')?.value ?? ',',
+      decimal: nonDigits.slice(-1) || '.',
+      group: nonDigits.length > 1 ? nonDigits[0] : ',',
     };
     separatorCache.set(locale, sep);
   }

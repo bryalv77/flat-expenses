@@ -62,8 +62,16 @@ export function translate(locale: Locale, key: TranslationKey, vars?: Vars): str
 
 const pluralRules = new Map<Locale, Intl.PluralRules>();
 
+/** Cardinal plural rules for the supported locales, for engines without `Intl.PluralRules` (Hermes on iOS). */
+export function fallbackPluralCategory(locale: Locale, count: number): Intl.LDMLPluralRule {
+  const n = Math.abs(count);
+  if (locale === 'fr') return n >= 0 && n < 2 ? 'one' : 'other'; // 0 and 1 are singular in French
+  return n === 1 ? 'one' : 'other'; // en, es, ca, de, it, pt
+}
+
 /** Plural category (`zero|one|two|few|many|other`) for `count` in the locale. */
 export function pluralCategory(locale: Locale, count: number): Intl.LDMLPluralRule {
+  if (typeof Intl === 'undefined' || typeof Intl.PluralRules !== 'function') return fallbackPluralCategory(locale, count);
   let rules = pluralRules.get(locale);
   if (!rules) {
     rules = new Intl.PluralRules(intlLocaleOf(locale));

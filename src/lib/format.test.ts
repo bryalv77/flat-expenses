@@ -62,3 +62,25 @@ describe('dates and percent', () => {
     expect(plain(formatPercent(0.1234, 'es'))).toBe('12,3 %');
   });
 });
+
+describe('without Intl.NumberFormat.prototype.formatToParts (Hermes on iOS)', () => {
+  it('still detects separators and parses/edits money', () => {
+    const proto = Intl.NumberFormat.prototype as unknown as { formatToParts?: unknown };
+    const original = proto.formatToParts;
+    proto.formatToParts = undefined;
+    try {
+      jest.isolateModules(() => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const f = require('./format') as typeof import('./format');
+        expect(f.centsToInputString(120050, 'es')).toBe('1200,50');
+        expect(f.centsToInputString(120050, 'en')).toBe('1200.50');
+        expect(f.centsToInputString(120050, 'fr')).toBe('1200,50');
+        expect(f.parseMoneyToCents('1.200,50', 'es')).toBe(120050);
+        expect(f.parseMoneyToCents('1,200.50', 'en')).toBe(120050);
+        expect(f.parseMoneyToCents('12,5', 'fr')).toBe(1250);
+      });
+    } finally {
+      proto.formatToParts = original;
+    }
+  });
+});
