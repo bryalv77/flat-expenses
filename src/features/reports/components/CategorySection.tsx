@@ -7,17 +7,21 @@ import { useT } from '@/i18n';
 import { formatMoney, formatMonth } from '@/lib/format';
 import { spacing } from '@/theme';
 
+import { getEffectiveDate } from '@/features/finance';
+
 import { categoryStats } from '..';
-import { CategoryChips } from './shared';
+import { CategoryChips, filterByRange, RangeChips, type RangeKey } from './shared';
 import type { ReportData } from './useReportData';
 
 export function CategorySection({ data }: { data: ReportData }) {
   const { t, locale } = useT();
   const [picked, setPicked] = useState<string | null>(null);
   const categoryId = picked ?? data.activeCategories[0]?.id ?? null;
+  const [range, setRange] = useState<RangeKey>('all');
   const category = data.categories.find((c) => c.id === categoryId);
 
-  const stats = useMemo(() => (category ? categoryStats(data.bills, category) : null), [data.bills, category]);
+  const bills = useMemo(() => filterByRange(data.bills, getEffectiveDate, range, data.currentMonth), [data.bills, range, data.currentMonth]);
+  const stats = useMemo(() => (category ? categoryStats(bills, category) : null), [bills, category]);
 
   if (!category) return <EmptyState icon="tag" title={t('reportsUi.selectCategory')} />;
 
@@ -29,6 +33,7 @@ export function CategorySection({ data }: { data: ReportData }) {
   return (
     <View style={styles.wrap}>
       <CategoryChips categories={data.activeCategories} value={categoryId} onChange={setPicked} />
+      <RangeChips value={range} onChange={setRange} />
 
       {!stats || stats.billCount === 0 ? (
         <EmptyState icon="chart" title={t('reportsUi.noCategoryData')} />

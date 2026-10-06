@@ -58,3 +58,9 @@ scripts/.demo-credentials*.json
 firestore-debug.log
 ui-debug.log
 .firebase/
+
+# personal data used by the one-off Excel import (never commit)
+*.xlsx
+~$*
+import-bundle*/
+scripts/.import-data/

@@ -21,6 +21,7 @@ invites/{code}                           houseId, status, expiresAt, maxUses, us
 ## Design decisions
 
 - **Member document id = uid.** Rules decide access with one `get()` of `houses/{h}/members/{uid}`. `HouseMember.id`, `userId` and payment `memberId` are all that uid.
+- **Guest members (roommates without an account).** An admin can register a roommate with id `guest_<12-40 alphanumerics>` (`uid` = id, empty email, no invite). Their `joinedAt`/`removedAt` may be historical so reports and payments attribute months correctly; `status` ACTIVE ⇔ `removedAt == null`. Only admins can create/edit them.
 - **`ListMyHouses`** is a collection-group query `members where uid == auth.uid` (single-field collection-group index on `members.uid`, see `firestore.indexes.json`), then one `get` per house.
 - **`effectiveDate`** is denormalized on each bill (`chargeDate ?? periodEndDate ?? creation date`; the rules check it matches the first two) so one range query `effectiveDate >= from and <= to` serves lists and reports.
 - **Invites** live at `invites/{code}` (code = 8 chars, alphabet without I/L/O/0/1). A `get` by code is allowed to any signed-in user (needed to resolve the house); listing is admin-only. Joining is one batch: create `houses/{h}/members/{uid}` (role ROOMMATE, `inviteCode`) **and** `invites/{code}.usedCount += 1`; the rules validate both with `get()`/`getAfter()` (ACTIVE, not expired, `usedCount < maxUses`, same house).

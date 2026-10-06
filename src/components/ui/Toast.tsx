@@ -70,5 +70,5 @@ export function useToast(): ToastApi {
 
 const styles = StyleSheet.create({
   host: { position: 'absolute', left: 0, right: 0, alignItems: 'center', gap: spacing.sm, zIndex: 1000 },
-  toast: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: radii.lg, borderWidth: StyleSheet.hairlineWidth, maxWidth: 520, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } },
+  toast: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderRadius: radii.lg, borderWidth: StyleSheet.hairlineWidth, maxWidth: 520, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
 });

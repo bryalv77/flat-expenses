@@ -9,6 +9,7 @@ import { formatFileSize } from '@/lib/format';
 import { MIN_TOUCH, radii, spacing, useTheme } from '@/theme';
 
 import { ActionSheet } from './ActionSheet';
+import { FileDropzone } from './FileDropzone';
 import { Icon } from './Icon';
 import { Text } from './Text';
 
@@ -63,6 +64,10 @@ export function FilePickerField({ value, onChange, label, error, imageOnly }: Fi
     ...(!imageOnly ? [{ label: t('expenses.files'), onPress: () => void fromFiles() }] : []),
   ];
   const isImage = value?.mimeType.startsWith('image/');
+
+  if (Platform.OS === 'web') {
+    return <FileDropzone value={value} onChange={onChange} label={label} error={error} imageOnly={imageOnly} />;
+  }
 
   return (
     <View style={{ marginBottom: spacing.md }}>

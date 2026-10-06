@@ -36,6 +36,14 @@ export function useUpdateCategory(houseId: string) {
   });
 }
 
+export function useDeleteCategory(houseId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteCategory({ houseId, id }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.categories(houseId) }),
+  });
+}
+
 /** Archive (isActive=false) or restore. Optimistic. */
 export function useArchiveCategory(houseId: string) {
   const qc = useQueryClient();

@@ -14,10 +14,11 @@ import { useCategories } from '@/features/categories/hooks';
 import { usePayments } from '@/features/payments/hooks';
 import { useMe, useMyDocuments } from '@/features/profile/hooks';
 import { categoryBreakdown, computeDelta, filterBills, sumCents } from '@/features/reports';
-import { getUpcomingCharges } from '@/features/schedule/occurrences';
+import { describeSchedule } from '@/features/schedule/occurrences';
+import { getSmartUpcoming } from '@/features/schedule/smartUpcoming';
 import { useT } from '@/i18n';
 import { addMonthsToKey, monthEnd, monthKey, monthStart, todayISO } from '@/lib/dates';
-import { formatDate, formatMoney, formatPercent } from '@/lib/format';
+import { formatDate, formatMoney, formatMonth, formatPercent } from '@/lib/format';
 import { useFileUrl } from '@/lib/useFileUrl';
 import { spacing, useTheme } from '@/theme';
 
@@ -38,7 +39,8 @@ export default function HomeScreen() {
   const today = todayISO();
   const month = monthKey(today);
   const prevMonth = addMonthsToKey(month, -1);
-  const { data: bills = [], isLoading: billsLoading } = useBills(house?.id, { from: monthStart(prevMonth), to: monthEnd(month) });
+  // 3 years of history feed the smart upcoming-charges predictor (cadence + seasonality + growth).
+  const { data: bills = [], isLoading: billsLoading } = useBills(house?.id, { from: monthStart(addMonthsToKey(month, -35)), to: monthEnd(month) });
   const { data: payments = [] } = usePayments(house?.id, { from: monthStart(month), to: monthEnd(month) });
 
   const view = useMemo(() => {
@@ -53,7 +55,7 @@ export default function HomeScreen() {
     const balance = computeMonthBalance(house, members, month, total);
     const paymentSummary = computePaymentStatus(house, members, payments, month);
     const myPayment = paymentSummary.perMember.find((p) => p.memberId === myMember?.id);
-    const upcoming = getUpcomingCharges(categories.filter((c) => c.isActive), today, 30);
+    const upcoming = getSmartUpcoming(categories, bills, today, 1);
     return { total, delta, breakdown, shares, myShare, balance, paymentSummary, myPayment, upcoming };
   }, [house, bills, members, month, prevMonth, payments, categories, today, myMember?.id]);
 
@@ -165,16 +167,21 @@ export default function HomeScreen() {
 
         <Section header={t('home.upcoming')}>
           {view && view.upcoming.length > 0 ? (
-            view.upcoming.map((u) => (
-              <ListRow
-                key={`${u.category.id}-${u.date}`}
-                icon={u.category.icon as never}
-                iconColor={u.category.color}
-                title={u.category.name}
-                subtitle={u.date === today ? t('hub.today') : formatDate(u.date, locale, 'medium')}
-                value={u.expectedAmountCents ? formatMoney(u.expectedAmountCents, locale) : t('hub.variable')}
-              />
-            ))
+            view.upcoming.map((u) => {
+              const range = u.lowCents != null && u.highCents != null && u.lowCents !== u.highCents ? ` (${formatMoney(u.lowCents, locale)}–${formatMoney(u.highCents, locale)})` : '';
+              const when = u.date ? (u.date === today ? t('hub.today') : formatDate(u.date, locale, 'medium')) : formatMonth(u.month, locale, 'long');
+              const every = u.everyMonths ? ` · ${describeSchedule({ intervalUnit: 'MONTH', intervalCount: u.everyMonths, amountType: 'VARIABLE', expectedAmountCents: null }, locale).interval}` : '';
+              return (
+                <ListRow
+                  key={`${u.category.id}-${u.month}`}
+                  icon={u.category.icon as never}
+                  iconColor={u.category.color}
+                  title={u.category.name}
+                  subtitle={`${when}${every}${range}`}
+                  value={u.estimateCents ? `${u.basis === 'STABLE' || u.basis === 'SCHEDULE' ? '' : '~'}${formatMoney(u.estimateCents, locale)}` : t('hub.variable')}
+                />
+              );
+            })
           ) : (
             <ListRow title={t('home.noUpcoming')} />
           )}

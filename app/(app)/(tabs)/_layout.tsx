@@ -29,7 +29,8 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.tint,
+        tabBarActiveTintColor: wide ? colors.label : colors.tint,
+        tabBarActiveBackgroundColor: wide ? (colors.blur === 'dark' ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.08)') : undefined,
         tabBarInactiveTintColor: colors.secondaryLabel,
         tabBarPosition: wide ? 'left' : 'bottom',
         tabBarLabelPosition: wide ? 'beside-icon' : undefined,

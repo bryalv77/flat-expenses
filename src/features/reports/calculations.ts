@@ -1,4 +1,4 @@
-import type { Bill, ExpenseCategory, HouseMember } from '@/types/domain';
+import type { Bill, ExpenseCategory, HouseMember, MemberPayment } from '@/types/domain';
 import { addMonthsToKey, monthOfYear, monthRange, parseISODate } from '@/lib/dates';
 import { getEffectiveDate, getEffectiveMonth } from '@/features/finance/effectiveDate';
 import { activeMembersInMonth, type MemberLike } from '@/features/finance/members';
@@ -374,6 +374,58 @@ export function perPersonTable(
     return { month, totalCents, shares };
   });
   return { rows, cumulativeByMember };
+}
+
+// ---------------------------------------------------------------- admin vs roommates
+
+export interface WhoPaysRow {
+  month: string;
+  totalCents: number;
+  /** What the roommates put in that month (their recorded payments). */
+  roommatesCents: number;
+  /** What the admin covered out of pocket: total spent minus the roommates' payments. */
+  adminCents: number;
+}
+
+export interface WhoPays {
+  rows: WhoPaysRow[];
+  totalCents: number;
+  roommatesCents: number;
+  adminCents: number;
+  /** Months (with any spending) in which the admin / the roommates covered more. */
+  monthsAdminMore: number;
+  monthsRoommatesMore: number;
+  /** Average monthly spending over months that had any. */
+  averageMonthlyCents: number;
+}
+
+/** Per month: total spent vs. roommates' payments; the admin covers the difference. */
+export function whoPays(
+  bills: BillCore[],
+  payments: Pick<MemberPayment, 'month' | 'amountCents'>[],
+  fromMonth: string,
+  toMonth: string,
+): WhoPays {
+  const totals = totalsByMonth(bills);
+  const paid: Record<string, number> = {};
+  for (const p of payments) paid[p.month.slice(0, 7)] = (paid[p.month.slice(0, 7)] ?? 0) + p.amountCents;
+  const rows = monthRange(fromMonth, toMonth).map((month) => {
+    const totalCents = totals[month] ?? 0;
+    const roommatesCents = paid[month] ?? 0;
+    return { month, totalCents, roommatesCents, adminCents: totalCents - roommatesCents };
+  });
+  const active = rows.filter((r) => r.totalCents > 0 || r.roommatesCents > 0);
+  const totalCents = rows.reduce((s, r) => s + r.totalCents, 0);
+  const roommatesCents = rows.reduce((s, r) => s + r.roommatesCents, 0);
+  return {
+    rows,
+    totalCents,
+    roommatesCents,
+    adminCents: totalCents - roommatesCents,
+    monthsAdminMore: active.filter((r) => r.adminCents > r.roommatesCents).length,
+    monthsRoommatesMore: active.filter((r) => r.roommatesCents > r.adminCents).length,
+    averageMonthlyCents: active.length ? Math.round(totalCents / active.length) : 0,
+  };
 }
 
 // ---------------------------------------------------------------- CSV export

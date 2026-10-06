@@ -253,6 +253,25 @@ describe('members', () => {
   });
 });
 
+describe('guest members (no account)', () => {
+  const G = 'guest_abcdef123456';
+  const guest = (over = {}) => memberData(G, { email: '', joinedAt: Timestamp.fromDate(new Date('2023-01-01')), ...over });
+  it('admin creates a guest with historical dates; roommates and bad ids cannot', async () => {
+    await assertSucceeds(setDoc(doc(fsOf('adm'), 'houses', H, 'members', G), guest()));
+    await assertSucceeds(setDoc(doc(fsOf('adm'), 'houses', H, 'members', 'guest_zzzzzzzzzzzz'), guest({ uid: 'guest_zzzzzzzzzzzz', status: 'REMOVED', removedAt: Timestamp.fromDate(new Date('2023-04-30')) })));
+    await assertFails(setDoc(doc(fsOf('rm'), 'houses', H, 'members', G), guest()));
+    await assertFails(setDoc(doc(fsOf('adm'), 'houses', H, 'members', 'someone'), guest({ uid: 'someone' })));
+    await assertFails(setDoc(doc(fsOf('adm'), 'houses', H, 'members', G), guest({ role: 'ADMIN' })));
+    await assertFails(setDoc(doc(fsOf('adm'), 'houses', H, 'members', G), guest({ status: 'REMOVED' }))); // status/removedAt mismatch
+  });
+  it('admin edits a guest (rename, set leaving date); roommates cannot', async () => {
+    await assertSucceeds(setDoc(doc(fsOf('adm'), 'houses', H, 'members', G), guest()));
+    await assertSucceeds(updateDoc(doc(fsOf('adm'), 'houses', H, 'members', G), { displayName: 'Ana', status: 'REMOVED', removedAt: Timestamp.fromDate(new Date('2023-04-30')) }));
+    await assertFails(updateDoc(doc(fsOf('rm'), 'houses', H, 'members', G), { displayName: 'X' }));
+    await assertFails(updateDoc(doc(fsOf('adm'), 'houses', H, 'members', G), { joinedAt: Timestamp.now() }));
+  });
+});
+
 describe('categories', () => {
   const cats = (uid) => collection(fsOf(uid), 'houses', H, 'categories');
   it('admin writes, members read, others blocked', async () => {

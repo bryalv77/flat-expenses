@@ -7,8 +7,8 @@ import { useMembers } from '@/features/members/hooks';
 import { usePayments } from '@/features/payments/hooks';
 import { addMonthsToKey, monthEnd, monthKey, monthStart, todayISO } from '@/lib/dates';
 
-/** History window loaded for reports: 36 months back so seasonality and year-over-year have data. */
-export const REPORT_HISTORY_MONTHS = 36;
+/** History window loaded for reports: 6 years back so all-time totals, seasonality and year-over-year have data. */
+export const REPORT_HISTORY_MONTHS = 72;
 
 export function useReportData() {
   const { house, isAdmin, isLoading: houseLoading } = useActiveHouse();

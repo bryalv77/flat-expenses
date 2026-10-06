@@ -7,8 +7,10 @@ import { useT } from '@/i18n';
 import { formatMoney, formatMonthName, formatPercent } from '@/lib/format';
 import { spacing, useTheme } from '@/theme';
 
+import { getEffectiveDate } from '@/features/finance';
+
 import { computeSeasonality } from '..';
-import { CategoryChips } from './shared';
+import { CategoryChips, filterByRange, RangeChips, type RangeKey } from './shared';
 import type { ReportData } from './useReportData';
 
 export function SeasonalitySection({ data }: { data: ReportData }) {
@@ -16,7 +18,10 @@ export function SeasonalitySection({ data }: { data: ReportData }) {
   const { colors } = useTheme();
   const [categoryId, setCategoryId] = useState<string | null>(null);
 
-  const s = useMemo(() => computeSeasonality(data.bills, data.categories, categoryId), [data.bills, data.categories, categoryId]);
+  const [range, setRange] = useState<RangeKey>('all');
+
+  const bills = useMemo(() => filterByRange(data.bills, getEffectiveDate, range, data.currentMonth), [data.bills, range, data.currentMonth]);
+  const s = useMemo(() => computeSeasonality(bills, data.categories, categoryId), [bills, data.categories, categoryId]);
   const hasData = s.byMonthOfYear.some((m) => m.samples > 0);
   const accent = data.categories.find((c) => c.id === categoryId)?.color ?? colors.tint;
   const palette = [colors.blue, colors.orange, colors.green, colors.purple, colors.pink];
@@ -27,6 +32,7 @@ export function SeasonalitySection({ data }: { data: ReportData }) {
   return (
     <View style={styles.wrap}>
       <CategoryChips categories={data.categories} value={categoryId} onChange={setCategoryId} allowAll />
+      <RangeChips value={range} onChange={setRange} />
 
       {!hasData ? (
         <EmptyState icon="chart" title={t('reportsUi.noData')} />

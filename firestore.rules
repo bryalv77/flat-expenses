@@ -154,24 +154,38 @@ service cloud.firestore {
         allow get: if signedIn() && (uid() == memberId || isActiveMember(houseId));
         allow list: if isActiveMember(houseId);
 
-        allow create: if signedIn() && memberId == uid() && validMember(request.resource.data)
-          && request.resource.data.joinedAt == request.time
-          && request.resource.data.removedAt == null
-          && request.resource.data.individualContributionCents == null
-          && request.resource.data.status == 'ACTIVE'
-          && (
-            // (a) house creator becomes ADMIN, house is created in the same batch
-            (request.resource.data.role == 'ADMIN'
-              && request.resource.data.inviteCode == null
-              && !exists(housePath(houseId))
-              && getAfter(housePath(houseId)).data.createdBy == uid())
-            ||
-            // (b) join through an invite as ROOMMATE
-            (request.resource.data.role == 'ROOMMATE'
-              && request.resource.data.inviteCode != null
-              && exists(housePath(houseId))
-              && inviteAllowsJoin(request.resource.data.inviteCode))
-          );
+        // Roommates without an account ("guests", e.g. past flatmates) are created by an admin with a generated id.
+        function isGuestId() { return memberId.matches('^guest_[A-Za-z0-9]{12,40}$'); }
+
+        allow create: if signedIn() && validMember(request.resource.data) && (
+          (memberId == uid()
+            && request.resource.data.joinedAt == request.time
+            && request.resource.data.removedAt == null
+            && request.resource.data.individualContributionCents == null
+            && request.resource.data.status == 'ACTIVE'
+            && (
+              // (a) house creator becomes ADMIN, house is created in the same batch
+              (request.resource.data.role == 'ADMIN'
+                && request.resource.data.inviteCode == null
+                && !exists(housePath(houseId))
+                && getAfter(housePath(houseId)).data.createdBy == uid())
+              ||
+              // (b) join through an invite as ROOMMATE
+              (request.resource.data.role == 'ROOMMATE'
+                && request.resource.data.inviteCode != null
+                && exists(housePath(houseId))
+                && inviteAllowsJoin(request.resource.data.inviteCode))
+            ))
+          ||
+          // (c) admin registers a guest roommate (no account); join/leave dates may be historical
+          (isGuestId()
+            && isActiveAdmin(houseId)
+            && request.resource.data.role == 'ROOMMATE'
+            && request.resource.data.inviteCode == null
+            && request.resource.data.email == ''
+            && request.resource.data.photoPath == null
+            && ((request.resource.data.status == 'ACTIVE') == (request.resource.data.removedAt == null)))
+        );
 
         allow update: if signedIn() && validMember(request.resource.data)
           && request.resource.data.uid == resource.data.uid
@@ -190,6 +204,12 @@ service cloud.firestore {
               && changed(request.resource.data, resource.data).hasOnly(['status', 'removedAt'])
               && request.resource.data.status == 'REMOVED'
               && request.resource.data.removedAt == request.time)
+            ||
+            // admin edits a guest roommate (no account): name, dates-of-leaving, status, contribution
+            (isGuestId()
+              && isActiveAdmin(houseId)
+              && changed(request.resource.data, resource.data).hasOnly(['displayName', 'status', 'removedAt', 'individualContributionCents'])
+              && ((request.resource.data.status == 'ACTIVE') == (request.resource.data.removedAt == null)))
             ||
             // admin manages roommates: remove/reactivate (never an ADMIN) and per-member contribution
             (isActiveAdmin(houseId)

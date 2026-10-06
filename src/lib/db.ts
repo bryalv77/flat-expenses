@@ -32,6 +32,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 
+import { normalizeIconName } from './iconAliases';
 import type {
   AmountType,
   Bill,
@@ -144,7 +145,7 @@ const mapBill = (id: string, b: DocumentData): Bill => ({
 const mapCategory = (id: string, c: DocumentData): ExpenseCategory => ({
   id,
   name: c.name,
-  icon: c.icon,
+  icon: normalizeIconName(c.icon),
   color: c.color,
   amountType: c.amountType,
   expectedAmountCents: c.expectedAmountCents ?? null,
@@ -470,6 +471,28 @@ export const api = {
   reactivateMember: async (v: { houseId: string; memberId: string }): Promise<void> => {
     await updateDoc(memberDoc(v.houseId, v.memberId), { status: 'ACTIVE', removedAt: null });
   },
+  /** Admin only. Registers a roommate without an account (id `guest_…`); dates may be historical. */
+  createGuestMember: async (v: {
+    houseId: string;
+    id: string;
+    displayName: string;
+    joinedAt: string;
+    removedAt: string | null;
+    individualContributionCents: number | null;
+  }): Promise<void> => {
+    await setDoc(memberDoc(v.houseId, v.id), {
+      uid: v.id,
+      role: 'ROOMMATE',
+      status: v.removedAt ? 'REMOVED' : 'ACTIVE',
+      joinedAt: FsTimestamp.fromDate(new Date(`${v.joinedAt}T12:00:00Z`)),
+      removedAt: v.removedAt ? FsTimestamp.fromDate(new Date(`${v.removedAt}T12:00:00Z`)) : null,
+      individualContributionCents: v.individualContributionCents,
+      displayName: v.displayName,
+      email: '',
+      photoPath: null,
+      inviteCode: null,
+    });
+  },
   setMemberContribution: async (v: { houseId: string; memberId: string; individualContributionCents: number | null }): Promise<void> => {
     await updateDoc(memberDoc(v.houseId, v.memberId), { individualContributionCents: v.individualContributionCents });
   },
@@ -502,6 +525,12 @@ export const api = {
   },
   archiveCategory: async (v: { houseId: string; id: string; isActive: boolean }): Promise<void> => {
     await updateDoc(doc(categoriesCol(v.houseId), v.id), { isActive: v.isActive, updatedAt: serverTimestamp() });
+  },
+  /** Refuses (`CATEGORY_HAS_BILLS`) when bills still reference it; archive instead. */
+  deleteCategory: async (v: { houseId: string; id: string }): Promise<void> => {
+    const used = await getDocs(query(billsCol(v.houseId), where('categoryId', '==', v.id), limit(1)));
+    if (!used.empty) throw new Error('CATEGORY_HAS_BILLS');
+    await deleteDoc(doc(categoriesCol(v.houseId), v.id));
   },
   listCategories: async (v: { houseId: string }): Promise<ExpenseCategory[]> => {
     const snap = await getDocs(query(categoriesCol(v.houseId), orderBy('sortOrder', 'asc'), limit(200)));

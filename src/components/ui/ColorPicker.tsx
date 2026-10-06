@@ -27,7 +27,7 @@ export function ColorPicker({ value, onChange, colors: palette = categoryColors 
               haptics.selection();
               onChange(hex);
             }}
-            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: hex, alignItems: 'center', justifyContent: 'center', borderWidth: selected ? 3 : 0, borderColor: colors.grouped, shadowColor: hex, shadowOpacity: selected ? 0.6 : 0, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }}
+            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: hex, alignItems: 'center', justifyContent: 'center', borderWidth: selected ? 3 : 0, borderColor: colors.grouped, boxShadow: selected ? `0 0 6px ${hex}99` : undefined }}
           >
             {selected ? <Icon name="check" size={18} color="#FFFFFF" /> : null}
           </Pressable>
