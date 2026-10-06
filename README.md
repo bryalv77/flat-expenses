@@ -17,22 +17,22 @@ Roles: **admin** (creates the flat, categories, bills, invites, payments) and **
 ## Run
 
 ```bash
-npm i --legacy-peer-deps
+pnpm install
 cp .env.example .env
-npx expo start            # i / a / w for iOS, Android, web
-npm run typecheck && npm run lint && npm test
+pnpm expo start            # i / a / w for iOS, Android, web
+pnpm typecheck && pnpm lint && pnpm test
 ```
 
 Emulators (`EXPO_PUBLIC_USE_EMULATORS=true` in `.env`; needs JDK 21+): `firebase emulators:start`.
 
-Security-rules tests (starts Firestore + Storage emulators, JDK 21+ required): `npm run test:rules`.
+Security-rules tests (starts Firestore + Storage emulators, JDK 21+ required): `ppnpm test:rules`.
 
 ## Deploy
 
 ```bash
 firebase login
 firebase deploy --only firestore,storage      # creates the (default) Firestore database in eur3 on first deploy + rules + indexes
-npm run web:deploy                            # expo export --platform web && firebase deploy --only hosting
+pnpm web:deploy                            # expo export --platform web && firebase deploy --only hosting
 ```
 
 Storage rules read Firestore, so the first Storage deploy asks to grant the *Firebase Rules Firestore Service Agent* role — accept it. Enable Email/Password (and optionally Google/Apple) in the Auth console. Native Google/Apple sign-in needs OAuth client ids and an EAS build; email/password works out of the box.
@@ -41,7 +41,7 @@ Demo data: `node scripts/seed-demo.mjs` (add `--emulator` for local emulators). 
 
 ## Mobile builds
 
-`npx eas build -p ios` / `-p android` (bundle id `com.costospiso.app`).
+`pnpm dlx eas-cli build -p ios` / `-p android` (bundle id `com.costospiso.app`).
 
 ## Internationalisation
 
@@ -60,8 +60,8 @@ Everything lives in `src/i18n/`:
 1. Add an entry to `LOCALES` in `src/i18n/locales.ts` (e.g. `{ code: 'nl', label: 'Nederlands', intlLocale: 'nl-NL', dir: 'ltr' }`).
 2. Create `src/i18n/nl.ts` exporting `nl: DeepPartial<Messages>` (copy `fr.ts` as a template; keep `{{placeholders}}` untouched; plural keys need `_one` and `_other`, plus `_few`/`_many`/`_zero`/`_two` if the language uses them).
 3. Register it in `dictionaries` in `src/i18n/translate.ts`.
-4. Add the code to the `d.locale in [...]` list in `firestore.rules` (the profile `locale` field is validated server-side) and deploy the rules. `npm test` fails if the list and the registry disagree.
-5. Run `npm test`: it checks that the new file has every key of `es.ts`, no extra keys, and matching placeholders. The language picker in Settings picks it up automatically.
+4. Add the code to the `d.locale in [...]` list in `firestore.rules` (the profile `locale` field is validated server-side) and deploy the rules. `pnpm test` fails if the list and the registry disagree.
+5. Run `pnpm test`: it checks that the new file has every key of `es.ts`, no extra keys, and matching placeholders. The language picker in Settings picks it up automatically.
 
 ## Security model
 

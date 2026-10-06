@@ -57,6 +57,7 @@
     "@firebase/rules-unit-testing": "^5.0.2",
     "@react-native/jest-preset": "^0.86.3",
     "@types/jest": "^30.0.0",
+    "@types/node": "^26.6.4",
     "@types/react": "~19.2.2",
     "eslint": "^9.39.5",
     "eslint-config-expo": "^57.0.2",
@@ -78,7 +79,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "web:export": "expo export --platform web",
-    "web:deploy": "expo export --platform web && npx firebase-tools deploy --only hosting",
+    "web:deploy": "expo export --platform web && pnpm dlx firebase-tools deploy --only hosting",
     "test:rules": "firebase emulators:exec --only firestore,storage --project demo-costos \"node --test tests/rules/rules.test.mjs\""
   },
   "private": true,
@@ -95,5 +96,6 @@
       "/node_modules/",
       "/dist/"
     ]
-  }
+  },
+  "packageManager": "pnpm@8.15.6"
 }
