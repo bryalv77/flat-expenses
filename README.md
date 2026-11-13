@@ -42,7 +42,7 @@ Demo data: `node scripts/seed-demo.mjs` (add `--emulator` for local emulators). 
 
 ## Mobile builds
 
-`pnpm dlx eas-cli build -p ios` / `-p android` (bundle id `com.costospiso.app`).
+`pnpm dlx eas-cli build -p ios` / `-p android` (iOS bundle id `com.devalv.costospiso`, Android package `com.costospiso.app`).
 
 ## Internationalisation
 

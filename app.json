@@ -9,9 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/icon.png",
-      "bundleIdentifier": "com.costospiso.app",
+      "bundleIdentifier": "com.devalv.costospiso",
       "supportsTablet": true,
       "usesAppleSignIn": true,
+      "config": { "usesNonExemptEncryption": false },
       "infoPlist": {
         "NSCameraUsageDescription": "Costos Piso usa la cámara para fotografiar facturas y documentos.",
         "NSPhotoLibraryUsageDescription": "Costos Piso accede a tus fotos para adjuntar facturas, documentos y tu foto de perfil.",
