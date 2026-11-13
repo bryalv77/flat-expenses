@@ -73,7 +73,7 @@ export const fr: DeepPartial<Messages> = {
     houseName: 'Nom', splitModeHelp: 'Comment les dépenses sont réparties entre les colocataires.', contributionDay: 'Jour de prélèvement',
     saveChanges: 'Enregistrer les modifications', deleteHouseConfirm: 'Supprimer l’appartement et toutes ses données ? Cette action est irréversible.',
     leaveConfirm: 'Quitter cet appartement ?', removeConfirm: 'Retirer ce membre de l’appartement ?', categoriesLink: 'Catégories de dépenses',
-    paymentsLink: 'Paiements des colocataires', inviteLink: 'Inviter un colocataire', addGuest: 'Ajouter un colocataire sans compte', guestName: 'Nom', guestHelp: "Pour les personnes qui vivent (ou ont vécu) ici sans utiliser l'app. Les dates d'entrée et de sortie gardent l'historique correct.", moveIn: 'Entrée', moveOut: 'Sortie', noAccount: 'Sans compte', manage: 'Gestion', joined: 'Depuis', youTag: 'Vous',
+    recordPaymentHint: "Touchez un colocataire pour enregistrer son paiement", paymentsLink: 'Paiements des colocataires', inviteLink: 'Inviter un colocataire', addGuest: 'Ajouter un colocataire sans compte', guestName: 'Nom', guestHelp: "Pour les personnes qui vivent (ou ont vécu) ici sans utiliser l'app. Les dates d'entrée et de sortie gardent l'historique correct.", moveIn: 'Entrée', moveOut: 'Sortie', noAccount: 'Sans compte', manage: 'Gestion', joined: 'Depuis', youTag: 'Vous',
     individualContribution: 'Contribution individuelle', inheritHouse: 'Utiliser celle de l’appartement', memberDocs: 'Pièces d’identité',
     noDocs: 'Aucun document envoyé', adminOnlySensitive: 'Informations sensibles : visibles uniquement par les admins de l’appartement.',
     openFile: 'Ouvrir', activeInvites: 'Codes actifs', noInvites: 'Aucun code actif', expiresIn: 'Expire dans (jours)',
@@ -107,7 +107,7 @@ export const fr: DeepPartial<Messages> = {
   errors: { generic: 'Une erreur est survenue. Réessayez.', network: 'Pas de connexion.', fileTooLarge: 'Le fichier est trop volumineux.', fileType: 'Type de fichier non autorisé.' },
   billsUi: {
     searchPlaceholder: 'Rechercher dans les notes', range3: '3 mois', range12: '12 mois', rangeYear: 'Cette année', rangeMonth: 'Ce mois-ci',
-    editBill: 'Modifier la facture', details: 'Détails', period: 'Période', created: 'Créée', noFile: 'Aucun fichier joint',
+    editBill: 'Modifier la facture', duplicate: 'Dupliquer', addAnotherFile: 'Ajouter un autre fichier', details: 'Détails', period: 'Période', created: 'Créée', noFile: 'Aucun fichier joint',
     replaceFile: 'Changer le fichier', removeFile: 'Retirer le fichier', uploadFailed: 'Impossible d’envoyer le fichier.', retryUpload: 'Réessayer',
     noResults: 'Aucun résultat', notFound: 'Facture introuvable', fileSection: 'Fichier', openFile: 'Ouvrir le fichier',
     saved: 'Facture enregistrée', deleted: 'Facture supprimée', invalidPeriod: 'La fin de période ne peut pas précéder le début',

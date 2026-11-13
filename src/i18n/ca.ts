@@ -73,7 +73,7 @@ export const ca: DeepPartial<Messages> = {
     houseName: 'Nom', splitModeHelp: 'Com es reparteixen les despeses entre els companys.', contributionDay: 'Dia de cobrament',
     saveChanges: 'Desa els canvis', deleteHouseConfirm: 'Vols eliminar el pis i totes les seves dades? Aquesta acció no es pot desfer.',
     leaveConfirm: 'Vols sortir d’aquest pis?', removeConfirm: 'Vols treure aquest membre del pis?', categoriesLink: 'Categories de despesa',
-    paymentsLink: 'Pagaments dels companys', inviteLink: 'Convida un company', addGuest: 'Afegeix un company sense compte', guestName: 'Nom', guestHelp: "Per a qui viu (o va viure) aquí però no fa servir l'app. Les dates d'entrada i sortida mantenen l'historial.", moveIn: 'Entrada', moveOut: 'Sortida', noAccount: 'Sense compte', manage: 'Gestió', joined: 'Des de', youTag: 'Tu',
+    recordPaymentHint: "Toca un company per registrar-ne el pagament", paymentsLink: 'Pagaments dels companys', inviteLink: 'Convida un company', addGuest: 'Afegeix un company sense compte', guestName: 'Nom', guestHelp: "Per a qui viu (o va viure) aquí però no fa servir l'app. Les dates d'entrada i sortida mantenen l'historial.", moveIn: 'Entrada', moveOut: 'Sortida', noAccount: 'Sense compte', manage: 'Gestió', joined: 'Des de', youTag: 'Tu',
     individualContribution: 'Aportació individual', inheritHouse: 'Usa la del pis', memberDocs: 'Documents d’identitat',
     noDocs: 'No ha pujat cap document', adminOnlySensitive: 'Informació sensible: només visible per als admins del pis.',
     openFile: 'Obre', activeInvites: 'Codis actius', noInvites: 'Cap codi actiu', expiresIn: 'Caduca d’aquí a (dies)',
@@ -107,7 +107,7 @@ export const ca: DeepPartial<Messages> = {
   errors: { generic: 'Alguna cosa ha anat malament. Torna-ho a provar.', network: 'Sense connexió.', fileTooLarge: 'El fitxer és massa gran.', fileType: 'Tipus de fitxer no permès.' },
   billsUi: {
     searchPlaceholder: 'Cerca a les notes', range3: '3 mesos', range12: '12 mesos', rangeYear: 'Aquest any', rangeMonth: 'Aquest mes',
-    editBill: 'Edita la factura', details: 'Detalls', period: 'Període', created: 'Creada', noFile: 'Sense fitxer adjunt',
+    editBill: 'Edita la factura', duplicate: 'Duplica', addAnotherFile: 'Afegeix un altre fitxer', details: 'Detalls', period: 'Període', created: 'Creada', noFile: 'Sense fitxer adjunt',
     replaceFile: 'Canvia el fitxer', removeFile: 'Treu el fitxer', uploadFailed: 'No s’ha pogut pujar el fitxer.', retryUpload: 'Torna-ho a provar',
     noResults: 'Sense resultats', notFound: 'Factura no trobada', fileSection: 'Fitxer', openFile: 'Obre el fitxer',
     saved: 'Factura desada', deleted: 'Factura eliminada', invalidPeriod: 'El final del període no pot ser anterior a l’inici',

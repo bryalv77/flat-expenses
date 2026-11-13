@@ -1,13 +1,15 @@
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 
 import { EmptyState, Screen, useToast } from '@/components/ui';
 import { BillForm, type BillFormSubmit } from '@/features/bills/components/BillForm';
-import { useCreateBill } from '@/features/bills/hooks';
+import { useBill, useCreateBill } from '@/features/bills/hooks';
 import { useCategories } from '@/features/categories/hooks';
 import { useActiveHouse } from '@/features/houses/hooks';
-import { toStorageFile } from '@/features/bills/pickedFile';
+import { toStorageFiles } from '@/features/bills/pickedFile';
 import { useT } from '@/i18n';
+import { addMonthsClamped } from '@/lib/dates';
 import { haptics } from '@/lib/haptics';
 
 export default function NewBillScreen() {
@@ -16,6 +18,8 @@ export default function NewBillScreen() {
   const toast = useToast();
   const { house, isAdmin } = useActiveHouse();
   const categories = useCategories(house?.id);
+  const { from } = useLocalSearchParams<{ from?: string }>();
+  const source = useBill(house?.id, from);
   const create = useCreateBill(house?.id ?? '');
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,13 +33,30 @@ export default function NewBillScreen() {
     );
   }
 
-  const submit = ({ values, file }: BillFormSubmit) => {
+  if (from && source.isLoading) {
+    return (
+      <Screen>
+        <ActivityIndicator />
+      </Screen>
+    );
+  }
+  // Duplicate: same data one month later; the attachment is not copied.
+  const shift = (iso: string | null) => (iso ? addMonthsClamped(iso, 1) : null);
+  const initial = source.data && {
+    ...source.data,
+    chargeDate: shift(source.data.chargeDate),
+    periodStartDate: shift(source.data.periodStartDate),
+    periodEndDate: shift(source.data.periodEndDate),
+    files: [],
+  };
+
+  const submit = ({ values, newFiles }: BillFormSubmit) => {
     setError(null);
-    setProgress(file ? 0 : null);
+    setProgress(newFiles.length ? 0 : null);
     create.mutate(
       {
         fields: { ...values, notes: values.notes ?? undefined },
-        file: toStorageFile(file),
+        files: toStorageFiles(newFiles),
         onProgress: setProgress,
       },
       {
@@ -46,7 +67,7 @@ export default function NewBillScreen() {
         },
         onError: () => {
           haptics.error();
-          setError(file ? t('billsUi.uploadFailed') : t('errors.generic'));
+          setError(newFiles.length ? t('billsUi.uploadFailed') : t('errors.generic'));
           setProgress(null);
         },
       },
@@ -57,6 +78,7 @@ export default function NewBillScreen() {
     <Screen>
       <Stack.Screen options={{ title: t('expenses.newBill') }} />
       <BillForm
+        initial={initial ?? undefined}
         categories={categories.data ?? []}
         submitLabel={t('common.save')}
         submitting={create.isPending}

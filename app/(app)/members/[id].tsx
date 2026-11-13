@@ -3,7 +3,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { Badge, Button, EmptyState, ListRow, MoneyInput, Screen, Section, Text, useToast } from '@/components/ui';
+import { Badge, Button, DatePickerField, EmptyState, ListRow, MoneyInput, Screen, Section, Text, useToast } from '@/components/ui';
 import { ConfirmSheet } from '@/features/houses/ConfirmSheet';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
@@ -11,6 +11,7 @@ import { isGuestMember, useReactivateMember, useRemoveMember, useSetMemberContri
 import { MemberAvatar } from '@/features/members/MemberAvatar';
 import { useMemberDocuments } from '@/features/profile/hooks';
 import { useT } from '@/i18n';
+import { todayISO } from '@/lib/dates';
 import { formatDate, formatFileSize, formatMoney } from '@/lib/format';
 import { getFileUrl } from '@/lib/storage';
 import { spacing, useTheme } from '@/theme';
@@ -29,6 +30,7 @@ export default function MemberDetailScreen() {
   const reactivate = useReactivateMember(houseId);
   const setContribution = useSetMemberContribution(houseId);
   const { data: docs = [] } = useMemberDocuments(house?.id, member?.userId, isAdmin && Boolean(member) && !(member && isGuestMember(member)));
+  const [leftOn, setLeftOn] = useState<string | null>(todayISO());
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [contribution, setLocalContribution] = useState<number | null | undefined>(undefined);
 
@@ -97,7 +99,12 @@ export default function MemberDetailScreen() {
 
         {member.role !== 'ADMIN' ? (
           member.status === 'ACTIVE' ? (
-            <Button title={t('house.remove')} variant="tinted" destructive onPress={() => setConfirmRemove(true)} />
+            <>
+              <Section>
+                <DatePickerField label={t('hub.moveOut')} value={leftOn} onChange={setLeftOn} />
+              </Section>
+              <Button title={t('house.remove')} variant="tinted" destructive disabled={!leftOn || leftOn < member.joinedAt.slice(0, 10)} onPress={() => setConfirmRemove(true)} />
+            </>
           ) : (
             <Button title={t('house.reactivate')} variant="tinted" loading={reactivate.isPending} onPress={() => reactivate.mutate(member.id)} />
           )
@@ -110,7 +117,7 @@ export default function MemberDetailScreen() {
         onClose={() => setConfirmRemove(false)}
         onConfirm={() => {
           setConfirmRemove(false);
-          remove.mutate(member.id, { onSuccess: () => router.back(), onError: () => toast.error(t('errors.generic')) });
+          remove.mutate({ memberId: member.id, removedAt: leftOn as string }, { onSuccess: () => router.back(), onError: () => toast.error(t('errors.generic')) });
         }}
       />
     </Screen>

@@ -19,7 +19,7 @@ import {
 import { useT } from '@/i18n';
 import { compareISO } from '@/lib/dates';
 import { spacing, useTheme } from '@/theme';
-import type { Bill, ExpenseCategory } from '@/types/domain';
+import { MAX_BILL_FILES, type Bill, type BillFile, type ExpenseCategory } from '@/types/domain';
 
 import { BillFilePreview } from './BillFilePreview';
 
@@ -34,8 +34,12 @@ export interface BillFormValues {
 
 export interface BillFormSubmit {
   values: BillFormValues;
-  file: PickedFile | null;
-  removeFile: boolean;
+  /** Files picked in this session, to upload. */
+  newFiles: PickedFile[];
+  /** Existing files that stay attached. */
+  keptFiles: BillFile[];
+  /** Existing files the user detached. */
+  removedFiles: BillFile[];
 }
 
 interface Props {
@@ -52,8 +56,8 @@ interface Props {
 export function BillForm({ categories, initial, submitLabel, submitting, progress, errorMessage, onSubmit }: Props) {
   const { t } = useT();
   const { colors } = useTheme();
-  const [file, setFile] = useState<PickedFile | null>(null);
-  const [removeFile, setRemoveFile] = useState(false);
+  const [newFiles, setNewFiles] = useState<PickedFile[]>([]);
+  const [keptFiles, setKeptFiles] = useState<BillFile[]>(initial?.files ?? []);
 
   const schema = useMemo(
     () =>
@@ -98,7 +102,8 @@ export function BillForm({ categories, initial, submitLabel, submitting, progres
     }
   }, [categoryId, categories, initial, amountDirty, setValue]);
 
-  const hasExistingFile = Boolean(initial?.fileStoragePath) && !removeFile && !file;
+  const removedFiles = (initial?.files ?? []).filter((f) => !keptFiles.includes(f));
+  const canAddFile = keptFiles.length + newFiles.length < MAX_BILL_FILES;
 
   return (
     <View style={styles.form}>
@@ -169,20 +174,27 @@ export function BillForm({ categories, initial, submitLabel, submitting, progres
       </Section>
 
       <View style={styles.block}>
-        {hasExistingFile && initial ? (
-          <>
-            <BillFilePreview bill={initial} />
-            <Button title={t('billsUi.removeFile')} variant="plain" destructive onPress={() => setRemoveFile(true)} />
-          </>
+        {keptFiles.map((f) => (
+          <View key={f.storagePath} style={styles.block}>
+            <BillFilePreview file={f} />
+            <Button title={t('billsUi.removeFile')} variant="plain" destructive onPress={() => setKeptFiles((l) => l.filter((x) => x !== f))} />
+          </View>
+        ))}
+        {newFiles.map((f, i) => (
+          <View key={`${f.uri}-${i}`} style={styles.pending}>
+            <Text variant="body" numberOfLines={1} style={styles.pendingName}>
+              {f.name}
+            </Text>
+            <Button title={t('billsUi.removeFile')} variant="plain" destructive onPress={() => setNewFiles((l) => l.filter((x) => x !== f))} />
+          </View>
+        ))}
+        {canAddFile ? (
+          <FilePickerField
+            label={keptFiles.length + newFiles.length ? t('billsUi.addAnotherFile') : t('expenses.file')}
+            value={null}
+            onChange={(f) => f && setNewFiles((l) => [...l, f])}
+          />
         ) : null}
-        <FilePickerField
-          label={hasExistingFile ? t('billsUi.replaceFile') : t('expenses.file')}
-          value={file}
-          onChange={(f) => {
-            setFile(f);
-            if (f) setRemoveFile(false);
-          }}
-        />
         {progress !== null ? (
           <View accessibilityRole="progressbar" style={[styles.track, { backgroundColor: colors.secondaryFill }]}>
             <View style={[styles.bar, { width: `${Math.round(progress * 100)}%`, backgroundColor: colors.tint }]} />
@@ -209,9 +221,9 @@ export function BillForm({ categories, initial, submitLabel, submitting, progres
         </Text>
       ) : null}
       <Button
-        title={errorMessage && file ? t('billsUi.retryUpload') : submitLabel}
+        title={errorMessage && newFiles.length ? t('billsUi.retryUpload') : submitLabel}
         loading={submitting}
-        onPress={handleSubmit((values) => onSubmit({ values, file, removeFile }))}
+        onPress={handleSubmit((values) => onSubmit({ values, newFiles, keptFiles, removedFiles }))}
       />
     </View>
   );
@@ -220,6 +232,8 @@ export function BillForm({ categories, initial, submitLabel, submitting, progres
 const styles = StyleSheet.create({
   form: { gap: spacing.lg, paddingHorizontal: spacing.lg },
   block: { gap: spacing.sm },
+  pending: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
+  pendingName: { flex: 1 },
   chips: { gap: spacing.sm, paddingVertical: spacing.xs },
   track: { height: 6, borderRadius: 3, overflow: 'hidden' },
   bar: { height: 6, borderRadius: 3 },

@@ -179,7 +179,7 @@ describe('perPersonTable', () => {
 describe('buildBillsCsv', () => {
   it('exports sorted rows with escaping and decimal amounts', () => {
     const bills = [
-      makeBill('gas', 8050, '2025-03-15', { notes: 'He said "hi", ok', fileName: 'gas.pdf' }),
+      makeBill('gas', 8050, '2025-03-15', { notes: 'He said "hi", ok', files: [{ storagePath: 'p', fileName: 'gas.pdf', mimeType: 'application/pdf', sizeBytes: 1 }] }),
       makeBill('rent', 120000, '2025-01-01'),
     ];
     const csv = buildBillsCsv(bills, [GAS, RENT]);

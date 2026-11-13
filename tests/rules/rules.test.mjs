@@ -234,7 +234,7 @@ describe('members', () => {
     await assertFails(updateDoc(memberRef('rm', 'rm'), { individualContributionCents: 1 }));
   });
   it('admin removes/reactivates roommates and sets contributions, but never removes an admin', async () => {
-    await assertSucceeds(updateDoc(memberRef('adm', 'rm'), { status: 'REMOVED', removedAt: serverTimestamp() }));
+    await assertSucceeds(updateDoc(memberRef('adm', 'rm'), { status: 'REMOVED', removedAt: Timestamp.fromDate(new Date('2023-04-30')) }));
     await assertSucceeds(updateDoc(memberRef('adm', 'rm'), { status: 'ACTIVE', removedAt: null }));
     await assertSucceeds(updateDoc(memberRef('adm', 'rm'), { individualContributionCents: 30000 }));
     await assertFails(updateDoc(memberRef('adm', 'adm'), { status: 'REMOVED', removedAt: serverTimestamp() }));
@@ -305,6 +305,10 @@ describe('bills', () => {
     await assertFails(setDoc(doc(bills('adm'), 'x4'), billData({ effectiveDate: '2026-04-01' })));
     await assertFails(setDoc(doc(bills('adm'), 'x5'), billData({ fileStoragePath: 'houses/other/bills/b/x.pdf' })));
     await assertSucceeds(setDoc(doc(bills('adm'), 'x6'), billData({ fileStoragePath: `houses/${H}/bills/x6/a.pdf`, fileName: 'a.pdf', fileMimeType: 'application/pdf', fileSizeBytes: 100 })));
+    const file = { storagePath: `houses/${H}/bills/x9/a.pdf`, fileName: 'a.pdf', mimeType: 'application/pdf', sizeBytes: 100 };
+    await assertSucceeds(setDoc(doc(bills('adm'), 'x9'), billData({ files: [file, file] })));
+    await assertFails(setDoc(doc(bills('adm'), 'x10'), billData({ files: Array(6).fill(file) })));
+    await assertFails(setDoc(doc(bills('adm'), 'x11'), billData({ files: 'nope' })));
     await assertFails(setDoc(doc(bills('adm'), 'x7'), billData({ fileMimeType: 'application/x-msdownload' })));
     await assertSucceeds(setDoc(doc(bills('adm'), 'x8'), billData({ chargeDate: null, periodEndDate: '2026-03-31', effectiveDate: '2026-03-31' })));
     await assertFails(setDoc(doc(bills('adm'), 'x9'), billData({ createdBy: 'rm' })));

@@ -73,7 +73,7 @@ export const pt: DeepPartial<Messages> = {
     houseName: 'Nome', splitModeHelp: 'Como as despesas são divididas entre os colegas.', contributionDay: 'Dia de cobrança',
     saveChanges: 'Guardar alterações', deleteHouseConfirm: 'Eliminar o apartamento e todos os seus dados? Esta ação não pode ser anulada.',
     leaveConfirm: 'Sair deste apartamento?', removeConfirm: 'Remover este membro do apartamento?', categoriesLink: 'Categorias de despesa',
-    paymentsLink: 'Pagamentos dos colegas', inviteLink: 'Convidar um colega', addGuest: 'Adicionar colega sem conta', guestName: 'Nome', guestHelp: 'Para quem vive (ou viveu) aqui mas não usa a app. As datas de entrada e saída mantêm o histórico correto.', moveIn: 'Entrada', moveOut: 'Saída', noAccount: 'Sem conta', manage: 'Gestão', joined: 'Desde', youTag: 'Tu',
+    recordPaymentHint: "Toca num colega para registar o pagamento", paymentsLink: 'Pagamentos dos colegas', inviteLink: 'Convidar um colega', addGuest: 'Adicionar colega sem conta', guestName: 'Nome', guestHelp: 'Para quem vive (ou viveu) aqui mas não usa a app. As datas de entrada e saída mantêm o histórico correto.', moveIn: 'Entrada', moveOut: 'Saída', noAccount: 'Sem conta', manage: 'Gestão', joined: 'Desde', youTag: 'Tu',
     individualContribution: 'Contribuição individual', inheritHouse: 'Usar a do apartamento', memberDocs: 'Documentos de identificação',
     noDocs: 'Não carregou documentos', adminOnlySensitive: 'Informação sensível: visível apenas para os admins do apartamento.',
     openFile: 'Abrir', activeInvites: 'Códigos ativos', noInvites: 'Sem códigos ativos', expiresIn: 'Expira em (dias)',
@@ -107,7 +107,7 @@ export const pt: DeepPartial<Messages> = {
   errors: { generic: 'Algo correu mal. Tenta novamente.', network: 'Sem ligação.', fileTooLarge: 'O ficheiro é demasiado grande.', fileType: 'Tipo de ficheiro não permitido.' },
   billsUi: {
     searchPlaceholder: 'Pesquisar nas notas', range3: '3 meses', range12: '12 meses', rangeYear: 'Este ano', rangeMonth: 'Este mês',
-    editBill: 'Editar fatura', details: 'Detalhes', period: 'Período', created: 'Criada', noFile: 'Sem ficheiro anexado',
+    editBill: 'Editar fatura', duplicate: 'Duplicar', addAnotherFile: 'Adicionar outro ficheiro', details: 'Detalhes', period: 'Período', created: 'Criada', noFile: 'Sem ficheiro anexado',
     replaceFile: 'Alterar ficheiro', removeFile: 'Remover ficheiro', uploadFailed: 'Não foi possível enviar o ficheiro.', retryUpload: 'Tentar novamente',
     noResults: 'Sem resultados', notFound: 'Fatura não encontrada', fileSection: 'Ficheiro', openFile: 'Abrir ficheiro',
     saved: 'Fatura guardada', deleted: 'Fatura eliminada', invalidPeriod: 'O fim do período não pode ser anterior ao início',

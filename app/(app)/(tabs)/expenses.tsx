@@ -81,7 +81,7 @@ export default function ExpensesScreen() {
         [
           cat?.name,
           b.notes,
-          b.fileName,
+          ...b.files.map((f) => f.fileName),
           formatDate(getEffectiveDate(b), locale, 'long'),
           formatMonth(getEffectiveMonth(b), locale, 'long'),
           getEffectiveDate(b),

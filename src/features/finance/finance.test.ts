@@ -7,6 +7,7 @@ import {
   computeMonthShares,
   computePaymentStatus,
   contributionForMember,
+  dueForMember,
   getEffectiveDate,
   recommendContribution,
   splitEqual,
@@ -166,5 +167,21 @@ describe('computePaymentStatus', () => {
     const s = computePaymentStatus(house, members, payments, '2025-04');
     expect(s.perMember.every((p) => p.state === 'PENDING')).toBe(true);
     expect(s.totalPendingCents).toBe(90000);
+  });
+});
+
+describe('dueForMember (prorated)', () => {
+  const house = { fixedContributionCents: 40000 };
+  it('charges the days after the entry day, by month length', () => {
+    const m = makeMember('a', '2025-11-09T12:00:00.000Z');
+    expect(dueForMember(house, m, '2025-11')).toBe(28000); // 21/30
+    expect(dueForMember(house, makeMember('b', '2025-02-05T12:00:00.000Z'), '2025-02')).toBe(32857); // 23/28
+    expect(dueForMember(house, makeMember('c', '2025-08-05T12:00:00.000Z'), '2025-08')).toBe(33548); // 26/31
+    expect(dueForMember(house, m, '2025-12')).toBe(40000);
+  });
+  it('joining on day 1 pays the whole month; leaving on day 9 pays 9/30', () => {
+    expect(dueForMember(house, makeMember('a', '2025-11-01T12:00:00.000Z'), '2025-11')).toBe(40000);
+    const left = makeMember('l', '2024-01-01T12:00:00.000Z', { status: 'REMOVED', removedAt: '2025-11-09T12:00:00.000Z' });
+    expect(dueForMember(house, left, '2025-11')).toBe(12000);
   });
 });

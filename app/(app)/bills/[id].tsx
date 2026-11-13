@@ -80,12 +80,17 @@ export default function BillDetailScreen() {
           <Text variant="footnote" color="secondaryLabel">
             {t('billsUi.fileSection').toUpperCase()}
           </Text>
-          <BillFilePreview bill={b} />
+          {b.files.length ? b.files.map((f) => <BillFilePreview key={f.storagePath} file={f} />) : (
+            <Text variant="subhead" color="secondaryLabel">
+              {t('billsUi.noFile')}
+            </Text>
+          )}
         </View>
 
         {isAdmin ? (
           <View style={styles.actions}>
             <Button title={t('common.edit')} variant="tinted" icon="edit" onPress={() => router.push(`/bills/${b.id}/edit`)} />
+            <Button title={t('billsUi.duplicate')} variant="tinted" icon="copy" onPress={() => router.push(`/bills/new?from=${b.id}`)} />
             <Button title={t('common.delete')} variant="plain" destructive icon="trash" onPress={() => setConfirm(true)} />
           </View>
         ) : null}

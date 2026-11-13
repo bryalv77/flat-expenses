@@ -126,7 +126,10 @@ export async function uploadFile(
     task.on(
       'state_changed',
       (snap) => onProgress?.(snap.totalBytes > 0 ? snap.bytesTransferred / snap.totalBytes : 0),
-      reject,
+      (e) => {
+        console.error('upload failed', storagePath, e);
+        reject(e);
+      },
       () =>
         resolve({
           storagePath,

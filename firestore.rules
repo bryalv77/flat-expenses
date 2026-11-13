@@ -216,7 +216,7 @@ service cloud.firestore {
               && changed(request.resource.data, resource.data).hasOnly(['status', 'removedAt', 'individualContributionCents'])
               && (!changed(request.resource.data, resource.data).hasAny(['status', 'removedAt'])
                 || (resource.data.role == 'ROOMMATE'
-                  && ((request.resource.data.status == 'REMOVED' && request.resource.data.removedAt == request.time)
+                  && ((request.resource.data.status == 'REMOVED' && request.resource.data.removedAt is timestamp)
                     || (request.resource.data.status == 'ACTIVE' && request.resource.data.removedAt == null)))))
           );
 
@@ -262,7 +262,7 @@ service cloud.firestore {
       match /bills/{billId} {
         function validBill(d) {
           return d.keys().hasOnly(['categoryId', 'amountCents', 'chargeDate', 'periodStartDate', 'periodEndDate',
-              'effectiveDate', 'fileStoragePath', 'fileName', 'fileMimeType', 'fileSizeBytes', 'notes',
+              'effectiveDate', 'fileStoragePath', 'fileName', 'fileMimeType', 'fileSizeBytes', 'files', 'notes',
               'ocrStatus', 'ocrData', 'createdBy', 'createdAt', 'updatedAt'])
             && d.keys().hasAll(['categoryId', 'amountCents', 'chargeDate', 'periodStartDate', 'periodEndDate',
               'effectiveDate', 'fileStoragePath', 'fileName', 'fileMimeType', 'fileSizeBytes', 'notes',
@@ -276,6 +276,8 @@ service cloud.firestore {
               : (d.periodEndDate != null ? d.effectiveDate == d.periodEndDate : true))
             && (d.fileStoragePath == null
               || (isStr(d.fileStoragePath, 1, 300) && d.fileStoragePath.matches('^houses/' + houseId + '/bills/.+')))
+            // `files` (max 5) is optional so bills written by older builds stay valid; Storage rules guard the objects.
+            && (!('files' in d) || (d.files is list && d.files.size() <= 5))
             && optStr(d, 'fileName', 150)
             && (d.fileMimeType == null || mimeAllowed(d.fileMimeType))
             && optInt(d, 'fileSizeBytes', 0, 10485760)

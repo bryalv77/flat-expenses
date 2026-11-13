@@ -79,6 +79,15 @@ export interface ExpenseCategory {
   notes: string | null;
 }
 
+export const MAX_BILL_FILES = 5;
+
+export interface BillFile {
+  storagePath: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+}
+
 export interface Bill {
   id: string;
   categoryId: string;
@@ -86,10 +95,7 @@ export interface Bill {
   chargeDate: string | null;
   periodStartDate: string | null;
   periodEndDate: string | null;
-  fileStoragePath: string | null;
-  fileName: string | null;
-  fileMimeType: string | null;
-  fileSizeBytes: number | null;
+  files: BillFile[];
   notes: string | null;
   ocrStatus: OcrStatus;
   ocrData: unknown;

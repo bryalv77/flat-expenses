@@ -73,7 +73,7 @@ export const it: DeepPartial<Messages> = {
     houseName: 'Nome', splitModeHelp: 'Come vengono ripartite le spese tra i coinquilini.', contributionDay: 'Giorno di addebito',
     saveChanges: 'Salva modifiche', deleteHouseConfirm: 'Eliminare l’appartamento e tutti i suoi dati? L’azione non può essere annullata.',
     leaveConfirm: 'Lasciare questo appartamento?', removeConfirm: 'Rimuovere questo membro dall’appartamento?', categoriesLink: 'Categorie di spesa',
-    paymentsLink: 'Pagamenti dei coinquilini', inviteLink: 'Invita un coinquilino', addGuest: 'Aggiungi coinquilino senza account', guestName: 'Nome', guestHelp: "Per chi vive (o viveva) qui ma non usa l'app. Le date di ingresso e uscita mantengono corretto lo storico.", moveIn: 'Ingresso', moveOut: 'Uscita', noAccount: 'Senza account', manage: 'Gestione', joined: 'Dal', youTag: 'Tu',
+    recordPaymentHint: "Tocca un coinquilino per registrare il suo pagamento", paymentsLink: 'Pagamenti dei coinquilini', inviteLink: 'Invita un coinquilino', addGuest: 'Aggiungi coinquilino senza account', guestName: 'Nome', guestHelp: "Per chi vive (o viveva) qui ma non usa l'app. Le date di ingresso e uscita mantengono corretto lo storico.", moveIn: 'Ingresso', moveOut: 'Uscita', noAccount: 'Senza account', manage: 'Gestione', joined: 'Dal', youTag: 'Tu',
     individualContribution: 'Contributo individuale', inheritHouse: 'Usa quello dell’appartamento', memberDocs: 'Documenti d’identità',
     noDocs: 'Nessun documento caricato', adminOnlySensitive: 'Informazioni sensibili: visibili solo agli admin dell’appartamento.',
     openFile: 'Apri', activeInvites: 'Codici attivi', noInvites: 'Nessun codice attivo', expiresIn: 'Scade tra (giorni)',
@@ -107,7 +107,7 @@ export const it: DeepPartial<Messages> = {
   errors: { generic: 'Qualcosa è andato storto. Riprova.', network: 'Nessuna connessione.', fileTooLarge: 'Il file è troppo grande.', fileType: 'Tipo di file non consentito.' },
   billsUi: {
     searchPlaceholder: 'Cerca nelle note', range3: '3 mesi', range12: '12 mesi', rangeYear: 'Quest’anno', rangeMonth: 'Questo mese',
-    editBill: 'Modifica bolletta', details: 'Dettagli', period: 'Periodo', created: 'Creata', noFile: 'Nessun file allegato',
+    editBill: 'Modifica bolletta', duplicate: 'Duplica', addAnotherFile: 'Aggiungi un altro file', details: 'Dettagli', period: 'Periodo', created: 'Creata', noFile: 'Nessun file allegato',
     replaceFile: 'Cambia file', removeFile: 'Rimuovi file', uploadFailed: 'Impossibile caricare il file.', retryUpload: 'Riprova',
     noResults: 'Nessun risultato', notFound: 'Bolletta non trovata', fileSection: 'File', openFile: 'Apri file',
     saved: 'Bolletta salvata', deleted: 'Bolletta eliminata', invalidPeriod: 'La fine del periodo non può precedere l’inizio',

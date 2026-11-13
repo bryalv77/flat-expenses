@@ -3,10 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, type BillInput } from '@/lib/db';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
-import { deleteFile, newId, prepareFile, storagePaths, uploadFile, type PickedFile, type UploadedFile } from '@/lib/storage';
-import type { Bill } from '@/types/domain';
+import { deleteFile, newId, prepareFile, storagePaths, uploadFile, type PickedFile } from '@/lib/storage';
+import type { Bill, BillFile } from '@/types/domain';
 
-type BillFields = Omit<BillInput, 'fileStoragePath' | 'fileName' | 'fileMimeType' | 'fileSizeBytes'>;
+type BillFields = Omit<BillInput, 'files'>;
 
 /** Bills whose EFFECTIVE date (chargeDate → periodEndDate → createdAt) is in [from, to]. ISO dates, inclusive. */
 export function useBills(houseId: string | null | undefined, range: { from: string; to: string; categoryId?: string }) {
@@ -25,37 +25,44 @@ export function useBill(houseId: string | null | undefined, id: string | null | 
   });
 }
 
-async function uploadBillFile(houseId: string, billId: string, file: PickedFile, onProgress?: (f: number) => void): Promise<UploadedFile> {
-  const prepared = await prepareFile(file, 'bill'); // compresses images, HEIC → JPEG
-  return uploadFile(storagePaths.bill(houseId, billId, prepared.name), prepared, onProgress);
+/** Uploads sequentially (unique names, so equal file names never collide); progress is the overall 0..1 fraction. */
+async function uploadBillFiles(houseId: string, billId: string, files: PickedFile[], onProgress?: (f: number) => void): Promise<BillFile[]> {
+  const done: BillFile[] = [];
+  try {
+    for (const file of files) {
+      const prepared = await prepareFile(file, 'bill'); // compresses images, HEIC → JPEG
+      const path = storagePaths.bill(houseId, billId, `${newId().slice(0, 8)}-${prepared.name}`);
+      const u = await uploadFile(path, prepared, (f) => onProgress?.((done.length + f) / files.length));
+      done.push({ storagePath: u.storagePath, fileName: u.fileName, mimeType: u.mimeType, sizeBytes: u.sizeBytes });
+    }
+  } catch (e) {
+    await removeFiles(done);
+    throw e;
+  }
+  return done;
 }
 
-const fileFields = (u: UploadedFile): Pick<BillInput, 'fileStoragePath' | 'fileName' | 'fileMimeType' | 'fileSizeBytes'> => ({
-  fileStoragePath: u.storagePath,
-  fileName: u.fileName,
-  fileMimeType: u.mimeType,
-  fileSizeBytes: u.sizeBytes,
-});
+const removeFiles = (files: BillFile[]) => Promise.all(files.map((f) => deleteFile(f.storagePath).catch(() => undefined)));
 
 export interface CreateBillVars {
   fields: BillFields;
-  file?: PickedFile;
+  files?: PickedFile[];
   onProgress?: (fraction: number) => void;
 }
 
-/** Uploads the optional file first, then inserts the row; the orphaned upload is removed if the insert fails. */
+/** Uploads the optional files first, then inserts the row; the orphaned uploads are removed if the insert fails. */
 export function useCreateBill(houseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ fields, file, onProgress }: CreateBillVars) => {
+    mutationFn: async ({ fields, files = [], onProgress }: CreateBillVars) => {
       const id = newId();
-      const uploaded = file ? await uploadBillFile(houseId, id, file, onProgress) : undefined;
+      const uploaded = await uploadBillFiles(houseId, id, files, onProgress);
       try {
         // ocrStatus stays 'NONE' (set server-side).
         // TODO(ocr): after a successful upload, enqueue extraction here (see src/features/ocr/README.md).
-        await api.createBill({ ...fields, ...(uploaded ? fileFields(uploaded) : {}), houseId, id });
+        await api.createBill({ ...fields, files: uploaded, houseId, id });
       } catch (e) {
-        if (uploaded) await deleteFile(uploaded.storagePath).catch(() => undefined);
+        await removeFiles(uploaded);
         throw e;
       }
       return id;
@@ -67,30 +74,27 @@ export function useCreateBill(houseId: string) {
 export interface UpdateBillVars {
   id: string;
   fields: Partial<BillFields>;
-  /** Replaces the attached file. */
-  newFile?: PickedFile;
-  /** Path of the file being replaced (deleted after a successful update). */
-  oldFilePath?: string | null;
-  /** Detach the file without replacing it. */
-  removeFile?: boolean;
+  /** Files of the bill that stay attached. */
+  keptFiles: BillFile[];
+  /** Files to upload and append. */
+  newFiles: PickedFile[];
+  /** Files detached by the user (deleted from Storage after a successful update). */
+  removedFiles: BillFile[];
   onProgress?: (fraction: number) => void;
 }
 
 export function useUpdateBill(houseId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, fields, newFile, oldFilePath, removeFile, onProgress }: UpdateBillVars) => {
-      const uploaded = newFile ? await uploadBillFile(houseId, id, newFile, onProgress) : undefined;
-      const detach = removeFile && !uploaded ? { fileStoragePath: null, fileName: null, fileMimeType: null, fileSizeBytes: null } : {};
+    mutationFn: async ({ id, fields, keptFiles, newFiles, removedFiles, onProgress }: UpdateBillVars) => {
+      const uploaded = await uploadBillFiles(houseId, id, newFiles, onProgress);
       try {
-        await api.updateBill({ ...fields, ...(uploaded ? fileFields(uploaded) : detach), houseId, id });
+        await api.updateBill({ ...fields, files: [...keptFiles, ...uploaded], houseId, id });
       } catch (e) {
-        if (uploaded) await deleteFile(uploaded.storagePath).catch(() => undefined);
+        await removeFiles(uploaded);
         throw e;
       }
-      if (oldFilePath && (uploaded || removeFile) && oldFilePath !== uploaded?.storagePath) {
-        await deleteFile(oldFilePath).catch(() => undefined);
-      }
+      await removeFiles(removedFiles);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.billsOf(houseId) }),
   });
@@ -105,7 +109,7 @@ export function useDeleteBill(houseId: string) {
   return useMutation({
     mutationFn: async (bill: Bill) => {
       await api.deleteBill({ houseId, id: bill.id });
-      if (bill.fileStoragePath) await deleteFile(bill.fileStoragePath).catch(() => undefined);
+      await removeFiles(bill.files);
     },
     ...optimistic,
   });

@@ -70,7 +70,7 @@ export const es = {
     houseName: 'Nombre', splitModeHelp: 'Cómo se reparten los gastos entre los roommies.', contributionDay: 'Día de cobro',
     saveChanges: 'Guardar cambios', deleteHouseConfirm: '¿Eliminar el piso y todos sus datos? Esta acción no se puede deshacer.',
     leaveConfirm: '¿Salir de este piso?', removeConfirm: '¿Quitar a este miembro del piso?', categoriesLink: 'Categorías de gasto',
-    paymentsLink: 'Pagos de los roommies', inviteLink: 'Invitar a un roommie', addGuest: 'Añadir roommie sin cuenta', guestName: 'Nombre', guestHelp: 'Para quienes viven (o vivieron) aquí pero no usan la app. Las fechas de entrada y salida mantienen bien el historial.', moveIn: 'Entrada', moveOut: 'Salida', noAccount: 'Sin cuenta', manage: 'Gestión', joined: 'Desde', youTag: 'Tú',
+    recordPaymentHint: "Toca un roommie para registrar su pago", paymentsLink: 'Pagos de los roommies', inviteLink: 'Invitar a un roommie', addGuest: 'Añadir roommie sin cuenta', guestName: 'Nombre', guestHelp: 'Para quienes viven (o vivieron) aquí pero no usan la app. Las fechas de entrada y salida mantienen bien el historial.', moveIn: 'Entrada', moveOut: 'Salida', noAccount: 'Sin cuenta', manage: 'Gestión', joined: 'Desde', youTag: 'Tú',
     individualContribution: 'Aportación individual', inheritHouse: 'Usa la del piso', memberDocs: 'Documentos de identidad',
     noDocs: 'No ha subido documentos', adminOnlySensitive: 'Información sensible: solo visible para admins del piso.',
     openFile: 'Abrir', activeInvites: 'Códigos activos', noInvites: 'Sin códigos activos', expiresIn: 'Caduca en (días)',
@@ -104,7 +104,7 @@ export const es = {
   errors: { generic: 'Algo salió mal. Inténtalo de nuevo.', network: 'Sin conexión.', fileTooLarge: 'El archivo es demasiado grande.', fileType: 'Tipo de archivo no permitido.' },
   billsUi: {
     searchPlaceholder: 'Buscar en notas', range3: '3 meses', range12: '12 meses', rangeYear: 'Este año', rangeMonth: 'Este mes',
-    editBill: 'Editar factura', details: 'Detalles', period: 'Periodo', created: 'Creada', noFile: 'Sin archivo adjunto',
+    editBill: 'Editar factura', duplicate: 'Duplicar', addAnotherFile: 'Añadir otro archivo', details: 'Detalles', period: 'Periodo', created: 'Creada', noFile: 'Sin archivo adjunto',
     replaceFile: 'Cambiar archivo', removeFile: 'Quitar archivo', uploadFailed: 'No se pudo subir el archivo.', retryUpload: 'Reintentar',
     noResults: 'Sin resultados', notFound: 'Factura no encontrada', fileSection: 'Archivo', openFile: 'Abrir archivo',
     saved: 'Factura guardada', deleted: 'Factura eliminada', invalidPeriod: 'El fin del periodo no puede ser anterior al inicio',

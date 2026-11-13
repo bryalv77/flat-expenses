@@ -71,6 +71,8 @@ export default function PaymentsScreen() {
       <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
         {house.splitMode !== 'FIXED_CONTRIBUTION' ? <Text variant="footnote" color="secondaryLabel">{t('hub.onlyFixedMode')}</Text> : null}
 
+        <Text variant="footnote" color="secondaryLabel">{t('hub.recordPaymentHint')}</Text>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: spacing.sm, alignItems: 'center' }}>
           {allMonths.map((m) => (
             <Chip key={m} label={formatMonth(m, locale, 'short')} selected={m === month} onPress={() => setMonth(m)} />
@@ -90,7 +92,7 @@ export default function PaymentsScreen() {
                   title={m?.displayName ?? '—'}
                   subtitle={`${formatMoney(p.paidCents, locale)} / ${formatMoney(p.dueCents, locale)}`}
                   trailing={<Badge label={label} tone={tone} />}
-                  onPress={() => openSheet(p.memberId, p.pendingCents)}
+                  chevron onPress={() => openSheet(p.memberId, p.pendingCents)}
                 />
               );
             })}

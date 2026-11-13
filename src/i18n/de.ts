@@ -73,7 +73,7 @@ export const de: DeepPartial<Messages> = {
     houseName: 'Name', splitModeHelp: 'Wie die Kosten unter den Mitbewohnern aufgeteilt werden.', contributionDay: 'Abbuchungstag',
     saveChanges: 'Änderungen speichern', deleteHouseConfirm: 'Wohnung und alle Daten löschen? Das lässt sich nicht rückgängig machen.',
     leaveConfirm: 'Diese Wohnung verlassen?', removeConfirm: 'Dieses Mitglied aus der Wohnung entfernen?', categoriesLink: 'Ausgabenkategorien',
-    paymentsLink: 'Zahlungen der Mitbewohner', inviteLink: 'Mitbewohner einladen', addGuest: 'Mitbewohner ohne Konto hinzufügen', guestName: 'Name', guestHelp: 'Für Personen, die hier wohnen (oder wohnten), aber die App nicht nutzen. Ein- und Auszugsdatum halten den Verlauf korrekt.', moveIn: 'Einzug', moveOut: 'Auszug', noAccount: 'Kein Konto', manage: 'Verwaltung', joined: 'Seit', youTag: 'Du',
+    recordPaymentHint: "Tippe auf einen Mitbewohner, um seine Zahlung zu erfassen", paymentsLink: 'Zahlungen der Mitbewohner', inviteLink: 'Mitbewohner einladen', addGuest: 'Mitbewohner ohne Konto hinzufügen', guestName: 'Name', guestHelp: 'Für Personen, die hier wohnen (oder wohnten), aber die App nicht nutzen. Ein- und Auszugsdatum halten den Verlauf korrekt.', moveIn: 'Einzug', moveOut: 'Auszug', noAccount: 'Kein Konto', manage: 'Verwaltung', joined: 'Seit', youTag: 'Du',
     individualContribution: 'Individueller Beitrag', inheritHouse: 'Wert der Wohnung verwenden', memberDocs: 'Ausweisdokumente',
     noDocs: 'Keine Dokumente hochgeladen', adminOnlySensitive: 'Sensible Informationen: nur für Admins der Wohnung sichtbar.',
     openFile: 'Öffnen', activeInvites: 'Aktive Codes', noInvites: 'Keine aktiven Codes', expiresIn: 'Läuft ab in (Tagen)',
@@ -107,7 +107,7 @@ export const de: DeepPartial<Messages> = {
   errors: { generic: 'Etwas ist schiefgelaufen. Versuche es erneut.', network: 'Keine Verbindung.', fileTooLarge: 'Die Datei ist zu groß.', fileType: 'Dateityp nicht erlaubt.' },
   billsUi: {
     searchPlaceholder: 'In Notizen suchen', range3: '3 Monate', range12: '12 Monate', rangeYear: 'Dieses Jahr', rangeMonth: 'Diesen Monat',
-    editBill: 'Rechnung bearbeiten', details: 'Details', period: 'Zeitraum', created: 'Erstellt', noFile: 'Keine Datei angehängt',
+    editBill: 'Rechnung bearbeiten', duplicate: 'Duplizieren', addAnotherFile: 'Weitere Datei hinzufügen', details: 'Details', period: 'Zeitraum', created: 'Erstellt', noFile: 'Keine Datei angehängt',
     replaceFile: 'Datei ändern', removeFile: 'Datei entfernen', uploadFailed: 'Die Datei konnte nicht hochgeladen werden.', retryUpload: 'Erneut versuchen',
     noResults: 'Keine Ergebnisse', notFound: 'Rechnung nicht gefunden', fileSection: 'Datei', openFile: 'Datei öffnen',
     saved: 'Rechnung gespeichert', deleted: 'Rechnung gelöscht', invalidPeriod: 'Das Zeitraumende darf nicht vor dem Beginn liegen',

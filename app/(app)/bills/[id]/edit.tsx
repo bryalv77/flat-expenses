@@ -7,7 +7,7 @@ import { BillForm, type BillFormSubmit } from '@/features/bills/components/BillF
 import { useBill, useUpdateBill } from '@/features/bills/hooks';
 import { useCategories } from '@/features/categories/hooks';
 import { useActiveHouse } from '@/features/houses/hooks';
-import { toStorageFile } from '@/features/bills/pickedFile';
+import { toStorageFiles } from '@/features/bills/pickedFile';
 import { useT } from '@/i18n';
 import { haptics } from '@/lib/haptics';
 import { useTheme } from '@/theme';
@@ -42,16 +42,16 @@ export default function EditBillScreen() {
   }
 
   const current = bill.data;
-  const submit = ({ values, file, removeFile }: BillFormSubmit) => {
+  const submit = ({ values, newFiles, keptFiles, removedFiles }: BillFormSubmit) => {
     setError(null);
-    setProgress(file ? 0 : null);
+    setProgress(newFiles.length ? 0 : null);
     update.mutate(
       {
         id: current.id,
         fields: values,
-        newFile: toStorageFile(file),
-        removeFile,
-        oldFilePath: current.fileStoragePath,
+        keptFiles,
+        newFiles: toStorageFiles(newFiles),
+        removedFiles,
         onProgress: setProgress,
       },
       {
@@ -62,7 +62,7 @@ export default function EditBillScreen() {
         },
         onError: () => {
           haptics.error();
-          setError(file ? t('billsUi.uploadFailed') : t('errors.generic'));
+          setError(newFiles.length ? t('billsUi.uploadFailed') : t('errors.generic'));
           setProgress(null);
         },
       },

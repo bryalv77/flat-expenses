@@ -7,21 +7,14 @@ import { useT } from '@/i18n';
 import { formatFileSize } from '@/lib/format';
 import { useFileUrl } from '@/lib/useFileUrl';
 import { radii, spacing, useTheme } from '@/theme';
-import type { Bill } from '@/types/domain';
+import type { BillFile } from '@/types/domain';
 
 /** Inline preview: images via expo-image, PDFs in an iframe on web and in the system browser on native. */
-export function BillFilePreview({ bill }: { bill: Pick<Bill, 'fileStoragePath' | 'fileName' | 'fileMimeType' | 'fileSizeBytes'> }) {
+export function BillFilePreview({ file }: { file: BillFile }) {
   const { t } = useT();
   const { colors } = useTheme();
-  const url = useFileUrl(bill.fileStoragePath);
+  const url = useFileUrl(file.storagePath);
 
-  if (!bill.fileStoragePath) {
-    return (
-      <Text variant="subhead" color="secondaryLabel">
-        {t('billsUi.noFile')}
-      </Text>
-    );
-  }
   if (url.isLoading) return <ActivityIndicator color={colors.tint} />;
   if (!url.data) {
     return (
@@ -30,7 +23,7 @@ export function BillFilePreview({ bill }: { bill: Pick<Bill, 'fileStoragePath' |
   }
 
   const uri = url.data;
-  const isPdf = bill.fileMimeType === 'application/pdf';
+  const isPdf = file.mimeType === 'application/pdf';
   const open = () => {
     if (Platform.OS === 'web') void Linking.openURL(uri);
     else void WebBrowser.openBrowserAsync(uri);
@@ -42,7 +35,7 @@ export function BillFilePreview({ bill }: { bill: Pick<Bill, 'fileStoragePath' |
         {isPdf ? (
           Platform.OS === 'web' ? (
             <View style={styles.frame}>
-              <iframe src={uri} title={bill.fileName ?? 'PDF'} style={{ width: '100%', height: '100%', border: 0 }} />
+              <iframe src={uri} title={file.fileName} style={{ width: '100%', height: '100%', border: 0 }} />
             </View>
           ) : null
         ) : (
@@ -50,12 +43,12 @@ export function BillFilePreview({ bill }: { bill: Pick<Bill, 'fileStoragePath' |
             source={{ uri }}
             style={styles.image}
             contentFit="contain"
-            accessibilityLabel={bill.fileName ?? undefined}
+            accessibilityLabel={file.fileName}
           />
         )}
       </Card>
       <Text variant="footnote" color="secondaryLabel">
-        {[bill.fileName, bill.fileSizeBytes ? formatFileSize(bill.fileSizeBytes) : null].filter(Boolean).join(' · ')}
+        {[file.fileName, file.sizeBytes ? formatFileSize(file.sizeBytes) : null].filter(Boolean).join(' · ')}
       </Text>
       <Button title={t('billsUi.openFile')} variant="tinted" icon={isPdf ? 'document' : 'photo'} onPress={open} />
     </View>

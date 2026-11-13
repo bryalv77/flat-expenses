@@ -93,11 +93,11 @@ function useMemberListMutation<TVars>(
 }
 
 export function useRemoveMember(houseId: string) {
-  return useMemberListMutation<string>(
+  return useMemberListMutation<{ memberId: string; removedAt: string }>(
     houseId,
-    (memberId) => api.removeMember({ houseId, memberId }),
-    (m) => ({ ...m, status: 'REMOVED', removedAt: new Date().toISOString() }),
-    (m, id) => m.id === id,
+    (v) => api.removeMember({ houseId, ...v }),
+    (m, v) => ({ ...m, status: 'REMOVED', removedAt: v.removedAt }),
+    (m, v) => m.id === v.memberId,
   );
 }
 

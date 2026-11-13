@@ -471,7 +471,7 @@ export function buildBillsCsv(
         b.chargeDate,
         b.periodStartDate,
         b.periodEndDate,
-        b.fileName,
+        b.files.map((f) => f.fileName).join(' '),
         b.notes,
       ]
         .map((v) => csvCell(v, delimiter))

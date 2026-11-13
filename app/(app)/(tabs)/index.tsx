@@ -133,6 +133,9 @@ export default function HomeScreen() {
                 value={view.myPayment.pendingCents === 0 ? t('home.paid') : `${t('home.pending')} ${formatMoney(view.myPayment.pendingCents, locale)}`}
               />
             ) : null}
+            {isAdmin ? (
+              <ListRow icon="card" title={t('hub.paymentsLink')} subtitle={t('hub.recordPaymentHint')} value={view.paymentSummary.totalPendingCents > 0 ? `${t('home.pending')} ${formatMoney(view.paymentSummary.totalPendingCents, locale)}` : t('home.paid')} chevron onPress={() => router.push('/payments')} />
+            ) : null}
             {showBalance ? (
               <>
                 <ListRow icon="euro" title={t('hub.expectedIncome')} value={formatMoney(view.balance.expectedIncomeCents, locale)} />

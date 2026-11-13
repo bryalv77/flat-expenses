@@ -1,5 +1,5 @@
 import type { House, MemberPayment } from '@/types/domain';
-import { monthRange } from '@/lib/dates';
+import { daysInMonth, monthRange, parseISODate } from '@/lib/dates';
 import { activeMembersInMonth, type MemberLike } from './members';
 import { splitEqual } from './split';
 
@@ -11,6 +11,20 @@ type ContributionHouse = Pick<House, 'fixedContributionCents'>;
 /** Per-member override wins over the house-wide fixed contribution. */
 export function contributionForMember(house: ContributionHouse, member: MemberLike): number {
   return member.individualContributionCents ?? house.fixedContributionCents ?? 0;
+}
+
+/**
+ * What the member owes for `month`: the monthly contribution, prorated by the days of that month they lived in the flat.
+ * Day of entry is not charged (the previous roommate pays it) and day of exit is: joining on day 9 of a 30-day month
+ * pays 21/30, leaving on day 9 pays 9/30, so a hand-over day adds up to the whole month. Joining on day 1 pays all of it.
+ */
+export function dueForMember(house: ContributionHouse, member: MemberLike, month: string): number {
+  const full = contributionForMember(house, member);
+  const dim = daysInMonth(+month.slice(0, 4), +month.slice(5, 7));
+  const joinDay = parseISODate(member.joinedAt.slice(0, 10)).d;
+  const from = member.joinedAt.slice(0, 7) === month && joinDay > 1 ? joinDay : 0;
+  const to = member.removedAt && member.removedAt.slice(0, 7) === month ? parseISODate(member.removedAt.slice(0, 10)).d : dim;
+  return Math.round((full * Math.max(0, to - from)) / dim);
 }
 
 export function balanceStatus(balanceCents: number): BalanceStatus {
@@ -41,7 +55,7 @@ export function computeMonthBalance(
   const active = activeMembersInMonth(members, month);
   const contributions = active
     .filter((m) => m.role === 'ROOMMATE')
-    .map((m) => ({ memberId: m.id, cents: contributionForMember(house, m) }));
+    .map((m) => ({ memberId: m.id, cents: dueForMember(house, m, month) }));
   const expectedIncomeCents = contributions.reduce((s, c) => s + c.cents, 0);
   const balanceCents = expectedIncomeCents - totalSpentCents;
   return {
@@ -132,7 +146,7 @@ export function computePaymentStatus(
 ): MonthPaymentSummary {
   const roommates = activeMembersInMonth(members, month).filter((m) => m.role === 'ROOMMATE');
   const perMember = roommates.map((m): MemberPaymentStatus => {
-    const dueCents = contributionForMember(house, m);
+    const dueCents = dueForMember(house, m, month);
     const paidCents = payments
       .filter((p) => p.memberId === m.id && p.month.slice(0, 7) === month)
       .reduce((s, p) => s + p.amountCents, 0);

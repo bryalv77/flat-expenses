@@ -72,7 +72,7 @@ export const en: Messages = {
     houseName: 'Name', splitModeHelp: 'How costs are shared among roommates.', contributionDay: 'Collection day',
     saveChanges: 'Save changes', deleteHouseConfirm: 'Delete the flat and all its data? This cannot be undone.',
     leaveConfirm: 'Leave this flat?', removeConfirm: 'Remove this member from the flat?', categoriesLink: 'Expense categories',
-    paymentsLink: 'Roommate payments', inviteLink: 'Invite a roommate', addGuest: 'Add roommate without account', guestName: 'Name', guestHelp: "For people who live (or lived) here but don't use the app. Move-in and move-out dates keep your history right.", moveIn: 'Moved in', moveOut: 'Moved out', noAccount: 'No account', manage: 'Manage', joined: 'Since', youTag: 'You',
+    recordPaymentHint: "Tap a roommate to record their payment", paymentsLink: 'Roommate payments', inviteLink: 'Invite a roommate', addGuest: 'Add roommate without account', guestName: 'Name', guestHelp: "For people who live (or lived) here but don't use the app. Move-in and move-out dates keep your history right.", moveIn: 'Moved in', moveOut: 'Moved out', noAccount: 'No account', manage: 'Manage', joined: 'Since', youTag: 'You',
     individualContribution: 'Individual contribution', inheritHouse: 'Uses the flat’s', memberDocs: 'Identity documents',
     noDocs: 'No documents uploaded', adminOnlySensitive: 'Sensitive information: only visible to flat admins.',
     openFile: 'Open', activeInvites: 'Active codes', noInvites: 'No active codes', expiresIn: 'Expires in (days)',
@@ -106,7 +106,7 @@ export const en: Messages = {
   errors: { generic: 'Something went wrong. Try again.', network: 'No connection.', fileTooLarge: 'The file is too large.', fileType: 'File type not allowed.' },
   billsUi: {
     searchPlaceholder: 'Search notes', range3: '3 months', range12: '12 months', rangeYear: 'This year', rangeMonth: 'This month',
-    editBill: 'Edit bill', details: 'Details', period: 'Period', created: 'Created', noFile: 'No attached file',
+    editBill: 'Edit bill', duplicate: 'Duplicate', addAnotherFile: 'Add another file', details: 'Details', period: 'Period', created: 'Created', noFile: 'No attached file',
     replaceFile: 'Replace file', removeFile: 'Remove file', uploadFailed: 'The file could not be uploaded.', retryUpload: 'Retry',
     noResults: 'No results', notFound: 'Bill not found', fileSection: 'File', openFile: 'Open file',
     saved: 'Bill saved', deleted: 'Bill deleted', invalidPeriod: 'Period end cannot be before period start',

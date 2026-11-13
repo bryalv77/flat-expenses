@@ -36,6 +36,7 @@ import { normalizeIconName } from './iconAliases';
 import type {
   AmountType,
   Bill,
+  BillFile,
   DocumentType,
   ExpenseCategory,
   House,
@@ -132,10 +133,11 @@ const mapBill = (id: string, b: DocumentData): Bill => ({
   chargeDate: b.chargeDate ?? null,
   periodStartDate: b.periodStartDate ?? null,
   periodEndDate: b.periodEndDate ?? null,
-  fileStoragePath: b.fileStoragePath ?? null,
-  fileName: b.fileName ?? null,
-  fileMimeType: b.fileMimeType ?? null,
-  fileSizeBytes: b.fileSizeBytes ?? null,
+  // Older bills only have the single-file fields.
+  files: (b.files as BillFile[] | undefined) ??
+    (b.fileStoragePath
+      ? [{ storagePath: b.fileStoragePath, fileName: b.fileName ?? 'file', mimeType: b.fileMimeType ?? '', sizeBytes: b.fileSizeBytes ?? 0 }]
+      : []),
   notes: b.notes ?? null,
   ocrStatus: b.ocrStatus,
   ocrData: b.ocrData ?? null,
@@ -191,12 +193,18 @@ export interface BillInput {
   chargeDate?: string | null;
   periodStartDate?: string | null;
   periodEndDate?: string | null;
-  fileStoragePath?: string | null;
-  fileName?: string | null;
-  fileMimeType?: string | null;
-  fileSizeBytes?: number | null;
+  files?: BillFile[];
   notes?: string | null;
 }
+
+/** `files` plus the legacy single-file fields (= first file), which older app builds and scripts still read. */
+const fileColumns = (files: BillFile[]) => ({
+  files,
+  fileStoragePath: files[0]?.storagePath ?? null,
+  fileName: files[0]?.fileName ?? null,
+  fileMimeType: files[0]?.mimeType ?? null,
+  fileSizeBytes: files[0]?.sizeBytes ?? null,
+});
 
 /** Current user's profile, used to denormalize name/email/photo into member documents. */
 async function myProfile(uid: string): Promise<{ displayName: string; email: string; photoPath: string | null }> {
@@ -387,8 +395,7 @@ export const api = {
     const bills = await getDocs(billsCol(houseId));
     await Promise.all(
       bills.docs.map((b) => {
-        const path = b.data().fileStoragePath as string | null;
-        return path ? deleteFile(path).catch(() => undefined) : undefined;
+        return Promise.all(mapBill(b.id, b.data()).files.map((f) => deleteFile(f.storagePath).catch(() => undefined)));
       }),
     );
     await deleteInBatches(bills.docs);
@@ -465,8 +472,10 @@ export const api = {
     batch.update(inviteRef, { usedCount: increment(1) });
     await batch.commit();
   },
-  removeMember: async (v: { houseId: string; memberId: string }): Promise<void> => {
-    await updateDoc(memberDoc(v.houseId, v.memberId), { status: 'REMOVED', removedAt: serverTimestamp() });
+  /** `removedAt` is the day they left (`YYYY-MM-DD`); defaults to now. */
+  removeMember: async (v: { houseId: string; memberId: string; removedAt?: string }): Promise<void> => {
+    const removedAt = v.removedAt ? FsTimestamp.fromDate(new Date(`${v.removedAt}T12:00:00Z`)) : serverTimestamp();
+    await updateDoc(memberDoc(v.houseId, v.memberId), { status: 'REMOVED', removedAt });
   },
   reactivateMember: async (v: { houseId: string; memberId: string }): Promise<void> => {
     await updateDoc(memberDoc(v.houseId, v.memberId), { status: 'ACTIVE', removedAt: null });
@@ -550,10 +559,7 @@ export const api = {
       periodEndDate: v.periodEndDate ?? null,
       // Effective date rule: chargeDate, else periodEndDate, else the creation date.
       effectiveDate: v.chargeDate ?? v.periodEndDate ?? todayIso(),
-      fileStoragePath: v.fileStoragePath ?? null,
-      fileName: v.fileName ?? null,
-      fileMimeType: v.fileMimeType ?? null,
-      fileSizeBytes: v.fileSizeBytes ?? null,
+      ...fileColumns(v.files ?? []),
       notes: v.notes ?? null,
       // TODO(ocr): a Cloud Function on Storage upload will set PENDING/DONE and fill ocrData.
       ocrStatus: 'NONE',
@@ -565,7 +571,8 @@ export const api = {
   },
   updateBill: async ({ houseId, id, ...rest }: Partial<BillInput> & { houseId: string; id: string }): Promise<void> => {
     const ref = doc(billsCol(houseId), id);
-    const patch = defined(rest);
+    const { files, ...other } = rest;
+    const patch = { ...defined(other), ...(files ? fileColumns(files) : {}) };
     const touchesDates = 'chargeDate' in patch || 'periodEndDate' in patch;
     const extra: Record<string, unknown> = {};
     if (touchesDates) {

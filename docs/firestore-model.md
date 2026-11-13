@@ -12,7 +12,7 @@ houses/{houseId}/members/{uid}           uid, role (ADMIN|ROOMMATE), status (ACT
 houses/{houseId}/categories/{id}         name, icon, color, amountType, expectedAmountCents, intervalUnit, intervalCount,
                                          anchorDate, isActive, sortOrder, notes, createdAt, updatedAt
 houses/{houseId}/bills/{id}              categoryId, amountCents, chargeDate, periodStartDate, periodEndDate, effectiveDate,
-                                         fileStoragePath, fileName, fileMimeType, fileSizeBytes, notes, ocrStatus, ocrData,
+                                         files[] ({storagePath,fileName,mimeType,sizeBytes}, max 5), fileStoragePath/fileName/fileMimeType/fileSizeBytes (legacy = first file), notes, ocrStatus, ocrData,
                                          createdBy, createdAt, updatedAt
 houses/{houseId}/payments/{id}           memberId (= member uid), month ('YYYY-MM-01'), amountCents, note, paidAt, recordedBy
 invites/{code}                           houseId, status, expiresAt, maxUses, usedCount, createdBy, createdAt
