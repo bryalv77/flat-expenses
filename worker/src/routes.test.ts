@@ -1,7 +1,8 @@
 import { afterEach, beforeAll, describe, expect, inject, it, vi } from 'vitest';
 
 import { createDb } from './db/client';
-import { members } from './db/schema';
+import { account, members } from './db/schema';
+import { FIREBASE_HASH_PREFIX, firebaseScryptHash, formatFirebaseHash } from './firebasePassword';
 import { app } from './index';
 import { and, eq } from 'drizzle-orm';
 
@@ -396,6 +397,54 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
       await vi.waitFor(() => expect(warn).toHaveBeenCalled());
       expect(log).not.toHaveBeenCalled();
       expect(String(warn.mock.calls.flat())).not.toContain('reset-password/');
+    });
+  });
+
+  describe('users migrated from Firebase', () => {
+    const FB = {
+      FIREBASE_SCRYPT_SIGNER_KEY: 'jxspr8Ki0RYycVU8zykbdLGjFQ3McFUH0uiiTvC8pVMXAn210wjLNmdZJzxUECKbm0QsEmYUSDzZvpjeJ9WmXA==',
+      FIREBASE_SCRYPT_SALT_SEPARATOR: 'Bw==',
+      FIREBASE_SCRYPT_ROUNDS: '8',
+      FIREBASE_SCRYPT_MEM_COST: '14',
+    };
+    const login = (email: string, password: string, e: Record<string, unknown>) =>
+      app.request('/api/auth/sign-in/email', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'http://localhost' }, body: JSON.stringify({ email, password }) }, e);
+
+    // An account exactly as the migration script writes it: a Firebase hash instead of a Better Auth one.
+    const migrated = async (name: string, password: string) => {
+      const u = await signUp(name);
+      const salt = '42xEC+ixf3L2lw==';
+      const stored = formatFirebaseHash(await firebaseScryptHash(password, salt, { signerKey: FB.FIREBASE_SCRYPT_SIGNER_KEY, saltSeparator: FB.FIREBASE_SCRYPT_SALT_SEPARATOR, rounds: 8, memCost: 14 }), salt);
+      await createDb(dbUrl!).update(account).set({ password: stored }).where(eq(account.userId, u.id));
+      return { ...u, email: `${name}-${run}@test.dev`, stored };
+    };
+    const passwordOf = async (id: string) => (await createDb(dbUrl!).select().from(account).where(eq(account.userId, id)))[0]!.password!;
+
+    it('sign in with the old Firebase password, upgraded to a Better Auth hash on the way', async () => {
+      const m = await migrated('fbuser', 'firebase-pass-1');
+      const withFb = { ...env, ...FB };
+      expect((await login(m.email, 'wrong-pass-123', withFb)).status).toBe(401);
+      expect(await passwordOf(m.id)).toBe(m.stored); // a failed attempt changes nothing
+
+      const ok = await login(m.email, 'firebase-pass-1', withFb);
+      expect(ok.status).toBe(200);
+      expect((await passwordOf(m.id)).startsWith(FIREBASE_HASH_PREFIX)).toBe(false); // upgraded
+      // from now on the normal Better Auth path works, even without the Firebase parameters
+      expect((await login(m.email, 'firebase-pass-1', env)).status).toBe(200);
+      expect((await login(m.email, 'wrong-pass-123', env)).status).toBe(401);
+    });
+
+    it('cannot sign in while the Firebase parameters are not configured, and nothing is changed', async () => {
+      const m = await migrated('fbnoparams', 'firebase-pass-2');
+      expect((await login(m.email, 'firebase-pass-2', env)).status).toBe(401);
+      expect(await passwordOf(m.id)).toBe(m.stored);
+    });
+
+    it('changing the password works with the Firebase hash as the current password', async () => {
+      const m = await migrated('fbchange', 'firebase-pass-3');
+      const token = (await (await login(m.email, 'firebase-pass-3', { ...env, ...FB })).json() as any).token as string;
+      expect((await call('POST', '/api/auth/change-password', token, { currentPassword: 'firebase-pass-3', newPassword: 'changed-pass-4' })).status).toBe(200);
+      expect((await login(m.email, 'changed-pass-4', env)).status).toBe(200);
     });
   });
 });
