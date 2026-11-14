@@ -98,6 +98,9 @@ dependencies:
   expo-splash-screen:
     specifier: ~57.0.9
     version: 57.0.9(expo@57.0.27)(typescript@6.0.3)
+  expo-sqlite:
+    specifier: ~57.0.5
+    version: 57.0.5(expo@57.0.27)(react-native@0.86.3)(react@19.2.3)
   expo-status-bar:
     specifier: ~57.0.1
     version: 57.0.1(expo@57.0.27)(react-native@0.86.3)(react@19.2.3)
@@ -169,6 +172,9 @@ devDependencies:
   '@react-native/jest-preset':
     specifier: ^0.86.3
     version: 0.86.3(@babel/core@7.29.7)(react@19.2.3)
+  '@types/better-sqlite3':
+    specifier: ^9.6.0
+    version: 9.6.0
   '@types/jest':
     specifier: ^29.5.14
     version: 29.5.14
@@ -178,6 +184,9 @@ devDependencies:
   '@types/react':
     specifier: ~19.2.2
     version: 19.2.18
+  better-sqlite3:
+    specifier: ^13.2.0
+    version: 13.2.0
   eas-cli:
     specifier: ^24.11.0
     version: 24.11.0(@types/node@26.6.4)(typescript@6.0.3)
@@ -4112,6 +4121,12 @@ packages:
     dependencies:
       '@babel/types': 7.29.8
 
+  /@types/better-sqlite3@9.6.0:
+    resolution: {integrity: sha512-ZEEwBSgMu7GYJOynoagg5X9JbxfL6dTJDsgViJIqh67jV44kyOr9RXfmFjLK5rzC4MWssP06t9hu/JwGDnUbCg==}
+    dependencies:
+      '@types/node': 26.6.4
+    dev: true
+
   /@types/bunyan@1.8.11:
     resolution: {integrity: sha512-758fRH7umIMk5qt5ELmRMff4mLDlN+xyYzC+dkPTdKwbSkJFvz6xwyScrytPU0QIBbRRwbiE8/BIg8bpajerNQ==}
     dependencies:
@@ -4879,6 +4894,10 @@ packages:
       possible-typed-array-names: 1.1.0
     dev: true
 
+  /await-lock@2.2.2:
+    resolution: {integrity: sha512-aDczADvlvTGajTDjcjpJMqRkOF6Qdz3YbPZm/PyW6tKPkx2hlYBzxMhEywM/tU72HrVZjgl5VCdRuMlA7pZ8Gw==}
+    dev: false
+
   /b4a@1.9.0:
     resolution: {integrity: sha512-dpfcF9fDNR6++cthXR67iyhgqWy9CBouAvIWhIntzBG6cvK/cnIPiZQjBwi/ZqjjBEDGfoNDtmB0kTjroOJ3pQ==}
     peerDependencies:
@@ -5206,6 +5225,14 @@ packages:
     engines: {node: '>=12.0.0'}
     dependencies:
       open: 8.4.0
+    dev: true
+
+  /better-sqlite3@13.2.0:
+    resolution: {integrity: sha512-Z8Q/9x/uNyKxA1v4FNodyItRVRw1TeKBrmj32JhxhR0ceNcBY+wMobt/Bv7M7TzwPAXjnZRtNaEsATnUZSKWZQ==}
+    engines: {node: '>=22'}
+    requiresBuild: true
+    dependencies:
+      node-addon-api: 8.9.2
     dev: true
 
   /big-integer@1.6.52:
@@ -7207,6 +7234,19 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
+    dev: false
+
+  /expo-sqlite@57.0.5(expo@57.0.27)(react-native@0.86.3)(react@19.2.3):
+    resolution: {integrity: sha512-WYBPXDL0WCMmGSvBgmCXk06yUS4p9GCXUP7CNZBjnb30ZLAuibhsOSzVGDTHcCfs+O/wEC6DNMkNDsw+0xKp7g==}
+    peerDependencies:
+      expo: '*'
+      react: '*'
+      react-native: '*'
+    dependencies:
+      await-lock: 2.2.2
+      expo: 57.0.27(@babel/core@7.29.7)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.16)(expo-router@57.0.25)(react-dom@19.2.3)(react-native-web@0.21.3)(react-native-worklets@0.10.1)(react-native@0.86.3)(react@19.2.3)(typescript@6.0.3)
+      react: 19.2.3
+      react-native: 0.86.3(@babel/core@7.29.7)(@react-native/jest-preset@0.86.3)(@react-native/metro-config@0.87.1)(@types/react@19.2.18)(react@19.2.3)
     dev: false
 
   /expo-status-bar@57.0.1(expo@57.0.27)(react-native@0.86.3)(react@19.2.3):
@@ -10038,6 +10078,11 @@ packages:
     engines: {node: '>=18'}
     dependencies:
       content-type: 2.1.0
+
+  /node-addon-api@8.9.2:
+    resolution: {integrity: sha512-VijLXbi3UACN69I0JVXJsX4tjACjNoQDgv2gTF6sx2wWEi8tkSg2eX8p5gSIFi8z2+DL3oHmY6OyKce38SDolg==}
+    engines: {node: ^18 || ^20 || >= 21}
+    dev: true
 
   /node-exports-info@1.6.2:
     resolution: {integrity: sha512-kXs9Go0cah0qHVV2v389IXQLdLCeE1xfFtjOAF+iobu0OIoG1pje8At2vMHyaPMiPMnG/LWP50twML21eMcAag==}
