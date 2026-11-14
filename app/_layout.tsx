@@ -83,13 +83,13 @@ function HouseGate() {
 
 function RootNavigator() {
   const { scheme } = useTheme();
-  const { firebaseUser, initializing, profileReady } = useAuth();
+  const { authUser, initializing, profileReady } = useAuth();
 
   return (
     <>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false }} />
-      {firebaseUser ? <SignedInGate profileReady={profileReady} /> : <SignedOutGate initializing={initializing} />}
+      {authUser ? <SignedInGate profileReady={profileReady} /> : <SignedOutGate initializing={initializing} />}
     </>
   );
 }

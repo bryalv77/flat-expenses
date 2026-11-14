@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useAuth } from '@/features/auth/AuthContext';
 import { api } from '@/lib/db';
-import { auth } from '@/lib/firebase';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
 import { deleteFile, newId, prepareFile, storagePaths, uploadFile, type PickedFile } from '@/lib/storage';
@@ -24,9 +24,10 @@ export function useUpdateProfile() {
 /** Compresses (512 px JPEG), uploads to users/{uid}/avatar/, saves the path and removes the previous avatar. */
 export function useUploadAvatar() {
   const qc = useQueryClient();
+  const { authUser } = useAuth();
   return useMutation({
     mutationFn: async ({ file, previousPath, onProgress }: { file: PickedFile; previousPath?: string | null; onProgress?: (f: number) => void }) => {
-      const uid = auth.currentUser?.uid;
+      const uid = authUser?.uid;
       if (!uid) throw new Error('Not signed in');
       const prepared = await prepareFile(file, 'avatar');
       const uploaded = await uploadFile(storagePaths.avatar(uid, `${newId()}-${prepared.name}`), prepared, onProgress);
@@ -45,9 +46,10 @@ export function useMyDocuments() {
 /** Identity document (passport / national id) as image or PDF. Replace = add new + delete old. */
 export function useAddDocument() {
   const qc = useQueryClient();
+  const { authUser } = useAuth();
   return useMutation({
     mutationFn: async ({ type, file, onProgress }: { type: DocumentType; file: PickedFile; onProgress?: (f: number) => void }) => {
-      const uid = auth.currentUser?.uid;
+      const uid = authUser?.uid;
       if (!uid) throw new Error('Not signed in');
       const id = newId();
       const prepared = await prepareFile(file, 'document');

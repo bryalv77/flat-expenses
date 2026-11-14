@@ -32,7 +32,7 @@ export default function HouseScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const toast = useToast();
-  const { firebaseUser } = useAuth();
+  const { authUser } = useAuth();
   const { house, isAdmin, isLoading } = useActiveHouse();
   const { members } = useMyMember(house?.id);
   const update = useUpdateHouse();
@@ -117,7 +117,7 @@ export default function HouseScreen() {
             <ListRow
               key={m.id}
               leading={<MemberAvatar name={m.displayName} photoPath={m.photoPath} />}
-              title={m.userId === firebaseUser?.uid ? `${m.displayName} (${t('hub.youTag')})` : m.displayName}
+              title={m.userId === authUser?.uid ? `${m.displayName} (${t('hub.youTag')})` : m.displayName}
               subtitle={`${t('hub.joined')} ${formatDate(m.joinedAt.slice(0, 10), locale, 'medium')}${m.removedAt ? ` → ${formatDate(m.removedAt.slice(0, 10), locale, 'medium')}` : ''}`}
               trailing={
                 <View style={{ flexDirection: 'row', gap: spacing.xs }}>

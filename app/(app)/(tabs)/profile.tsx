@@ -11,11 +11,11 @@ import { spacing } from '@/theme';
 export default function ProfileScreen() {
   const { t } = useT();
   const router = useRouter();
-  const { firebaseUser } = useAuth();
+  const { authUser } = useAuth();
   const { data: user } = useMe();
   const { data: avatarUrl } = useFileUrl(user?.photoPath);
   const { data: docs } = useMyDocuments();
-  const name = user?.displayName ?? firebaseUser?.displayName ?? '';
+  const name = user?.displayName ?? authUser?.displayName ?? '';
 
   return (
     <Screen title={t('tabs.profile')}>
@@ -23,7 +23,7 @@ export default function ProfileScreen() {
         <View style={{ alignItems: 'center', gap: spacing.sm }}>
           <Avatar name={name} uri={avatarUrl ?? undefined} size={88} />
           <Text variant="title2">{name}</Text>
-          <Text variant="subhead" color="secondaryLabel">{user?.email ?? firebaseUser?.email ?? ''}</Text>
+          <Text variant="subhead" color="secondaryLabel">{user?.email ?? authUser?.email ?? ''}</Text>
         </View>
         <Section>
           <ListRow icon="person" title={t('profile.edit')} chevron onPress={() => router.push('/profile/edit')} />

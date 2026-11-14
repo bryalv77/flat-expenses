@@ -27,7 +27,7 @@ export default function HomeScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const qc = useQueryClient();
-  const { firebaseUser } = useAuth();
+  const { authUser } = useAuth();
   const { house, isAdmin, isLoading: houseLoading } = useActiveHouse();
   const { me: myMember, members } = useMyMember(house?.id);
   const { data: user } = useMe();
@@ -66,7 +66,7 @@ export default function HomeScreen() {
     setRefreshing(false);
   };
 
-  const name = user?.displayName ?? firebaseUser?.displayName ?? '';
+  const name = user?.displayName ?? authUser?.displayName ?? '';
   const isFixed = house?.splitMode === 'FIXED_CONTRIBUTION';
   const showBalance = isAdmin || house?.showBalanceToRoommates !== false;
 
