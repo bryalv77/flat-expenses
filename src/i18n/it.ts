@@ -16,6 +16,7 @@ export const it: DeepPartial<Messages> = {
     invalidEmail: 'E-mail non valida', shortPassword: 'Almeno 6 caratteri', nameRequired: 'Inserisci il tuo nome',
     wrongCredentials: 'E-mail o password errate', emailInUse: 'Questa e-mail è già registrata',
     noAccount: 'Non hai un account?', haveAccount: 'Hai già un account?',
+    useLocal: 'Usa senza account (solo su questo dispositivo)', localNoticeTitle: 'I tuoi dati restano su questo dispositivo', localNoticeBody: 'Se lo perdi o disinstalli l\'app, vanno persi. Esporta una copia ogni tanto.',
   },
   onboarding: {
     roleTitle: 'Qual è il tuo ruolo?', admin: 'Sono l’admin dell’appartamento', adminDesc: 'Crea l’appartamento, carica le bollette e invita i coinquilini.',

@@ -13,6 +13,7 @@ export const es = {
     invalidEmail: 'Correo no válido', shortPassword: 'Mínimo 6 caracteres', nameRequired: 'Introduce tu nombre',
     wrongCredentials: 'Correo o contraseña incorrectos', emailInUse: 'Ese correo ya está registrado',
     noAccount: '¿No tienes cuenta?', haveAccount: '¿Ya tienes cuenta?',
+    useLocal: 'Usar sin cuenta (solo en este dispositivo)', localNoticeTitle: 'Tus datos solo están en este dispositivo', localNoticeBody: 'Si lo pierdes o desinstalas la app, se pierden. Exporta una copia de vez en cuando.',
   },
   onboarding: {
     roleTitle: '¿Cuál es tu rol?', admin: 'Soy admin del piso', adminDesc: 'Crea el piso, sube facturas e invita a tus roommies.',

@@ -1,15 +1,18 @@
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { Button, ListRow, Screen, Section, Text } from '@/components/ui';
 import { useAuth } from '@/features/auth';
 import { useT } from '@/i18n';
+import { getAppMode } from '@/lib/appMode';
 import { spacing } from '@/theme';
 
 export default function RoleScreen() {
   const { t } = useT();
   const router = useRouter();
   const { signOut } = useAuth();
+  // Local mode has no role choice and no invites: straight to create-house.
+  if (getAppMode() === 'local') return <Redirect href="/onboarding/create-house" />;
   return (
     <Screen>
       <View style={styles.header}>
