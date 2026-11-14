@@ -45,9 +45,9 @@ Without them nothing is sent and the link is never logged. `EMAIL_MODE=log` (in 
 It never overwrites rows that already exist, never prints or saves password hashes, and can be re-run (copied files are tracked in a manifest).
 
 ```
-pnpm migrate:firebase -- --emulator --project demo-costos                       # dry run against the local emulators
-pnpm migrate:firebase -- --emulator --project demo-costos --database-url <url> --apply --verify
-pnpm migrate:firebase -- --database-url <neon url> --r2 remote --apply --verify   # the real thing
+pnpm migrate:firebase --emulator --project demo-costos                       # dry run against the local emulators
+pnpm migrate:firebase --emulator --project demo-costos --database-url <url> --apply --verify
+pnpm migrate:firebase --database-url <neon url> --r2 remote --apply --verify   # the real thing
 ```
 
 What it does: every Auth user becomes a Better Auth `user` + `account` (email/password keeps its Firebase hash, Google/Apple become linked
