@@ -104,6 +104,18 @@ export const es = {
     month_one: 'Cada mes', month_other: 'Cada {{n}} meses', year_one: 'Cada año', year_other: 'Cada {{n}} años',
     variable: 'variable',
   },
+  backup: {
+    exported: "Copia exportada",
+    imported: "Copia restaurada",
+    deleted: "Todos los datos locales eliminados",
+    failed: "La operación de copia falló. Inténtalo de nuevo.",
+    invalid: "Este archivo no es una copia válida.",
+    newerVersion: "Esta copia se creó con una versión más reciente de la app. Actualiza la app primero.",
+    importConfirm: "Restaurar reemplaza TODOS los datos de este dispositivo por los de la copia. ¿Continuar?",
+    deleteConfirm: "Esto elimina de forma permanente todos los datos y archivos de este dispositivo. Exporta antes una copia si la necesitas.",
+    import: "Restaurar",
+    deleteAll: "Eliminar todos los datos",
+  },
   errors: { generic: 'Algo salió mal. Inténtalo de nuevo.', network: 'Sin conexión.', fileTooLarge: 'El archivo es demasiado grande.', fileType: 'Tipo de archivo no permitido.' },
   billsUi: {
     searchPlaceholder: 'Buscar en notas', range3: '3 meses', range12: '12 meses', rangeYear: 'Este año', rangeMonth: 'Este mes',

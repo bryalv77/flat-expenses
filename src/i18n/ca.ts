@@ -107,6 +107,18 @@ export const ca: DeepPartial<Messages> = {
     month_one: 'Cada mes', month_other: 'Cada {{n}} mesos', year_one: 'Cada any', year_other: 'Cada {{n}} anys',
     variable: 'variable',
   },
+  backup: {
+    exported: "Còpia exportada",
+    imported: "Còpia restaurada",
+    deleted: "Totes les dades locals eliminades",
+    failed: "L'operació de còpia ha fallat. Torna-ho a provar.",
+    invalid: "Aquest fitxer no és una còpia vàlida.",
+    newerVersion: "Aquesta còpia es va crear amb una versió més recent de l'app. Actualitza l'app primer.",
+    importConfirm: "Restaurar substitueix TOTES les dades d'aquest dispositiu per les de la còpia. Continuar?",
+    deleteConfirm: "Això elimina de manera permanent totes les dades i fitxers d'aquest dispositiu. Exporta abans una còpia si la necessites.",
+    import: "Restaurar",
+    deleteAll: "Eliminar totes les dades",
+  },
   errors: { generic: 'Alguna cosa ha anat malament. Torna-ho a provar.', network: 'Sense connexió.', fileTooLarge: 'El fitxer és massa gran.', fileType: 'Tipus de fitxer no permès.' },
   billsUi: {
     searchPlaceholder: 'Cerca a les notes', range3: '3 mesos', range12: '12 mesos', rangeYear: 'Aquest any', rangeMonth: 'Aquest mes',

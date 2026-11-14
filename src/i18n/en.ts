@@ -106,6 +106,18 @@ export const en: Messages = {
     month_one: 'Every month', month_other: 'Every {{n}} months', year_one: 'Every year', year_other: 'Every {{n}} years',
     variable: 'variable',
   },
+  backup: {
+    exported: "Backup exported",
+    imported: "Backup restored",
+    deleted: "All local data deleted",
+    failed: "The backup operation failed. Try again.",
+    invalid: "This file is not a valid backup.",
+    newerVersion: "This backup was made by a newer version of the app. Update the app first.",
+    importConfirm: "Restoring replaces ALL data on this device with the backup. Continue?",
+    deleteConfirm: "This permanently deletes all data and files on this device. Export a backup first if you need one.",
+    import: "Restore",
+    deleteAll: "Delete all data",
+  },
   errors: { generic: 'Something went wrong. Try again.', network: 'No connection.', fileTooLarge: 'The file is too large.', fileType: 'File type not allowed.' },
   billsUi: {
     searchPlaceholder: 'Search notes', range3: '3 months', range12: '12 months', rangeYear: 'This year', rangeMonth: 'This month',
