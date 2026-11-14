@@ -1,3 +1,5 @@
+jest.mock('firebase/storage', () => ({}));
+jest.mock('./firebase', () => ({ storage: {} }));
 jest.mock('expo-file-system', () => require('./fileStore.local.fake').fakeExpoFs);
 
 import { File } from 'expo-file-system';

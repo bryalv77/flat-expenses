@@ -4,7 +4,7 @@ const dirs = new Set<string>();
 
 const uriOf = (p: string | { uri: string }) => (typeof p === 'string' ? p : p.uri);
 const join = (parts: (string | { uri: string })[]) =>
-  parts.map(uriOf).join('/').replace(/([^:])\/{2,}/g, '$1/').replace(/\/$/, '');
+  parts.map(uriOf).join('/').replace(/(?<![:/])\/{2,}/g, '/').replace(/\/$/, '');
 const parentOf = (uri: string) => uri.slice(0, uri.lastIndexOf('/'));
 
 export class Directory {

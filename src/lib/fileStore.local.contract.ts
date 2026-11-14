@@ -12,7 +12,7 @@ const sources = new Map<string, Uint8Array>();
 /** Fake `fetch` so `upload` can read picked-file URIs in Node. */
 export function installFetch() {
   (global as { fetch: unknown }).fetch = async (uri: string) => ({
-    blob: async () => new Blob([sources.get(uri) ?? PNG]),
+    blob: async () => new Blob([(sources.get(uri) ?? PNG) as BlobPart]),
   });
 }
 

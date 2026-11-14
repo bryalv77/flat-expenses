@@ -1,3 +1,6 @@
+jest.mock('firebase/storage', () => ({}));
+jest.mock('./firebase', () => ({ storage: {} }));
+
 import { migrate } from './api/local/migrate';
 import { createTestDb } from './api/local/testDb';
 import { installFetch, pick, runFileStoreContract } from './fileStore.local.contract';
