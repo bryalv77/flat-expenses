@@ -100,7 +100,8 @@
     ],
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/dist/"
+      "/dist/",
+      "/worker/"
     ]
   },
   "packageManager": "pnpm@8.15.6"
