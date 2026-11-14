@@ -98,6 +98,9 @@ dependencies:
   expo-splash-screen:
     specifier: ~57.0.9
     version: 57.0.9(expo@57.0.27)(typescript@6.0.3)
+  expo-sqlite:
+    specifier: ~57
+    version: 57.0.5(expo@57.0.27)(react-native@0.86.3)(react@19.2.3)
   expo-status-bar:
     specifier: ~57.0.1
     version: 57.0.1(expo@57.0.27)(react-native@0.86.3)(react@19.2.3)
@@ -4879,6 +4882,10 @@ packages:
       possible-typed-array-names: 1.1.0
     dev: true
 
+  /await-lock@2.2.2:
+    resolution: {integrity: sha512-aDczADvlvTGajTDjcjpJMqRkOF6Qdz3YbPZm/PyW6tKPkx2hlYBzxMhEywM/tU72HrVZjgl5VCdRuMlA7pZ8Gw==}
+    dev: false
+
   /b4a@1.9.0:
     resolution: {integrity: sha512-dpfcF9fDNR6++cthXR67iyhgqWy9CBouAvIWhIntzBG6cvK/cnIPiZQjBwi/ZqjjBEDGfoNDtmB0kTjroOJ3pQ==}
     peerDependencies:
@@ -7207,6 +7214,19 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
+    dev: false
+
+  /expo-sqlite@57.0.5(expo@57.0.27)(react-native@0.86.3)(react@19.2.3):
+    resolution: {integrity: sha512-WYBPXDL0WCMmGSvBgmCXk06yUS4p9GCXUP7CNZBjnb30ZLAuibhsOSzVGDTHcCfs+O/wEC6DNMkNDsw+0xKp7g==}
+    peerDependencies:
+      expo: '*'
+      react: '*'
+      react-native: '*'
+    dependencies:
+      await-lock: 2.2.2
+      expo: 57.0.27(@babel/core@7.29.7)(@expo/dom-webview@57.0.1)(@expo/metro-runtime@57.0.16)(expo-router@57.0.25)(react-dom@19.2.3)(react-native-web@0.21.3)(react-native-worklets@0.10.1)(react-native@0.86.3)(react@19.2.3)(typescript@6.0.3)
+      react: 19.2.3
+      react-native: 0.86.3(@babel/core@7.29.7)(@react-native/jest-preset@0.86.3)(@react-native/metro-config@0.87.1)(@types/react@19.2.18)(react@19.2.3)
     dev: false
 
   /expo-status-bar@57.0.1(expo@57.0.27)(react-native@0.86.3)(react@19.2.3):
