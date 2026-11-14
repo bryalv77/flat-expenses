@@ -9,22 +9,22 @@ emulators. A dry run against the real project is clean: 7 users (all email + pas
 **Firestore and Storage must stop accepting writes before the final migration starts, and stay read-only afterwards.**
 Any write that reaches Firebase after the final copy is lost. Old app builds have no kill switch: the only lever is the security rules.
 
-## Blockers to clear first (none of these is done yet)
+## Blockers
 
-| # | What | Why |
-|---|------|-----|
-| 1 | **CORS on the Worker** | The hosted web app (`costos-piso.web.app`) calls the Worker from another origin. The Worker sends no CORS headers, so every web request would be blocked by the browser (native apps are unaffected). Add Hono `cors()` for `https://costos-piso.web.app` (+ `http://localhost:8081` for dev) with `Authorization` allowed, and a test. |
-| 2 | **Web CSP** | `firebase.json` `connect-src` and `img-src` must include `https://costos-piso-api.bryalv77.workers.dev` (signed file links load from it). `pnpm deploy:web` already refuses to deploy on a CSP hash mismatch, so edit and re-run it. |
-| 3 | **A new native build** | The new login uses `expo-secure-store`, a native module. `runtimeVersion` policy is `appVersion`, so an OTA update on 1.0.0 would reach installed 1.0.0 binaries that do not contain it and crash them. Bump `version` to 1.1.0, build with EAS, ship through TestFlight / the stores. Old 1.0.0 apps keep talking to Firebase and simply stop working at cutover (see "Old app versions"). |
-| 4 | **Read-only rules files** | Create `firestore.readonly.rules` and `storage.readonly.rules` (same `allow read` as today, no writes) and a `firebase.readonly.json` pointing at them. Cutover deploys these; **`pnpm deploy:web` must not be used during or after cutover as it redeploys the normal rules** (it runs `firebase deploy --only hosting,firestore:rules,storage`). Change the script to deploy hosting only, or make it use `firebase.readonly.json`. |
-| 5 | **`EXPO_PUBLIC_API_URL` in the builds** | It is inlined at bundle time. Put `EXPO_PUBLIC_API_URL=https://costos-piso-api.bryalv77.workers.dev` in `.env` (web, `deploy:mobile`) and in the EAS environment for builds. Optionally `EXPO_PUBLIC_WEB_URL` if the web host changes. |
+| # | What | Status |
+|---|------|--------|
+| 1 | **CORS on the Worker.** The hosted web app calls the Worker from another origin; without CORS headers every browser request is blocked (native apps are unaffected). | **Done in code, not deployed yet.** `costos-piso.web.app` and `costos-piso.firebaseapp.com` are allowed (`localhost:8081` only when the Worker itself runs locally), `set-auth-token` is exposed so the browser can read the session token, 4 tests. Deploy with `pnpm deploy` in `worker/`. |
+| 2 | **Web CSP.** `connect-src`, `img-src` and `frame-src` (PDF preview iframe) must include the Worker. | **Done in `firebase.json`**, takes effect with the next `pnpm deploy:web`. |
+| 3 | **A new native build.** The new login uses `expo-secure-store`, a native module. `runtimeVersion` policy is `appVersion`, so an OTA update on 1.0.0 would reach installed 1.0.0 binaries that do not contain it and crash them. | **Open.** Bump `version` to 1.1.0, build with EAS, ship through TestFlight / the stores. Old 1.0.0 apps keep talking to Firebase and stop working at cutover (see "Old app versions"). |
+| 4 | **Read-only rules, and a deploy that cannot re-open writes.** | **Done.** `pnpm rules:readonly` derives frozen rules from the real ones (read access kept, every write removed) into `.readonly/` + `firebase.readonly.json`; `pnpm test:rules:readonly` proves in the emulators that members still read and nothing can be written. `pnpm deploy:web` now deploys hosting only (`--rules` opts back in, only while Firebase is still the live backend). |
+| 5 | **`EXPO_PUBLIC_API_URL` in the builds.** It is inlined at bundle time. | **Open.** Put `EXPO_PUBLIC_API_URL=https://costos-piso-api.bryalv77.workers.dev` in `.env` (web, `deploy:mobile`) and in the EAS environment for builds. |
 
 Also decide before cutover: **when users who only ever signed in with a Firebase password finish migrating.** Their hash stays in Firebase
 format until their first sign-in; keep the `FIREBASE_SCRYPT_*` secrets until everyone active has signed in once.
 
 ## Preparation (days before, no user impact)
 
-1. Clear blockers 1 to 5. Deploy the Worker with the CORS change and run the live smoke test.
+1. Clear blockers 3 and 5. Deploy the Worker with the CORS change (`cd worker && pnpm deploy`) and run the live smoke test.
 2. Build 1.1.0 (preview channel / TestFlight) and test it against the **current Neon data** (the trial migration already loaded it):
    sign in with your own Firebase password (this proves the hash secrets), browse houses and bills, open a PDF, add and delete an expense,
    change password, delete a throwaway account. Test the web build locally against the Worker (`EXPO_PUBLIC_API_URL=… pnpm web`).
@@ -40,16 +40,16 @@ Run from `worker/`. `GOOGLE_CLOUD_QUOTA_PROJECT=costos-piso` is needed with pers
 
 | Step | Command / action | Check |
 |------|------------------|-------|
-| 1. Freeze Firebase | `firebase deploy --only firestore:rules,storage --config firebase.readonly.json` | A write from an old app now fails (`permission-denied`). Reads still work. |
+| 1. Freeze Firebase | `pnpm rules:readonly && pnpm exec firebase deploy --only firestore:rules,storage --config firebase.readonly.json` | A write from an old app now fails (`permission-denied`). Reads still work. |
 | 2. Reset the trial data in Neon | `psql "$DATABASE_URL" -c 'truncate "user", houses, verification cascade'`, then delete `scripts/migrate/.files-remote-*.json` | Row counts 0. R2 does not need wiping: the same keys are overwritten. |
 | 3. Dry run | `pnpm migrate:firebase` | Same counts as the last dry run, 0 skips. Stop if anything new appears. |
 | 4. Final copy | `pnpm migrate:firebase --database-url "$DATABASE_URL" --r2 remote --apply --verify` | Counts match, sampled R2 files match. Takes a few minutes (files are the slow part). |
 | 5. Prove it | Sign in on the new build with your own password; open a bill with a PDF | Sign-in works and the Firebase hash was upgraded. |
-| 6. Open the new clients | `pnpm deploy:web` **after** blocker 4 (hosting only); submit/release the 1.1.0 build | Web loads, sign-in works from the browser (CORS). |
+| 6. Open the new clients | `pnpm deploy:web` (hosting only; never add `--rules` from here on); submit/release the 1.1.0 build | Web loads, sign-in works from the browser (CORS). |
 | 7. Announce | "Ready, please update the app" | |
 
-**Go / no-go is at step 5.** Until step 6 nothing new has been written anywhere that matters, so rollback is just `firebase deploy --only
-firestore:rules,storage` with the normal rules.
+**Go / no-go is at step 5.** Until step 6 nothing new has been written anywhere that matters, so rollback is just `pnpm exec firebase deploy --only
+firestore:rules,storage` with the normal rules (`firebase.json`).
 
 ## Rollback
 

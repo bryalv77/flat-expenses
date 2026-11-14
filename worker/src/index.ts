@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 
-import { createAuth } from './auth';
+import { WEB_ORIGINS, createAuth, devWebOrigins } from './auth';
 import { createDb } from './db/client';
 import { filesApp } from './files';
 import { housesApp } from './houses';
@@ -32,6 +33,18 @@ app.onError((e, c) => {
   console.error(e);
   return c.json({ error: 'internal' }, 500);
 });
+
+// The hosted web app calls the Worker from another origin. Bearer tokens (no cookies), so no credentials mode, and the browser
+// can only read `set-auth-token` (how sign-in hands over the session token) when it is exposed explicitly.
+app.use('/api/*', (c, next) =>
+  cors({
+    origin: (origin) => ([...WEB_ORIGINS, ...devWebOrigins(c.env)].includes(origin) ? origin : null),
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['authorization', 'content-type'],
+    exposeHeaders: ['set-auth-token'],
+    maxAge: 86_400,
+  })(c, next),
+);
 
 app.get('/health', (c) => c.json({ ok: true }));
 

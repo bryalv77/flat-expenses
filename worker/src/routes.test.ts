@@ -447,4 +447,42 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
       expect((await login(m.email, 'changed-pass-4', env)).status).toBe(200);
     });
   });
+
+  describe('CORS for the hosted web app', () => {
+    const WEB = 'https://costos-piso.web.app';
+    const preflight = (path: string, origin: string, method = 'POST') =>
+      app.request(path, { method: 'OPTIONS', headers: { origin, 'access-control-request-method': method, 'access-control-request-headers': 'authorization,content-type' } }, env);
+
+    it('answers the preflight for the web origins, with the headers the app sends', async () => {
+      for (const origin of [WEB, 'https://costos-piso.firebaseapp.com']) {
+        const r = await preflight('/api/houses', origin, 'PATCH');
+        expect([r.status, r.headers.get('access-control-allow-origin')]).toEqual([204, origin]);
+        expect(r.headers.get('access-control-allow-headers')?.toLowerCase()).toContain('authorization');
+        expect(r.headers.get('access-control-allow-methods')).toContain('PATCH');
+      }
+    });
+
+    it('gives other origins no CORS headers (the browser then blocks them)', async () => {
+      for (const origin of ['https://evil.example', 'https://costos-piso.web.app.evil.example']) {
+        expect((await preflight('/api/houses', origin)).headers.get('access-control-allow-origin')).toBeNull();
+      }
+      const prod = { ...env, BETTER_AUTH_URL: 'https://costos-piso-api.bryalv77.workers.dev' };
+      const r = await app.request('/api/houses', { method: 'OPTIONS', headers: { origin: 'http://localhost:8081', 'access-control-request-method': 'GET' } }, prod);
+      expect(r.headers.get('access-control-allow-origin')).toBeNull(); // a page on someone's localhost can't call production
+    });
+
+    it('exposes set-auth-token on sign-in so the browser can read the session token, and works with the web origin as Origin', async () => {
+      const email = `cors-${run}@test.dev`;
+      const up = await app.request('/api/auth/sign-up/email', { method: 'POST', headers: { 'content-type': 'application/json', origin: WEB }, body: JSON.stringify({ email, password: 'password123', name: 'Cors' }) }, env);
+      expect(up.status).toBe(200);
+      expect(up.headers.get('access-control-allow-origin')).toBe(WEB);
+      expect(up.headers.get('access-control-expose-headers')?.toLowerCase()).toContain('set-auth-token');
+      expect(up.headers.get('set-auth-token')).toBeTruthy();
+    });
+
+    it('also covers file downloads (signed links are loaded cross-origin by <img>/<iframe>) and errors', async () => {
+      const r = await app.request('/api/houses', { headers: { origin: WEB } }, env); // 401 without a session, still with CORS headers
+      expect([r.status, r.headers.get('access-control-allow-origin')]).toEqual([401, WEB]);
+    });
+  });
 });

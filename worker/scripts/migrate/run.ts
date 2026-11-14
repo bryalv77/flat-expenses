@@ -102,8 +102,10 @@ async function extract(): Promise<Source> {
 
 // ---------------------------------------------------------------- load (Postgres, one transaction)
 const jsonCols = new Set(['ocr_data']);
-async function insert(c: pg.Client, table: string, rows: Record<string, unknown>[], returning?: string): Promise<Record<string, unknown>[]> {
+// `count` is the database's own row count of what was really inserted (conflicts are not counted); `rows` only has data with `returning`.
+async function insert(c: pg.Client, table: string, rows: Record<string, unknown>[], returning?: string): Promise<{ count: number; rows: Record<string, unknown>[] }> {
   const out: Record<string, unknown>[] = [];
+  let count = 0;
   for (let i = 0; i < rows.length; i += 200) {
     const chunk = rows.slice(i, i + 200);
     const cols = Object.keys(chunk[0]!);
@@ -111,8 +113,9 @@ async function insert(c: pg.Client, table: string, rows: Record<string, unknown>
     const tuples = chunk.map((r) => `(${cols.map((k) => { args.push(jsonCols.has(k) && r[k] != null ? JSON.stringify(r[k]) : r[k]); return `$${args.length}`; }).join(',')})`);
     const res = await c.query(`insert into "${table}" (${cols.map((k) => `"${k}"`).join(',')}) values ${tuples.join(',')} on conflict do nothing${returning ? ` returning ${returning}` : ''}`, args);
     out.push(...res.rows);
+    count += res.rowCount ?? 0;
   }
-  return out;
+  return { count, rows: out };
 }
 
 async function load(plan: Plan): Promise<Record<string, { planned: number; inserted: number }>> {
@@ -123,15 +126,15 @@ async function load(plan: Plan): Promise<Record<string, { planned: number; inser
   try {
     await c.query('begin');
     for (const t of ['user', 'account', 'user_documents', 'houses', 'members', 'categories'] as const) {
-      done(t, plan[t].length, (await insert(c, t, plan[t])).length);
+      done(t, plan[t].length, (await insert(c, t, plan[t])).count);
     }
     // bill_files only for bills inserted now: a re-run must not duplicate them (bill_files has no natural key)
     const billRows = plan.bills.map(({ files: _f, ...b }) => b);
-    const inserted = new Set((await insert(c, 'bills', billRows, 'id')).map((r) => r.id as string));
+    const inserted = new Set((await insert(c, 'bills', billRows, 'id')).rows.map((r) => r.id as string));
     done('bills', plan.bills.length, inserted.size);
     const fileRows = plan.bills.filter((b) => inserted.has(b.id as string)).flatMap((b) => b.files.map((f) => ({ ...f, bill_id: b.id })));
-    done('bill_files', plan.bills.reduce((n, b) => n + b.files.length, 0), (await insert(c, 'bill_files', fileRows)).length);
-    for (const t of ['payments', 'invites'] as const) done(t, plan[t].length, (await insert(c, t, plan[t])).length);
+    done('bill_files', plan.bills.reduce((n, b) => n + b.files.length, 0), (await insert(c, 'bill_files', fileRows)).count);
+    for (const t of ['payments', 'invites'] as const) done(t, plan[t].length, (await insert(c, t, plan[t])).count);
     await c.query('commit');
   } catch (e) {
     await c.query('rollback');
