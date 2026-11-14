@@ -13,7 +13,7 @@ export const es = {
     invalidEmail: 'Correo no válido', shortPassword: 'Mínimo 6 caracteres', nameRequired: 'Introduce tu nombre',
     wrongCredentials: 'Correo o contraseña incorrectos', emailInUse: 'Ese correo ya está registrado',
     noAccount: '¿No tienes cuenta?', haveAccount: '¿Ya tienes cuenta?',
-    useLocal: 'Usar sin cuenta (solo en este dispositivo)', localNoticeTitle: 'Tus datos solo están en este dispositivo', localNoticeBody: 'Si lo pierdes o desinstalas la app, se pierden. Exporta una copia de vez en cuando.',
+    useLocal: 'Usar sin cuenta (solo en este dispositivo)', localNoticeTitle: 'Tus datos solo están en este dispositivo', localNoticeBody: 'Si pierdes el dispositivo o desinstalas la app, tus datos se pierden para siempre, salvo que hayas exportado una copia.',
   },
   onboarding: {
     roleTitle: '¿Cuál es tu rol?', admin: 'Soy admin del piso', adminDesc: 'Crea el piso, sube facturas e invita a tus roommies.',
@@ -119,7 +119,6 @@ export const es = {
     importConfirm: "Restaurar reemplaza TODOS los datos de este dispositivo por los de la copia. ¿Continuar?",
     deleteConfirm: "Esto elimina de forma permanente todos los datos y archivos de este dispositivo. Exporta antes una copia si la necesitas.",
     import: "Restaurar",
-    deleteAll: "Eliminar todos los datos",
   },
   errors: { generic: 'Algo salió mal. Inténtalo de nuevo.', network: 'Sin conexión.', fileTooLarge: 'El archivo es demasiado grande.', fileType: 'Tipo de archivo no permitido.' },
   billsUi: {

@@ -16,7 +16,7 @@ export const it: DeepPartial<Messages> = {
     invalidEmail: 'E-mail non valida', shortPassword: 'Almeno 6 caratteri', nameRequired: 'Inserisci il tuo nome',
     wrongCredentials: 'E-mail o password errate', emailInUse: 'Questa e-mail è già registrata',
     noAccount: 'Non hai un account?', haveAccount: 'Hai già un account?',
-    useLocal: 'Usa senza account (solo su questo dispositivo)', localNoticeTitle: 'I tuoi dati restano su questo dispositivo', localNoticeBody: 'Se lo perdi o disinstalli l\'app, vanno persi. Esporta una copia ogni tanto.',
+    useLocal: 'Usa senza account (solo su questo dispositivo)', localNoticeTitle: 'I tuoi dati restano su questo dispositivo', localNoticeBody: 'Se perdi il dispositivo o disinstalli l\'app, i dati vanno persi per sempre, a meno che tu non abbia esportato una copia.',
   },
   onboarding: {
     roleTitle: 'Qual è il tuo ruolo?', admin: 'Sono l’admin dell’appartamento', adminDesc: 'Crea l’appartamento, carica le bollette e invita i coinquilini.',
@@ -122,7 +122,6 @@ export const it: DeepPartial<Messages> = {
     importConfirm: "Il ripristino sostituisce TUTTI i dati di questo dispositivo con il backup. Continuare?",
     deleteConfirm: "Elimina in modo permanente tutti i dati e i file su questo dispositivo. Esporta prima un backup se ti serve.",
     import: "Ripristina",
-    deleteAll: "Elimina tutti i dati",
   },
   errors: { generic: 'Qualcosa è andato storto. Riprova.', network: 'Nessuna connessione.', fileTooLarge: 'Il file è troppo grande.', fileType: 'Tipo di file non consentito.' },
   billsUi: {

@@ -68,7 +68,7 @@ export function useBackupActions(): { onExport: () => void; onImport: () => void
       <ConfirmSheet
         visible={pending !== null}
         title={t(isImport ? 'backup.importConfirm' : 'backup.deleteConfirm')}
-        confirmLabel={t(isImport ? 'backup.import' : 'backup.deleteAll')}
+        confirmLabel={t(isImport ? 'backup.import' : 'localMode.deleteAll')}
         onConfirm={confirm}
         onClose={() => setPending(null)}
       />

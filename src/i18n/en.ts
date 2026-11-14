@@ -15,7 +15,7 @@ export const en: Messages = {
     invalidEmail: 'Invalid email', shortPassword: 'At least 6 characters', nameRequired: 'Enter your name',
     wrongCredentials: 'Wrong email or password', emailInUse: 'That email is already registered',
     noAccount: 'No account yet?', haveAccount: 'Already have an account?',
-    useLocal: 'Use without an account (this device only)', localNoticeTitle: 'Your data stays on this device', localNoticeBody: 'If you lose it or uninstall the app, it is gone. Export a copy now and then.',
+    useLocal: 'Use without an account (this device only)', localNoticeTitle: 'Your data stays on this device', localNoticeBody: 'Your data exists only on this device. If you lose it or uninstall the app, your data is lost for good unless you exported a copy.',
   },
   onboarding: {
     roleTitle: 'What is your role?', admin: 'I am the flat admin', adminDesc: 'Create the flat, upload bills and invite roommates.',
@@ -121,7 +121,6 @@ export const en: Messages = {
     importConfirm: "Restoring replaces ALL data on this device with the backup. Continue?",
     deleteConfirm: "This permanently deletes all data and files on this device. Export a backup first if you need one.",
     import: "Restore",
-    deleteAll: "Delete all data",
   },
   errors: { generic: 'Something went wrong. Try again.', network: 'No connection.', fileTooLarge: 'The file is too large.', fileType: 'File type not allowed.' },
   billsUi: {

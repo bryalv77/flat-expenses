@@ -16,7 +16,7 @@ export const ca: DeepPartial<Messages> = {
     invalidEmail: 'Correu no vàlid', shortPassword: 'Mínim 6 caràcters', nameRequired: 'Introdueix el teu nom',
     wrongCredentials: 'Correu o contrasenya incorrectes', emailInUse: 'Aquest correu ja està registrat',
     noAccount: 'No tens compte?', haveAccount: 'Ja tens compte?',
-    useLocal: 'Fer servir sense compte (només en aquest dispositiu)', localNoticeTitle: 'Les teves dades només són en aquest dispositiu', localNoticeBody: 'Si el perds o desinstal·les l\'app, es perden. Exporta\'n una còpia de tant en tant.',
+    useLocal: 'Fer servir sense compte (només en aquest dispositiu)', localNoticeTitle: 'Les teves dades només són en aquest dispositiu', localNoticeBody: 'Si perds el dispositiu o desinstal·les l\'app, les teves dades es perden per sempre, tret que n\'hagis exportat una còpia.',
   },
   onboarding: {
     roleTitle: 'Quin és el teu rol?', admin: 'Sóc l’admin del pis', adminDesc: 'Crea el pis, puja factures i convida els teus companys.',
@@ -122,7 +122,6 @@ export const ca: DeepPartial<Messages> = {
     importConfirm: "Restaurar substitueix TOTES les dades d'aquest dispositiu per les de la còpia. Continuar?",
     deleteConfirm: "Això elimina de manera permanent totes les dades i fitxers d'aquest dispositiu. Exporta abans una còpia si la necessites.",
     import: "Restaurar",
-    deleteAll: "Eliminar totes les dades",
   },
   errors: { generic: 'Alguna cosa ha anat malament. Torna-ho a provar.', network: 'Sense connexió.', fileTooLarge: 'El fitxer és massa gran.', fileType: 'Tipus de fitxer no permès.' },
   billsUi: {

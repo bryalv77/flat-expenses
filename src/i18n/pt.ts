@@ -16,7 +16,7 @@ export const pt: DeepPartial<Messages> = {
     invalidEmail: 'E-mail inválido', shortPassword: 'Mínimo de 6 caracteres', nameRequired: 'Introduz o teu nome',
     wrongCredentials: 'E-mail ou palavra-passe incorretos', emailInUse: 'Este e-mail já está registado',
     noAccount: 'Ainda não tens conta?', haveAccount: 'Já tens conta?',
-    useLocal: 'Usar sem conta (apenas neste dispositivo)', localNoticeTitle: 'Os teus dados ficam só neste dispositivo', localNoticeBody: 'Se o perderes ou desinstalares a app, perdem-se. Exporta uma cópia de vez em quando.',
+    useLocal: 'Usar sem conta (apenas neste dispositivo)', localNoticeTitle: 'Os teus dados ficam só neste dispositivo', localNoticeBody: 'Se perderes o dispositivo ou desinstalares a app, os teus dados perdem-se para sempre, a não ser que tenhas exportado uma cópia.',
   },
   onboarding: {
     roleTitle: 'Qual é o teu papel?', admin: 'Sou o admin do apartamento', adminDesc: 'Cria o apartamento, carrega faturas e convida os teus colegas.',
@@ -112,7 +112,7 @@ export const pt: DeepPartial<Messages> = {
     variable: 'variável',
   },
   backup: {
-    reminder: { title: "Hora de fazer uma cópia", body: "Os seus dados estão apenas neste dispositivo. Exporte uma cópia para não os perder.", exportNow: "Exportar agora", snooze: "Lembrar em 7 dias" },
+    reminder: { title: "Hora de fazer uma cópia", body: "Os teus dados estão apenas neste dispositivo. Exporta uma cópia para não os perder.", exportNow: "Exportar agora", snooze: "Lembrar em 7 dias" },
     exported: "Cópia exportada",
     imported: "Cópia restaurada",
     deleted: "Todos os dados locais eliminados",
@@ -122,7 +122,6 @@ export const pt: DeepPartial<Messages> = {
     importConfirm: "Restaurar substitui TODOS os dados deste dispositivo pelos da cópia. Continuar?",
     deleteConfirm: "Isto elimina permanentemente todos os dados e ficheiros deste dispositivo. Exporta antes uma cópia se precisares.",
     import: "Restaurar",
-    deleteAll: "Eliminar todos os dados",
   },
   errors: { generic: 'Algo correu mal. Tenta novamente.', network: 'Sem ligação.', fileTooLarge: 'O ficheiro é demasiado grande.', fileType: 'Tipo de ficheiro não permitido.' },
   billsUi: {
