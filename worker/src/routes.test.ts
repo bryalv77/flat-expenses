@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, inject, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, inject, it, vi } from 'vitest';
 
 import { createDb } from './db/client';
 import { members } from './db/schema';
@@ -19,7 +19,7 @@ const bucket = {
   list: async ({ prefix = '' }: { prefix?: string }) => ({ objects: [...store.keys()].filter((k) => k.startsWith(prefix)).map((key) => ({ key })), truncated: false }),
 } as unknown as R2Bucket;
 
-const env = { BUCKET: bucket, DATABASE_URL: dbUrl ?? '', BETTER_AUTH_SECRET: 'test-secret-test-secret-test-secret-00', BETTER_AUTH_URL: 'http://localhost' };
+const env: Record<string, unknown> = { EMAIL_MODE: 'log', BUCKET: bucket, DATABASE_URL: dbUrl ?? '', BETTER_AUTH_SECRET: 'test-secret-test-secret-test-secret-00', BETTER_AUTH_URL: 'http://localhost' };
 const run = Math.random().toString(36).slice(2, 8); // unique emails: the test DB is never wiped
 
 type Res = { status: number; body: any };
@@ -315,5 +315,87 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
       expect([m.status, m.displayName, m.email, m.removedAt !== null]).toEqual(['REMOVED', 'Cuenta eliminada', '', true]);
     }
     expect((await call('GET', `/api/houses/${mine}`, keeper.token)).status).toBe(200); // the house survives
+  });
+
+  describe('password reset by email', () => {
+    const REDIRECT = 'https://costos-piso.web.app/reset-password';
+    const request = (email: string, e: Record<string, unknown> = env, redirectTo = REDIRECT) =>
+      app.request('/api/auth/request-password-reset', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', origin: 'http://localhost' },
+        body: JSON.stringify({ email, redirectTo }),
+      }, e);
+    afterEach(() => vi.restoreAllMocks());
+
+    it('passwords follow the app rule: 6+ characters', async () => {
+      const up = (password: string, n: string) => call('POST', '/api/auth/sign-up/email', undefined, { email: `pw-${n}-${run}@test.dev`, password, name: 'Pw' });
+      expect((await up('12345', 'a')).status).toBe(400);
+      expect((await up('123456', 'b')).status).toBe(200);
+    });
+
+    it('log sender: link -> redirect with token -> new password works, old password and old sessions do not', async () => {
+      const u = await signUp('forgetful');
+      const email = `forgetful-${run}@test.dev`;
+      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      expect((await request(email)).status).toBe(200);
+      await vi.waitFor(() => expect(log).toHaveBeenCalled());
+      const text = String(log.mock.calls[0]![0]);
+      expect(text).toContain(`to=${email}`);
+      expect(text).toContain('Restablece tu contraseña'); // Spanish: the user's saved locale is the default one
+      const link = new URL(text.match(/https?:\/\/\S+/)![0]);
+
+      // the Worker validates the token and sends the browser to the web page with it
+      const redirect = await app.request(link.pathname + link.search, {}, env);
+      expect(redirect.status).toBe(302);
+      const to = new URL(redirect.headers.get('location')!);
+      expect([to.origin + to.pathname, to.searchParams.has('token')]).toEqual([REDIRECT, true]);
+
+      const token = to.searchParams.get('token')!;
+      const reset = (newPassword: string, t = token) => call('POST', '/api/auth/reset-password', undefined, { newPassword, token: t });
+      expect((await reset('brand-new-pass-1')).status).toBe(200);
+      expect((await reset('another-pass-2')).status).toBe(400); // the token is single use
+      const signIn = (password: string) => call('POST', '/api/auth/sign-in/email', undefined, { email, password });
+      expect((await signIn('brand-new-pass-1')).status).toBe(200);
+      expect((await signIn('password123')).status).toBe(401);
+      expect((await call('GET', '/api/me', u.token)).status).toBe(401); // sessions from before the reset are revoked
+    });
+
+    it('unknown email looks the same as a known one and sends nothing; untrusted redirects are refused; bad tokens are rejected', async () => {
+      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      expect((await request(`nobody-${run}@test.dev`)).status).toBe(200);
+      expect((await request(`forgetful-${run}@test.dev`, env, 'https://evil.example/steal')).status).toBe(403);
+      expect((await call('POST', '/api/auth/reset-password', undefined, { newPassword: 'whatever-pass-1', token: 'not-a-token' })).status).toBe(400);
+      await new Promise((r) => setTimeout(r, 300));
+      expect(log).not.toHaveBeenCalled();
+    });
+
+    it('Resend: posts the email to the API with the key and from address; English for English users; failures do not break the request', async () => {
+      const u = await signUp('english');
+      await call('PATCH', '/api/me', u.token, { locale: 'en' });
+      const sent: { url: string; init: RequestInit }[] = [];
+      vi.stubGlobal('fetch', async (url: string, init: RequestInit) => (sent.push({ url, init }), new Response('{}', { status: 200 })));
+      const resend = { ...env, EMAIL_MODE: undefined, RESEND_API_KEY: 're_test_key', EMAIL_FROM: 'Costos Piso <noreply@example.com>' };
+      expect((await request(`english-${run}@test.dev`, resend)).status).toBe(200);
+      await vi.waitFor(() => expect(sent).toHaveLength(1));
+      const body = JSON.parse(String(sent[0]!.init.body));
+      expect([sent[0]!.url, (sent[0]!.init.headers as Record<string, string>).authorization]).toEqual(['https://api.resend.com/emails', 'Bearer re_test_key']);
+      expect([body.from, body.to, body.subject]).toEqual(['Costos Piso <noreply@example.com>', [`english-${run}@test.dev`], 'Reset your Costos Piso password']);
+      expect(body.html).toContain('/api/auth/reset-password/');
+
+      vi.stubGlobal('fetch', async () => new Response('nope', { status: 500 })); // provider down
+      const err = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      expect((await request(`english-${run}@test.dev`, resend)).status).toBe(200);
+      await vi.waitFor(() => expect(err).toHaveBeenCalled());
+    });
+
+    it('not configured: nothing is sent and the reset link is never logged', async () => {
+      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const bare = { ...env, EMAIL_MODE: undefined };
+      expect((await request(`forgetful-${run}@test.dev`, bare)).status).toBe(200);
+      await vi.waitFor(() => expect(warn).toHaveBeenCalled());
+      expect(log).not.toHaveBeenCalled();
+      expect(String(warn.mock.calls.flat())).not.toContain('reset-password/');
+    });
   });
 });

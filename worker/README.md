@@ -26,3 +26,15 @@ R2 bucket `costos-piso-files` (EU jurisdiction, fixed at creation). Deploy with 
 and `BETTER_AUTH_URL` (`wrangler secret put NAME --env=""`). Apply new migrations to Neon with
 `DATABASE_URL=<neon url> pnpm db:migrate` before deploying code that needs them.
 
+### Password reset emails
+
+`POST /api/auth/request-password-reset` emails a one-hour link (Spanish, or English for users whose locale is `en`) that goes through the Worker
+and redirects to `https://costos-piso.web.app/reset-password?token=…`. Real sending is off until you have a sending domain verified at Resend:
+
+```
+wrangler secret put RESEND_API_KEY --env=""
+wrangler secret put EMAIL_FROM --env=""     # e.g. Costos Piso <noreply@yourdomain.com>
+```
+
+Without them nothing is sent and the link is never logged. `EMAIL_MODE=log` (in `.dev.vars.local`) prints the email to the console for local development.
+

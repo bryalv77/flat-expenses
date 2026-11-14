@@ -12,6 +12,9 @@ export interface Env {
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
   BUCKET: R2Bucket;
+  RESEND_API_KEY?: string;
+  EMAIL_FROM?: string;
+  EMAIL_MODE?: string;
 }
 
 export const app = new Hono<{ Bindings: Env }>();
@@ -27,7 +30,13 @@ app.onError((e, c) => {
 
 app.get('/health', (c) => c.json({ ok: true }));
 
-app.on(['GET', 'POST'], '/api/auth/*', (c) => createAuth(createDb(c.env.DATABASE_URL), c.env).handler(c.req.raw));
+app.on(['GET', 'POST'], '/api/auth/*', (c) => createAuth(createDb(c.env.DATABASE_URL), c.env, (p) => {
+    try {
+      c.executionCtx.waitUntil(p);
+    } catch {
+      void p; // no ExecutionContext (unit tests): just let it run
+    }
+  }).handler(c.req.raw));
 
 app.route('/api/houses', housesApp);
 app.route('/api/me', meApp);
