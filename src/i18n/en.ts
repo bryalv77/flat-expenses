@@ -15,6 +15,7 @@ export const en: Messages = {
     invalidEmail: 'Invalid email', shortPassword: 'At least 6 characters', nameRequired: 'Enter your name',
     wrongCredentials: 'Wrong email or password', emailInUse: 'That email is already registered',
     noAccount: 'No account yet?', haveAccount: 'Already have an account?',
+    useLocal: 'Use without an account (this device only)', localNoticeTitle: 'Your data stays on this device', localNoticeBody: 'If you lose it or uninstall the app, it is gone. Export a copy now and then.',
   },
   onboarding: {
     roleTitle: 'What is your role?', admin: 'I am the flat admin', adminDesc: 'Create the flat, upload bills and invite roommates.',

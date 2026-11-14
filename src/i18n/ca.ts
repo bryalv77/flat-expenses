@@ -16,6 +16,7 @@ export const ca: DeepPartial<Messages> = {
     invalidEmail: 'Correu no vàlid', shortPassword: 'Mínim 6 caràcters', nameRequired: 'Introdueix el teu nom',
     wrongCredentials: 'Correu o contrasenya incorrectes', emailInUse: 'Aquest correu ja està registrat',
     noAccount: 'No tens compte?', haveAccount: 'Ja tens compte?',
+    useLocal: 'Fer servir sense compte (només en aquest dispositiu)', localNoticeTitle: 'Les teves dades només són en aquest dispositiu', localNoticeBody: 'Si el perds o desinstal·les l\'app, es perden. Exporta\'n una còpia de tant en tant.',
   },
   onboarding: {
     roleTitle: 'Quin és el teu rol?', admin: 'Sóc l’admin del pis', adminDesc: 'Crea el pis, puja factures i convida els teus companys.',
