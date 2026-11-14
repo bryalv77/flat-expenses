@@ -107,6 +107,18 @@ export const fr: DeepPartial<Messages> = {
     month_one: 'Chaque mois', month_other: 'Tous les {{n}} mois', year_one: 'Chaque année', year_other: 'Tous les {{n}} ans',
     variable: 'variable',
   },
+  backup: {
+    exported: "Sauvegarde exportée",
+    imported: "Sauvegarde restaurée",
+    deleted: "Toutes les données locales supprimées",
+    failed: "L'opération de sauvegarde a échoué. Réessayez.",
+    invalid: "Ce fichier n'est pas une sauvegarde valide.",
+    newerVersion: "Cette sauvegarde provient d'une version plus récente de l'app. Mettez d'abord l'app à jour.",
+    importConfirm: "La restauration remplace TOUTES les données de cet appareil par la sauvegarde. Continuer ?",
+    deleteConfirm: "Cela supprime définitivement toutes les données et fichiers de cet appareil. Exportez d'abord une sauvegarde si besoin.",
+    import: "Restaurer",
+    deleteAll: "Supprimer toutes les données",
+  },
   errors: { generic: 'Une erreur est survenue. Réessayez.', network: 'Pas de connexion.', fileTooLarge: 'Le fichier est trop volumineux.', fileType: 'Type de fichier non autorisé.' },
   billsUi: {
     searchPlaceholder: 'Rechercher dans les notes', range3: '3 mois', range12: '12 mois', rangeYear: 'Cette année', rangeMonth: 'Ce mois-ci',

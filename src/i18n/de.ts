@@ -107,6 +107,18 @@ export const de: DeepPartial<Messages> = {
     month_one: 'Jeden Monat', month_other: 'Alle {{n}} Monate', year_one: 'Jedes Jahr', year_other: 'Alle {{n}} Jahre',
     variable: 'variabel',
   },
+  backup: {
+    exported: "Backup exportiert",
+    imported: "Backup wiederhergestellt",
+    deleted: "Alle lokalen Daten gelöscht",
+    failed: "Der Backup-Vorgang ist fehlgeschlagen. Versuche es erneut.",
+    invalid: "Diese Datei ist kein gültiges Backup.",
+    newerVersion: "Dieses Backup stammt von einer neueren App-Version. Aktualisiere zuerst die App.",
+    importConfirm: "Beim Wiederherstellen werden ALLE Daten auf diesem Gerät durch das Backup ersetzt. Fortfahren?",
+    deleteConfirm: "Dadurch werden alle Daten und Dateien auf diesem Gerät endgültig gelöscht. Exportiere vorher ein Backup, falls nötig.",
+    import: "Wiederherstellen",
+    deleteAll: "Alle Daten löschen",
+  },
   errors: { generic: 'Etwas ist schiefgelaufen. Versuche es erneut.', network: 'Keine Verbindung.', fileTooLarge: 'Die Datei ist zu groß.', fileType: 'Dateityp nicht erlaubt.' },
   billsUi: {
     searchPlaceholder: 'In Notizen suchen', range3: '3 Monate', range12: '12 Monate', rangeYear: 'Dieses Jahr', rangeMonth: 'Diesen Monat',

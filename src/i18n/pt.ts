@@ -107,6 +107,18 @@ export const pt: DeepPartial<Messages> = {
     month_one: 'Todos os meses', month_other: 'A cada {{n}} meses', year_one: 'Todos os anos', year_other: 'A cada {{n}} anos',
     variable: 'variável',
   },
+  backup: {
+    exported: "Cópia exportada",
+    imported: "Cópia restaurada",
+    deleted: "Todos os dados locais eliminados",
+    failed: "A operação de cópia falhou. Tenta novamente.",
+    invalid: "Este ficheiro não é uma cópia válida.",
+    newerVersion: "Esta cópia foi criada com uma versão mais recente da app. Atualiza a app primeiro.",
+    importConfirm: "Restaurar substitui TODOS os dados deste dispositivo pelos da cópia. Continuar?",
+    deleteConfirm: "Isto elimina permanentemente todos os dados e ficheiros deste dispositivo. Exporta antes uma cópia se precisares.",
+    import: "Restaurar",
+    deleteAll: "Eliminar todos os dados",
+  },
   errors: { generic: 'Algo correu mal. Tenta novamente.', network: 'Sem ligação.', fileTooLarge: 'O ficheiro é demasiado grande.', fileType: 'Tipo de ficheiro não permitido.' },
   billsUi: {
     searchPlaceholder: 'Pesquisar nas notas', range3: '3 meses', range12: '12 meses', rangeYear: 'Este ano', rangeMonth: 'Este mês',
