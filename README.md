@@ -44,6 +44,14 @@ Demo data: `node scripts/seed-demo.mjs` (add `--emulator` for local emulators). 
 
 `pnpm dlx eas-cli build -p ios` / `-p android` (iOS bundle id `com.devalv.costospiso`, Android package `com.costospiso.app`).
 
+## Cloud vs local mode
+
+- **Cloud**: accounts, shared houses and roles, backed by Firebase / the Worker API (Neon + R2). Data lives on the server.
+- **Local**: one device, no account, no network. Houses, bills and payments live in a SQLite database (`expo-sqlite`; WASM on web, where files are stored as blobs in the same DB). Bill photos/PDFs and avatars are files under `Documents/files` on native.
+- **Backup**: local data is deliberately excluded from OS backup, so the in-app backup export (and CSV export) is the only safety net. iOS: `Documents/SQLite` and `Documents/files` are marked `isExcludedFromBackup` at launch by `plugins/withExcludeLocalDataFromBackup.js`. Android: `android.allowBackup=false` in `app.json` (all-or-nothing: it also drops Android Auto Backup for other app data; SecureStore is not backed up anyway). On web, browser storage can be evicted; export regularly.
+- Adding `expo-sqlite` is a native change: it ships in a new store build (version 1.2.0, `runtimeVersion` follows `appVersion`), never via OTA.
+- Dev: `pnpm test` (unit, cloud contract skipped), `pnpm test:local` (contract suite against local SQLite via `better-sqlite3`; install with `--ignore-scripts` is fine, prebuilt binaries load), `pnpm typecheck`, `pnpm lint`. CI (`.github/workflows/ci.yml`) runs all four.
+
 ## Internationalisation
 
 Everything lives in `src/i18n/`:

@@ -1,0 +1,24 @@
+name: CI
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # version comes from package.json "packageManager"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      # --ignore-scripts: better-sqlite3's node-gyp rebuild is skipped, its prebuilt binary is used.
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: better-sqlite3 must load (needed by test:local)
+        run: node -e "require('better-sqlite3')" || (echo "::error::better-sqlite3 failed to load; the local contract tests cannot run" && exit 1)
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm test:local

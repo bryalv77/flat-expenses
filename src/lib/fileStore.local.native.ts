@@ -2,7 +2,8 @@ import { Directory, File, Paths } from 'expo-file-system';
 import type { FileStore } from './fileStore';
 import { assertSafeKey, readPicked } from './fileStore.localShared';
 
-// TODO(T14): exclude this directory from iCloud/Google backup; expo-file-system 57 has no API for it, so do it in config/a config plugin.
+// TODO(T14) resolved in config: iOS isExcludedFromBackup is set natively by plugins/withExcludeLocalDataFromBackup.js
+// (it hardcodes Documents/files and Documents/SQLite; keep in sync if this path changes); Android uses allowBackup=false.
 const root = () => new Directory(Paths.document, 'files');
 
 export const localFileStore: FileStore = {
