@@ -4,6 +4,12 @@
  */
 import nodeHttp from 'node:http';
 
+import { runBillsContract } from './api/contract/bills.contract';
+import { runCategoriesContract } from './api/contract/categories.contract';
+import type { ApiFactory } from './api/contract/harness';
+import { runHousesContract } from './api/contract/houses.contract';
+import { runPaymentsContract } from './api/contract/payments.contract';
+
 const URL_ = process.env.API_E2E_URL;
 
 // jest-expo swaps `fetch` for a native-backed mock that never reaches the network, so this test brings a tiny real one.
@@ -107,4 +113,11 @@ const run = Math.random().toString(36).slice(2, 8);
     await api.deleteHouse({ houseId });
     expect(await api.listMyHouses()).toEqual([]);
   });
+
+  // The same behavioural suites the local backend must pass. They share the one signed-in user, so they never assume an empty account.
+  const make: ApiFactory = async () => ({ api, cleanup: async () => undefined });
+  runHousesContract(make);
+  runCategoriesContract(make);
+  runBillsContract(make);
+  runPaymentsContract(make);
 });
