@@ -51,7 +51,9 @@ import type {
   UserDocument,
 } from '@/types/domain';
 
+import { httpApi } from './apiHttp';
 import { auth, db } from './firebase';
+import { USE_API } from './http';
 import { deleteFile } from './storage';
 
 // ---------- helpers ----------
@@ -222,7 +224,7 @@ async function myMemberships(uid: string): Promise<QueryDocumentSnapshot[]> {
 }
 
 // ---------- public API ----------
-export const api = {
+export const firestoreApi = {
   // User
   upsertUser: async (v: { email: string; displayName: string; locale?: Locale; accountRole?: HouseRole }): Promise<void> => {
     const uid = requireUid();
@@ -628,3 +630,6 @@ export const api = {
     });
   },
 };
+
+/** The data layer the app uses: the Worker API when EXPO_PUBLIC_API_URL is set (issue #7), Firestore otherwise. */
+export const api: typeof firestoreApi = USE_API ? httpApi : firestoreApi;

@@ -10,6 +10,7 @@ import { randomUUID } from 'expo-crypto';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 import { storage } from './firebase';
+import { API_URL, ApiError, USE_API, authHeader, request } from './http';
 
 export type FileKind = 'avatar' | 'document' | 'bill';
 
@@ -121,6 +122,7 @@ export async function uploadFile(
 ): Promise<UploadedFile> {
   const blob = await (await fetch(file.uri)).blob();
   validateFile({ mimeType: file.mimeType, size: blob.size }, storagePath.includes('/avatar/') ? 'avatar' : 'document');
+  if (USE_API) return uploadToApi(storagePath, file, blob, onProgress);
   const task = uploadBytesResumable(ref(storage, storagePath), blob, { contentType: file.mimeType });
   return new Promise<UploadedFile>((resolve, reject) => {
     task.on(
@@ -141,15 +143,37 @@ export async function uploadFile(
   });
 }
 
+/** PUT to the Worker (issue #7 §6). XHR rather than fetch so upload progress still works. */
+async function uploadToApi(storagePath: string, file: PickedFile, blob: Blob, onProgress?: (fraction: number) => void): Promise<UploadedFile> {
+  const headers = await authHeader();
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', `${API_URL}/api/files/${storagePath}`);
+    Object.entries({ ...headers, 'content-type': file.mimeType }).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+    xhr.upload.onprogress = (e) => onProgress?.(e.lengthComputable && e.total > 0 ? e.loaded / e.total : 0);
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) return resolve();
+      console.error('upload failed', storagePath, xhr.status, xhr.responseText);
+      reject(new ApiError(xhr.status, (JSON.parse(xhr.responseText || '{}') as { error?: string }).error ?? `http_${xhr.status}`));
+    };
+    xhr.onerror = () => reject(new Error('Network error while uploading'));
+    xhr.send(blob);
+  });
+  return { storagePath, fileName: sanitizeFileName(file.name), mimeType: file.mimeType, sizeBytes: blob.size };
+}
+
 /**
  * Download URL for a stored path. Storage rules check house membership through Firestore, so only
  * members can resolve bill files — see README "Security model".
  */
-export function getFileUrl(storagePath: string): Promise<string> {
+export async function getFileUrl(storagePath: string): Promise<string> {
+  // <Image> can't send an Authorization header, so the Worker hands out a signed link (valid 1 h, like the 50 min cache in useFileUrl).
+  if (USE_API) return (await request<{ url: string }>('POST', '/api/files/sign', { key: storagePath })).url;
   return getDownloadURL(ref(storage, storagePath));
 }
 
 export async function deleteFile(storagePath: string): Promise<void> {
+  if (USE_API) return request('DELETE', `/api/files/${storagePath}`); // idempotent on the Worker
   try {
     await deleteObject(ref(storage, storagePath));
   } catch (e) {
@@ -159,6 +183,7 @@ export async function deleteFile(storagePath: string): Promise<void> {
 
 /** Recursively deletes everything below a folder (used by account deletion). */
 export async function deleteFolder(path: string): Promise<void> {
+  if (USE_API) throw new Error('USE_AUTH_DELETE_USER'); // the Worker deletes users/{uid}/ itself, see ApiAuthProvider.deleteAccount
   const walk = async (folder: StorageReference): Promise<void> => {
     const { items, prefixes } = await listAll(folder);
     await Promise.all(items.map((i) => deleteObject(i).catch(() => undefined)));
