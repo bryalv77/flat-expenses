@@ -48,7 +48,8 @@ export function createLocalApi(
 let pending: Promise<Api> | undefined;
 export const localApi: Api = new Proxy({} as Api, {
   get: (_t, name) => async (...args: unknown[]) => {
-    pending ??= import('./sql.expo').then(async (m) => createLocalApi(await m.openLocalDb()));
+    // require, not import(): Jest's VM rejects dynamic import(); lazy so tests never load expo-sqlite.
+    pending ??= (require('./sql.expo') as typeof import('./sql.expo')).openLocalDb().then((db) => createLocalApi(db));
     const api = await pending;
     return (api as never as Record<string, (...a: unknown[]) => unknown>)[name as string](...args);
   },

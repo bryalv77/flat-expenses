@@ -1,7 +1,6 @@
 import { httpApi } from '../apiHttp';
 import type { firestoreApi } from '../db';
 import { createApi } from './index';
-import { localApi } from './local';
 import type { Api } from './types';
 
 jest.mock('../firebase', () => ({ auth: {}, db: {}, storage: {} }));
@@ -28,11 +27,5 @@ describe('createApi', () => {
     const api = createApi(() => 'cloud', local, cloud);
     await (api.listCategories as unknown as Fn)({ houseId: 'h' });
     expect(cloud.listCategories).toHaveBeenCalledWith({ houseId: 'h' });
-  });
-});
-
-describe('localApi stub', () => {
-  it('throws NotImplementedError for every method', () => {
-    expect(() => (localApi.listCategories as unknown as Fn)()).toThrow(/not implemented/i);
   });
 });
