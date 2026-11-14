@@ -112,10 +112,5 @@
       "/.claude/"
     ]
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3"
-    ]
-  },
   "packageManager": "pnpm@8.15.6"
 }
