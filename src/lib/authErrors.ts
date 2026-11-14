@@ -6,6 +6,7 @@ const CODE_MAP: Record<string, string> = {
   INVALID_EMAIL: 'auth/invalid-email',
   USER_NOT_FOUND: 'auth/user-not-found',
   INVALID_PASSWORD: 'auth/wrong-password',
+  INVALID_TOKEN: 'auth/invalid-action-code', // reset link expired, used or tampered with
   USER_ALREADY_EXISTS: 'auth/email-already-in-use',
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: 'auth/email-already-in-use',
 };

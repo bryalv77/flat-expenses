@@ -97,6 +97,8 @@ export const en: Messages = {
     uploaded: 'Document uploaded', deleteAccountWarn: 'Your files and personal data will be deleted. This cannot be undone.',
     passwordForDelete: 'Enter your password to confirm', recentLogin: 'Sign in again to delete your account.',
     activeHouse: 'Active flat', account: 'Account',
+    resetTitle: 'New password', resetHint: 'Choose a new password for your account.', resetDone: 'Password updated. You can sign in now.',
+    resetLinkInvalid: 'This link is invalid or has expired. Request a new one.',
   },
   schedule: {
     day_one: 'Every day', day_other: 'Every {{n}} days', week_one: 'Every week', week_other: 'Every {{n}} weeks',

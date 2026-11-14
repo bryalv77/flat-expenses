@@ -28,6 +28,8 @@ export interface AuthContextValue {
   signUp: (input: SignUpInput) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  /** Finishes a reset from the emailed link (API mode only: Firebase finishes it on its own hosted page). */
+  confirmPasswordReset?: (token: string, newPassword: string) => Promise<void>;
   /** Email/password accounts only; re-authenticates with the current password. */
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   /**

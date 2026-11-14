@@ -95,6 +95,8 @@ export const es = {
     uploaded: 'Documento subido', deleteAccountWarn: 'Se eliminarán tus archivos y tus datos personales. Esta acción no se puede deshacer.',
     passwordForDelete: 'Introduce tu contraseña para confirmar', recentLogin: 'Vuelve a iniciar sesión para eliminar tu cuenta.',
     activeHouse: 'Piso activo', account: 'Cuenta',
+    resetTitle: 'Nueva contraseña', resetHint: 'Elige una contraseña nueva para tu cuenta.', resetDone: 'Contraseña actualizada. Ya puedes iniciar sesión.',
+    resetLinkInvalid: 'El enlace no es válido o ha caducado. Solicita uno nuevo.',
   },
   schedule: {
     day_one: 'Cada día', day_other: 'Cada {{n}} días', week_one: 'Cada semana', week_other: 'Cada {{n}} semanas',

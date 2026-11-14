@@ -98,6 +98,8 @@ export const de: DeepPartial<Messages> = {
     uploaded: 'Dokument hochgeladen', deleteAccountWarn: 'Deine Dateien und persönlichen Daten werden gelöscht. Das lässt sich nicht rückgängig machen.',
     passwordForDelete: 'Gib zur Bestätigung dein Passwort ein', recentLogin: 'Melde dich erneut an, um dein Konto zu löschen.',
     activeHouse: 'Aktive Wohnung', account: 'Konto',
+    resetTitle: 'Neues Passwort', resetHint: 'Wähle ein neues Passwort für dein Konto.', resetDone: 'Passwort aktualisiert. Du kannst dich jetzt anmelden.',
+    resetLinkInvalid: 'Der Link ist ungültig oder abgelaufen. Fordere einen neuen an.',
   },
   schedule: {
     day_one: 'Jeden Tag', day_other: 'Alle {{n}} Tage', week_one: 'Jede Woche', week_other: 'Alle {{n}} Wochen',

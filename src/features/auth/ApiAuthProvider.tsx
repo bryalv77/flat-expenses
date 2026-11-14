@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { getApiAuth } from '@/lib/apiAuth';
 import { orNetworkError, toAuthError } from '@/lib/authErrors';
 import { api } from '@/lib/db';
+import { WEB_URL } from '@/lib/http';
 import { qk } from '@/lib/queryKeys';
 import { useUiStore } from '@/lib/uiStore';
 
@@ -99,10 +100,23 @@ export function ApiAuthProvider({ children }: { children: ReactNode }) {
     useUiStore.getState().setActiveHouseId(null);
   }, [client, clearToken, qc]);
 
-  // TODO(#7): needs a transactional email provider on the Worker (issue §13); until then the UI shows the generic error.
-  const resetPassword = useCallback(async () => {
-    throw Object.assign(new Error('PASSWORD_RESET_NOT_CONFIGURED'), { code: 'auth/not-supported' });
-  }, []);
+  // Always "succeeds" for unknown emails (Better Auth does not reveal which accounts exist). The email only goes out once the
+  // Worker has RESEND_API_KEY + EMAIL_FROM; the link opens `${WEB_URL}/reset-password?token=…`, which calls confirmPasswordReset.
+  const resetPassword = useCallback(
+    async (email: string) => {
+      const { error } = await orNetworkError(() => client.requestPasswordReset({ email: email.trim(), redirectTo: `${WEB_URL}/reset-password` }));
+      if (error) throw toAuthError(error);
+    },
+    [client],
+  );
+
+  const confirmPasswordReset = useCallback(
+    async (token: string, newPassword: string) => {
+      const { error } = await orNetworkError(() => client.resetPassword({ token, newPassword }));
+      if (error) throw toAuthError(error);
+    },
+    [client],
+  );
 
   const changePassword = useCallback(
     async (currentPassword: string, newPassword: string) => {
@@ -136,11 +150,12 @@ export function ApiAuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signOut,
       resetPassword,
+      confirmPasswordReset,
       changePassword,
       deleteAccount,
       isPasswordAccount: true,
     }),
-    [authUser, initializing, profileReady, signIn, signUp, signOut, resetPassword, changePassword, deleteAccount],
+    [authUser, initializing, profileReady, signIn, signUp, signOut, resetPassword, confirmPasswordReset, changePassword, deleteAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

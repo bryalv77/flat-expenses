@@ -1,3 +1,5 @@
+import { authErrorKey, reauthErrorKey } from '@/features/auth/errors';
+
 import { orNetworkError, toAuthError } from './authErrors';
 
 describe('toAuthError', () => {
@@ -14,6 +16,16 @@ describe('toAuthError', () => {
     expect((toAuthError({ code: 'SOMETHING_NEW', status: 500 }) as Error & { code: string }).code).toBe('SOMETHING_NEW');
     expect((toAuthError({ status: 502 }) as Error & { code: string }).code).toBe('http_502');
     expect((toAuthError(undefined) as Error & { code: string }).code).toBe('auth/network-request-failed');
+  });
+});
+
+describe('error codes reach the right translation', () => {
+  it('maps Better Auth errors through to keys the UI already has', () => {
+    expect(authErrorKey(toAuthError({ code: 'INVALID_TOKEN', status: 400 }))).toBe('account.resetLinkInvalid');
+    expect(authErrorKey(toAuthError({ code: 'INVALID_EMAIL_OR_PASSWORD', status: 401 }))).toBe('auth.wrongCredentials');
+    expect(authErrorKey(toAuthError({ code: 'USER_ALREADY_EXISTS', status: 422 }))).toBe('auth.emailInUse');
+    expect(authErrorKey(toAuthError(undefined))).toBe('errors.network');
+    expect(reauthErrorKey(toAuthError({ code: 'INVALID_PASSWORD', status: 400 }))).toBe('account.wrongPassword');
   });
 });
 
