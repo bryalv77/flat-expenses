@@ -61,6 +61,10 @@ export const ca: DeepPartial<Messages> = {
     revoke: 'Revoca', settings: 'Configuració del pis', payments: 'Pagaments', recordPayment: 'Registra un pagament',
     sensitive: 'Informació sensible', showBalance: 'Mostra el balanç als companys', deleteHouse: 'Elimina el pis',
   },
+  localMode: {
+    data: "Les teves dades", export: "Exporta les dades", import: "Importa dades", deleteAll: "Esborra totes les dades", leave: "Surt del mode local",
+    dataLossNotice: "Mode local: les teves dades viuen només en aquest dispositiu. Si desinstal·les l'app o n'esborres les dades ho perdràs tot. Exporta una còpia de seguretat sovint.",
+  },
   profile: {
     title: 'Perfil', edit: 'Edita el perfil', documents: 'Documents d’identitat', passport: 'Passaport', nationalId: 'DNI',
     addDocument: 'Afegeix un document', changePassword: 'Canvia la contrasenya', settings: 'Configuració', theme: 'Aparença',

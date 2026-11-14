@@ -60,6 +60,10 @@ export const en: Messages = {
     revoke: 'Revoke', settings: 'Flat settings', payments: 'Payments', recordPayment: 'Record payment',
     sensitive: 'Sensitive information', showBalance: 'Show balance to roommates', deleteHouse: 'Delete flat',
   },
+  localMode: {
+    data: "Your data", export: "Export data", import: "Import data", deleteAll: "Delete all data", leave: "Leave local mode",
+    dataLossNotice: "Local mode: your data lives only on this device. If you uninstall the app or clear its data you will lose everything. Export a backup regularly.",
+  },
   profile: {
     title: 'Profile', edit: 'Edit profile', documents: 'Identity documents', passport: 'Passport', nationalId: 'National ID',
     addDocument: 'Add document', changePassword: 'Change password', settings: 'Settings', theme: 'Appearance',

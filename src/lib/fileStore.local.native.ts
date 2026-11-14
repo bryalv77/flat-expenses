@@ -22,6 +22,20 @@ export const localFileStore: FileStore = {
     const f = new File(root(), assertSafeKey(key));
     if (f.exists) f.delete();
   },
+  async list(prefix) {
+    const base = root();
+    const dir = prefix ? new Directory(base, assertSafeKey(prefix, { folder: true })) : base;
+    const out: string[] = [];
+    const walk = (d: Directory) => {
+      if (!d.exists) return;
+      for (const e of d.list()) {
+        if (e instanceof Directory) walk(e);
+        else out.push(e.uri.slice(base.uri.length + 1));
+      }
+    };
+    walk(dir);
+    return out;
+  },
   async deleteFolder(path) {
     const d = new Directory(root(), assertSafeKey(path, { folder: true }));
     if (d.exists) d.delete();

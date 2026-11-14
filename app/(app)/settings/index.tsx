@@ -18,7 +18,9 @@ import { useAuth } from '@/features/auth';
 import { reauthErrorKey } from '@/features/auth/errors';
 import { useMyHouses } from '@/features/houses/hooks';
 import { useUpdateProfile } from '@/features/profile/hooks';
+import { profileItems } from '@/features/profile/localMode';
 import { LOCALES, useT } from '@/i18n';
+import { getAppMode } from '@/lib/appMode';
 import { haptics } from '@/lib/haptics';
 import { useUiStore } from '@/lib/uiStore';
 import { spacing, useTheme, type ThemeMode } from '@/theme';
@@ -28,6 +30,7 @@ export default function SettingsScreen() {
   const { t } = useT();
   const { colors, mode, setMode } = useTheme();
   const { signOut, deleteAccount, isPasswordAccount } = useAuth();
+  const items = profileItems(getAppMode());
   const locale = useUiStore((s) => s.locale);
   const setLocale = useUiStore((s) => s.setLocale);
   const activeHouseId = useUiStore((s) => s.activeHouseId);
@@ -106,10 +109,12 @@ export default function SettingsScreen() {
         </Section>
       ) : null}
 
-      <Section header={t('account.account')}>
-        <ListRow icon="logout" title={t('auth.signOut')} onPress={() => void signOut()} />
-        <ListRow icon="trash" title={t('profile.deleteAccount')} destructive onPress={() => setConfirmDelete(true)} />
-      </Section>
+      {items.signOut || items.deleteAccount ? (
+        <Section header={t('account.account')}>
+          <ListRow icon="logout" title={t('auth.signOut')} onPress={() => void signOut()} />
+          <ListRow icon="trash" title={t('profile.deleteAccount')} destructive onPress={() => setConfirmDelete(true)} />
+        </Section>
+      ) : null}
 
       <ActionSheet
         visible={confirmDelete && !isPasswordAccount}

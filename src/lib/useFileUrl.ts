@@ -1,13 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 
+import { getFileStore } from './fileStore';
 import { qk } from './queryKeys';
-import { getFileUrl } from './storage';
 
-/** Resolves a Storage path (read from Firestore) to a download URL. */
+/** Goes through the active FileStore (cloud URL or local file URI). */
+export const resolveFileUrl = (storagePath: string) => getFileStore().getUrl(storagePath);
+
+/** Resolves a Storage path (read from the API) to a displayable URL. */
 export function useFileUrl(storagePath: string | null | undefined) {
   return useQuery({
     queryKey: qk.fileUrl(storagePath ?? ''),
-    queryFn: () => getFileUrl(storagePath as string),
+    queryFn: () => resolveFileUrl(storagePath as string),
     enabled: Boolean(storagePath),
     staleTime: 50 * 60 * 1000,
   });

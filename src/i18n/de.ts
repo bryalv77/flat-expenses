@@ -61,6 +61,10 @@ export const de: DeepPartial<Messages> = {
     revoke: 'Widerrufen', settings: 'Wohnungseinstellungen', payments: 'Zahlungen', recordPayment: 'Zahlung erfassen',
     sensitive: 'Sensible Informationen', showBalance: 'Saldo für Mitbewohner anzeigen', deleteHouse: 'Wohnung löschen',
   },
+  localMode: {
+    data: "Deine Daten", export: "Daten exportieren", import: "Daten importieren", deleteAll: "Alle Daten löschen", leave: "Lokalen Modus verlassen",
+    dataLossNotice: "Lokaler Modus: Deine Daten liegen nur auf diesem Gerät. Wenn du die App deinstallierst oder ihre Daten löschst, geht alles verloren. Exportiere regelmäßig eine Sicherung.",
+  },
   profile: {
     title: 'Profil', edit: 'Profil bearbeiten', documents: 'Ausweisdokumente', passport: 'Reisepass', nationalId: 'Personalausweis',
     addDocument: 'Dokument hinzufügen', changePassword: 'Passwort ändern', settings: 'Einstellungen', theme: 'Darstellung',

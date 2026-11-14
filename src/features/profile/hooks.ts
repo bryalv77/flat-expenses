@@ -39,8 +39,8 @@ export function useUploadAvatar() {
   });
 }
 
-export function useMyDocuments() {
-  return useQuery({ queryKey: qk.myDocuments, queryFn: api.listMyDocuments });
+export function useMyDocuments({ enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({ queryKey: qk.myDocuments, queryFn: api.listMyDocuments, enabled });
 }
 
 /** Identity document (passport / national id) as image or PDF. Replace = add new + delete old. */

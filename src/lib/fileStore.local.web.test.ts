@@ -46,3 +46,15 @@ describe('local FileStore (web)', () => {
     expect(persist).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('local FileStore (web) list', () => {
+  it('lists keys under a prefix', async () => {
+    installFetch();
+    const db = createTestDb();
+    await migrate(db);
+    const store = createWebFileStore(db);
+    for (const k of ['houses/h1/a.png', 'houses/h1/sub/b.png', 'houses/h2/c.png']) await store.upload(k, pick(k.replace(/\//g, '_')));
+    expect((await store.list!('houses/h1')).sort()).toEqual(['houses/h1/a.png', 'houses/h1/sub/b.png']);
+    expect(await store.list!('')).toHaveLength(3);
+  });
+});
