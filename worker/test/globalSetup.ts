@@ -9,6 +9,14 @@ const testUrl = new URL(admin);
 testUrl.pathname = '/costos_piso_test';
 
 export default async function setup(project: TestProject) {
+  // TEST_DATABASE_URL: run the suite against an existing database (e.g. a Neon branch, which also exercises the Neon HTTP driver).
+  if (process.env.TEST_DATABASE_URL) {
+    const db = drizzle(process.env.TEST_DATABASE_URL);
+    await migrate(db, { migrationsFolder: './migrations' });
+    await db.$client.end();
+    project.provide('testDbUrl', process.env.TEST_DATABASE_URL);
+    return;
+  }
   const client = new pg.Client({ connectionString: admin });
   try {
     await client.connect();
