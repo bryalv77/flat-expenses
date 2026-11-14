@@ -1,7 +1,10 @@
 jest.mock('./storage', () => ({ uploadFile: jest.fn(), getFileUrl: jest.fn(), deleteFile: jest.fn(), deleteFolder: jest.fn() }));
 jest.mock('./appMode', () => ({ getAppMode: jest.fn() }));
 
+jest.mock('./fileStore.local', () => ({ localFileStore: { tag: 'local' } }));
+
 import { getAppMode } from './appMode';
+import { localFileStore } from './fileStore.local';
 import { getFileStore } from './fileStore';
 import * as mockStorage from './storage';
 
@@ -19,8 +22,8 @@ describe('getFileStore', () => {
     expect(mockStorage.deleteFolder).toHaveBeenCalledWith('f');
   });
 
-  it('local mode throws NotImplemented (until T8)', async () => {
+  it('local mode returns the local store', async () => {
     (getAppMode as jest.Mock).mockReturnValue('local');
-    await expect(getFileStore().getUrl('p')).rejects.toThrow(/not implemented/i);
+    expect(getFileStore()).toBe(localFileStore);
   });
 });
