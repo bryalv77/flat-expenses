@@ -1,9 +1,9 @@
-const mockStorage = { uploadFile: jest.fn(), getFileUrl: jest.fn(), deleteFile: jest.fn(), deleteFolder: jest.fn() };
-jest.mock('./storage', () => mockStorage);
+jest.mock('./storage', () => ({ uploadFile: jest.fn(), getFileUrl: jest.fn(), deleteFile: jest.fn(), deleteFolder: jest.fn() }));
 jest.mock('./appMode', () => ({ getAppMode: jest.fn() }));
 
 import { getAppMode } from './appMode';
 import { getFileStore } from './fileStore';
+import * as mockStorage from './storage';
 
 describe('getFileStore', () => {
   it('cloud mode wraps the storage.ts functions', async () => {

@@ -1,15 +1,15 @@
-const store = new Map<string, string>();
-let failing = false;
+const mockStore = new Map<string, string>();
+let mockFailing = false;
 jest.mock('@react-native-async-storage/async-storage', () => ({
   __esModule: true,
   default: {
     getItem: async (k: string) => {
-      if (failing) throw new Error('boom');
-      return store.get(k) ?? null;
+      if (mockFailing) throw new Error('boom');
+      return mockStore.get(k) ?? null;
     },
     setItem: async (k: string, v: string) => {
-      if (failing) throw new Error('boom');
-      store.set(k, v);
+      if (mockFailing) throw new Error('boom');
+      mockStore.set(k, v);
     },
   },
 }));
@@ -17,9 +17,9 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 import { getAppMode, loadAppMode, saveAppMode } from './appMode';
 
 beforeEach(async () => {
-  failing = false;
+  mockFailing = false;
   await saveAppMode('cloud');
-  store.clear();
+  mockStore.clear();
 });
 
 describe('appMode', () => {
@@ -35,13 +35,13 @@ describe('appMode', () => {
   });
 
   it('ignores garbage in storage', async () => {
-    store.set('appMode', 'nope');
+    mockStore.set('appMode', 'nope');
     expect(await loadAppMode()).toBe('cloud');
   });
 
   it('falls back to cloud when storage fails', async () => {
     await saveAppMode('local');
-    failing = true;
+    mockFailing = true;
     expect(await loadAppMode()).toBe('cloud');
     expect(getAppMode()).toBe('cloud');
   });
