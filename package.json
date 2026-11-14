@@ -84,6 +84,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "test": "jest",
+    "test:local": "RUN_LOCAL_CONTRACT=1 jest src/lib/api/local",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "web:export": "expo export --platform web",
