@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { DonutChart } from '@/components/charts';
 import { Avatar, Button, Card, EmptyState, ListRow, Screen, Section, Skeleton, Text } from '@/components/ui';
 import { useAuth } from '@/features/auth';
+import { ExportReminderBanner, useBackupActions } from '@/features/backup';
 import { computeMonthBalance, computeMonthShares, computePaymentStatus } from '@/features/finance';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
@@ -35,6 +36,7 @@ export default function HomeScreen() {
   const { data: docs, isSuccess: docsLoaded } = useMyDocuments();
   const { data: categories = [] } = useCategories(house?.id);
   const [refreshing, setRefreshing] = useState(false);
+  const backup = useBackupActions();
 
   const today = todayISO();
   const month = monthKey(today);
@@ -91,6 +93,8 @@ export default function HomeScreen() {
             <Text variant="subhead" color="secondaryLabel">{house?.name ?? ''}</Text>
           </View>
         </View>
+
+        <ExportReminderBanner onExport={backup.onExport} />
 
         {docsLoaded && (docs?.length ?? 0) === 0 ? (
           <Card>

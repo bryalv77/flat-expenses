@@ -16,6 +16,7 @@ export const pt: DeepPartial<Messages> = {
     invalidEmail: 'E-mail inválido', shortPassword: 'Mínimo de 6 caracteres', nameRequired: 'Introduz o teu nome',
     wrongCredentials: 'E-mail ou palavra-passe incorretos', emailInUse: 'Este e-mail já está registado',
     noAccount: 'Ainda não tens conta?', haveAccount: 'Já tens conta?',
+    useLocal: 'Usar sem conta (apenas neste dispositivo)', localNoticeTitle: 'Os teus dados ficam só neste dispositivo', localNoticeBody: 'Se perderes o dispositivo ou desinstalares a app, os teus dados perdem-se para sempre, a não ser que tenhas exportado uma cópia.',
   },
   onboarding: {
     roleTitle: 'Qual é o teu papel?', admin: 'Sou o admin do apartamento', adminDesc: 'Cria o apartamento, carrega faturas e convida os teus colegas.',
@@ -59,6 +60,10 @@ export const pt: DeepPartial<Messages> = {
     admin: 'Admin', roommate: 'Colega', removed: 'Saiu', generateCode: 'Gerar código', expiry: 'Expira', maxUses: 'Utilizações máximas',
     revoke: 'Revogar', settings: 'Definições do apartamento', payments: 'Pagamentos', recordPayment: 'Registar pagamento',
     sensitive: 'Informação sensível', showBalance: 'Mostrar saldo aos colegas', deleteHouse: 'Eliminar apartamento',
+  },
+  localMode: {
+    data: "Os teus dados", export: "Exportar dados", import: "Importar dados", deleteAll: "Apagar todos os dados", leave: "Sair do modo local",
+    dataLossNotice: "Modo local: os teus dados ficam apenas neste dispositivo. Se desinstalares a app ou apagares os seus dados, perdes tudo. Exporta uma cópia de segurança com regularidade.",
   },
   profile: {
     title: 'Perfil', edit: 'Editar perfil', documents: 'Documentos de identificação', passport: 'Passaporte', nationalId: 'Cartão de cidadão',
@@ -105,6 +110,18 @@ export const pt: DeepPartial<Messages> = {
     day_one: 'Todos os dias', day_other: 'A cada {{n}} dias', week_one: 'Todas as semanas', week_other: 'A cada {{n}} semanas',
     month_one: 'Todos os meses', month_other: 'A cada {{n}} meses', year_one: 'Todos os anos', year_other: 'A cada {{n}} anos',
     variable: 'variável',
+  },
+  backup: {
+    reminder: { title: "Hora de fazer uma cópia", body: "Os teus dados estão apenas neste dispositivo. Exporta uma cópia para não os perder.", exportNow: "Exportar agora", snooze: "Lembrar em 7 dias" },
+    exported: "Cópia exportada",
+    imported: "Cópia restaurada",
+    deleted: "Todos os dados locais eliminados",
+    failed: "A operação de cópia falhou. Tenta novamente.",
+    invalid: "Este ficheiro não é uma cópia válida.",
+    newerVersion: "Esta cópia foi criada com uma versão mais recente da app. Atualiza a app primeiro.",
+    importConfirm: "Restaurar substitui TODOS os dados deste dispositivo pelos da cópia. Continuar?",
+    deleteConfirm: "Isto elimina permanentemente todos os dados e ficheiros deste dispositivo. Exporta antes uma cópia se precisares.",
+    import: "Restaurar",
   },
   errors: { generic: 'Algo correu mal. Tenta novamente.', network: 'Sem ligação.', fileTooLarge: 'O ficheiro é demasiado grande.', fileType: 'Tipo de ficheiro não permitido.' },
   billsUi: {

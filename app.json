@@ -2,7 +2,7 @@
   "expo": {
     "name": "Costos Piso",
     "slug": "costos-piso",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "costospiso",
@@ -12,7 +12,9 @@
       "bundleIdentifier": "com.devalv.costospiso",
       "supportsTablet": true,
       "usesAppleSignIn": true,
-      "config": { "usesNonExemptEncryption": false },
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "NSCameraUsageDescription": "Costos Piso usa la cámara para fotografiar facturas y documentos.",
         "NSPhotoLibraryUsageDescription": "Costos Piso accede a tus fotos para adjuntar facturas, documentos y tu foto de perfil.",
@@ -27,7 +29,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "allowBackup": false
     },
     "web": {
       "output": "static",
@@ -53,7 +56,9 @@
       ],
       "expo-apple-authentication",
       "expo-localization",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-sqlite",
+      "./plugins/withExcludeLocalDataFromBackup"
     ],
     "experiments": {
       "typedRoutes": true,

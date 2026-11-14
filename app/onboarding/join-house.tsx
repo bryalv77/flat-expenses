@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard';
-import { useRouter, type Href } from 'expo-router';
+import { Redirect, useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -7,6 +7,7 @@ import { Button, Screen, Text, TextField, useToast } from '@/components/ui';
 import { useRedeemInvite } from '@/features/members/hooks';
 import { formatInviteCode, isValidInviteCode, normalizeInviteCode } from '@/features/members/inviteCode';
 import { useT } from '@/i18n';
+import { getAppMode } from '@/lib/appMode';
 import { haptics } from '@/lib/haptics';
 import { spacing } from '@/theme';
 
@@ -47,6 +48,8 @@ export default function JoinHouseScreen() {
     }
   };
 
+  // Local mode has no role choice and no invites: straight to create-house.
+  if (getAppMode() === 'local') return <Redirect href="/onboarding/create-house" />;
   return (
     <Screen>
       <View style={styles.form}>

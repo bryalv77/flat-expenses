@@ -16,6 +16,7 @@ export const it: DeepPartial<Messages> = {
     invalidEmail: 'E-mail non valida', shortPassword: 'Almeno 6 caratteri', nameRequired: 'Inserisci il tuo nome',
     wrongCredentials: 'E-mail o password errate', emailInUse: 'Questa e-mail è già registrata',
     noAccount: 'Non hai un account?', haveAccount: 'Hai già un account?',
+    useLocal: 'Usa senza account (solo su questo dispositivo)', localNoticeTitle: 'I tuoi dati restano su questo dispositivo', localNoticeBody: 'Se perdi il dispositivo o disinstalli l\'app, i dati vanno persi per sempre, a meno che tu non abbia esportato una copia.',
   },
   onboarding: {
     roleTitle: 'Qual è il tuo ruolo?', admin: 'Sono l’admin dell’appartamento', adminDesc: 'Crea l’appartamento, carica le bollette e invita i coinquilini.',
@@ -59,6 +60,10 @@ export const it: DeepPartial<Messages> = {
     admin: 'Admin', roommate: 'Coinquilino', removed: 'Uscito', generateCode: 'Genera codice', expiry: 'Scade', maxUses: 'Usi massimi',
     revoke: 'Revoca', settings: 'Impostazioni dell’appartamento', payments: 'Pagamenti', recordPayment: 'Registra pagamento',
     sensitive: 'Informazioni sensibili', showBalance: 'Mostra il saldo ai coinquilini', deleteHouse: 'Elimina appartamento',
+  },
+  localMode: {
+    data: "I tuoi dati", export: "Esporta i dati", import: "Importa dati", deleteAll: "Elimina tutti i dati", leave: "Esci dalla modalità locale",
+    dataLossNotice: "Modalità locale: i tuoi dati restano solo su questo dispositivo. Se disinstalli l'app o ne cancelli i dati perderai tutto. Esporta regolarmente un backup.",
   },
   profile: {
     title: 'Profilo', edit: 'Modifica profilo', documents: 'Documenti d’identità', passport: 'Passaporto', nationalId: 'Carta d’identità',
@@ -105,6 +110,18 @@ export const it: DeepPartial<Messages> = {
     day_one: 'Ogni giorno', day_other: 'Ogni {{n}} giorni', week_one: 'Ogni settimana', week_other: 'Ogni {{n}} settimane',
     month_one: 'Ogni mese', month_other: 'Ogni {{n}} mesi', year_one: 'Ogni anno', year_other: 'Ogni {{n}} anni',
     variable: 'variabile',
+  },
+  backup: {
+    reminder: { title: "È ora di fare un backup", body: "I tuoi dati sono solo su questo dispositivo. Esporta un backup per non perderli.", exportNow: "Esporta ora", snooze: "Ricordamelo tra 7 giorni" },
+    exported: "Backup esportato",
+    imported: "Backup ripristinato",
+    deleted: "Tutti i dati locali eliminati",
+    failed: "L'operazione di backup non è riuscita. Riprova.",
+    invalid: "Questo file non è un backup valido.",
+    newerVersion: "Questo backup è stato creato con una versione più recente dell'app. Aggiorna prima l'app.",
+    importConfirm: "Il ripristino sostituisce TUTTI i dati di questo dispositivo con il backup. Continuare?",
+    deleteConfirm: "Elimina in modo permanente tutti i dati e i file su questo dispositivo. Esporta prima un backup se ti serve.",
+    import: "Ripristina",
   },
   errors: { generic: 'Qualcosa è andato storto. Riprova.', network: 'Nessuna connessione.', fileTooLarge: 'Il file è troppo grande.', fileType: 'Tipo di file non consentito.' },
   billsUi: {

@@ -16,6 +16,7 @@ export const fr: DeepPartial<Messages> = {
     invalidEmail: 'E-mail invalide', shortPassword: '6 caractères minimum', nameRequired: 'Saisissez votre nom',
     wrongCredentials: 'E-mail ou mot de passe incorrect', emailInUse: 'Cet e-mail est déjà utilisé',
     noAccount: 'Pas encore de compte ?', haveAccount: 'Déjà un compte ?',
+    useLocal: 'Utiliser sans compte (uniquement sur cet appareil)', localNoticeTitle: 'Vos données restent sur cet appareil', localNoticeBody: 'Si vous perdez l\'appareil ou désinstallez l\'app, vos données sont perdues définitivement, sauf si vous avez exporté une copie.',
   },
   onboarding: {
     roleTitle: 'Quel est votre rôle ?', admin: 'Je suis l’admin de l’appartement', adminDesc: 'Créez l’appartement, ajoutez les factures et invitez vos colocataires.',
@@ -59,6 +60,10 @@ export const fr: DeepPartial<Messages> = {
     admin: 'Admin', roommate: 'Colocataire', removed: 'Parti', generateCode: 'Générer un code', expiry: 'Expire', maxUses: 'Utilisations max.',
     revoke: 'Révoquer', settings: 'Réglages de l’appartement', payments: 'Paiements', recordPayment: 'Enregistrer un paiement',
     sensitive: 'Informations sensibles', showBalance: 'Afficher le solde aux colocataires', deleteHouse: 'Supprimer l’appartement',
+  },
+  localMode: {
+    data: "Vos données", export: "Exporter les données", import: "Importer des données", deleteAll: "Supprimer toutes les données", leave: "Quitter le mode local",
+    dataLossNotice: "Mode local : vos données restent uniquement sur cet appareil. Si vous désinstallez l'app ou effacez ses données, tout sera perdu. Exportez régulièrement une sauvegarde.",
   },
   profile: {
     title: 'Profil', edit: 'Modifier le profil', documents: 'Pièces d’identité', passport: 'Passeport', nationalId: 'Carte d’identité',
@@ -105,6 +110,18 @@ export const fr: DeepPartial<Messages> = {
     day_one: 'Chaque jour', day_other: 'Tous les {{n}} jours', week_one: 'Chaque semaine', week_other: 'Toutes les {{n}} semaines',
     month_one: 'Chaque mois', month_other: 'Tous les {{n}} mois', year_one: 'Chaque année', year_other: 'Tous les {{n}} ans',
     variable: 'variable',
+  },
+  backup: {
+    reminder: { title: "Il est temps de sauvegarder", body: "Vos données ne sont que sur cet appareil. Exportez une sauvegarde pour ne pas les perdre.", exportNow: "Exporter maintenant", snooze: "Rappeler dans 7 jours" },
+    exported: "Sauvegarde exportée",
+    imported: "Sauvegarde restaurée",
+    deleted: "Toutes les données locales supprimées",
+    failed: "L'opération de sauvegarde a échoué. Réessayez.",
+    invalid: "Ce fichier n'est pas une sauvegarde valide.",
+    newerVersion: "Cette sauvegarde provient d'une version plus récente de l'app. Mettez d'abord l'app à jour.",
+    importConfirm: "La restauration remplace TOUTES les données de cet appareil par la sauvegarde. Continuer ?",
+    deleteConfirm: "Cela supprime définitivement toutes les données et fichiers de cet appareil. Exportez d'abord une sauvegarde si besoin.",
+    import: "Restaurer",
   },
   errors: { generic: 'Une erreur est survenue. Réessayez.', network: 'Pas de connexion.', fileTooLarge: 'Le fichier est trop volumineux.', fileType: 'Type de fichier non autorisé.' },
   billsUi: {

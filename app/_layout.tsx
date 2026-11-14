@@ -2,23 +2,23 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments, type Href } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { Fragment, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Button, ErrorBoundary, Text, ToastProvider } from '@/components/ui';
 import { AuthProvider, useAuth } from '@/features/auth';
+import { getTreeKey, subscribeTreeReset } from '@/features/auth/appModeSwitch';
+import { decideRoute, type GuardInput } from '@/features/auth/routeGuard';
 import { useMyHouses } from '@/features/houses/hooks';
 import { useT } from '@/i18n';
+import { getAppMode, loadAppMode } from '@/lib/appMode';
+import { sweepLocalOrphans } from '@/lib/api/local/startup';
 import { queryClient } from '@/lib/queryClient';
 import { ThemeProvider, spacing, useTheme } from '@/theme';
 
 void SplashScreen.preventAutoHideAsync();
-
-const AUTH_HOME = '/(auth)/welcome' as Href;
-const ONBOARDING_HOME = '/onboarding/role' as Href;
-const APP_HOME = '/(app)/(tabs)' as Href;
 
 /** Covers the navigator while the gate is deciding where the user belongs (prevents any flicker). */
 function GateOverlay({ settled, onRetry }: { settled: boolean; onRetry?: () => void }) {
@@ -46,16 +46,20 @@ function GateOverlay({ settled, onRetry }: { settled: boolean; onRetry?: () => v
   );
 }
 
-function SignedOutGate({ initializing }: { initializing: boolean }) {
+/** Runs the pure guard decision and performs its redirect. */
+function useGate(input: Omit<GuardInput, 'mode' | 'group'>) {
   const router = useRouter();
-  const segments = useSegments();
-  const inAuth = segments[0] === '(auth)';
-
+  const group = useSegments()[0] as string | undefined;
+  const { settled, redirect } = decideRoute({ ...input, mode: getAppMode(), group });
   useEffect(() => {
-    if (!initializing && !inAuth) router.replace(AUTH_HOME);
-  }, [initializing, inAuth, router]);
+    if (redirect) router.replace(redirect as Href);
+  }, [redirect, router]);
+  return settled;
+}
 
-  return <GateOverlay settled={!initializing && inAuth} />;
+function SignedOutGate({ initializing }: { initializing: boolean }) {
+  const settled = useGate({ signedIn: false, initializing, profileReady: false, housesStatus: 'loading', hasHouse: false });
+  return <GateOverlay settled={settled} />;
 }
 
 function SignedInGate({ profileReady }: { profileReady: boolean }) {
@@ -63,22 +67,15 @@ function SignedInGate({ profileReady }: { profileReady: boolean }) {
 }
 
 function HouseGate() {
-  const router = useRouter();
-  const segments = useSegments();
   const houses = useMyHouses();
-  const group = segments[0] as string | undefined;
-
-  const resolved = houses.isSuccess;
-  const hasHouse = (houses.data?.length ?? 0) > 0;
-  const allowed = hasHouse ? group === '(app)' || group === 'onboarding' : group === 'onboarding';
-
-  useEffect(() => {
-    if (!resolved || allowed) return;
-    router.replace(hasHouse ? APP_HOME : ONBOARDING_HOME);
-  }, [resolved, allowed, hasHouse, router]);
-
-  const failed = houses.isError;
-  return <GateOverlay settled={resolved && allowed} onRetry={failed ? () => void houses.refetch() : undefined} />;
+  const settled = useGate({
+    signedIn: true,
+    initializing: false,
+    profileReady: true,
+    housesStatus: houses.isSuccess ? 'success' : houses.isError ? 'error' : 'loading',
+    hasHouse: (houses.data?.length ?? 0) > 0,
+  });
+  return <GateOverlay settled={settled} onRetry={houses.isError ? () => void houses.refetch() : undefined} />;
 }
 
 function RootNavigator() {
@@ -94,21 +91,36 @@ function RootNavigator() {
   );
 }
 
+/** Loads the saved app mode once before any provider renders; a mode switch bumps the key and remounts the tree. */
+function ModeGate({ children }: { children: ReactNode }) {
+  const [loaded, setLoaded] = useState(false);
+  const treeKey = useSyncExternalStore(subscribeTreeReset, getTreeKey, getTreeKey);
+  useEffect(() => {
+    void loadAppMode()
+      // Before the UI is usable, so an upload still waiting for its bill is never mistaken for an orphan. Never throws.
+      .then((mode) => (mode === 'local' ? sweepLocalOrphans() : undefined))
+      .then(() => setLoaded(true));
+  }, []);
+  return loaded ? <Fragment key={treeKey}>{children}</Fragment> : null; // the native splash stays up meanwhile
+}
+
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.flex}>
       <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <ToastProvider>
-              <ErrorBoundary>
-                <AuthProvider>
-                  <RootNavigator />
-                </AuthProvider>
-              </ErrorBoundary>
-            </ToastProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
+        <ModeGate>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+              <ToastProvider>
+                <ErrorBoundary>
+                  <AuthProvider>
+                    <RootNavigator />
+                  </AuthProvider>
+                </ErrorBoundary>
+              </ToastProvider>
+            </ThemeProvider>
+          </QueryClientProvider>
+        </ModeGate>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

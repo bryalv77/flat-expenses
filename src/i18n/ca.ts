@@ -16,6 +16,7 @@ export const ca: DeepPartial<Messages> = {
     invalidEmail: 'Correu no vàlid', shortPassword: 'Mínim 6 caràcters', nameRequired: 'Introdueix el teu nom',
     wrongCredentials: 'Correu o contrasenya incorrectes', emailInUse: 'Aquest correu ja està registrat',
     noAccount: 'No tens compte?', haveAccount: 'Ja tens compte?',
+    useLocal: 'Fer servir sense compte (només en aquest dispositiu)', localNoticeTitle: 'Les teves dades només són en aquest dispositiu', localNoticeBody: 'Si perds el dispositiu o desinstal·les l\'app, les teves dades es perden per sempre, tret que n\'hagis exportat una còpia.',
   },
   onboarding: {
     roleTitle: 'Quin és el teu rol?', admin: 'Sóc l’admin del pis', adminDesc: 'Crea el pis, puja factures i convida els teus companys.',
@@ -59,6 +60,10 @@ export const ca: DeepPartial<Messages> = {
     admin: 'Admin', roommate: 'Company', removed: 'De baixa', generateCode: 'Genera un codi', expiry: 'Caduca', maxUses: 'Usos màxims',
     revoke: 'Revoca', settings: 'Configuració del pis', payments: 'Pagaments', recordPayment: 'Registra un pagament',
     sensitive: 'Informació sensible', showBalance: 'Mostra el balanç als companys', deleteHouse: 'Elimina el pis',
+  },
+  localMode: {
+    data: "Les teves dades", export: "Exporta les dades", import: "Importa dades", deleteAll: "Esborra totes les dades", leave: "Surt del mode local",
+    dataLossNotice: "Mode local: les teves dades viuen només en aquest dispositiu. Si desinstal·les l'app o n'esborres les dades ho perdràs tot. Exporta una còpia de seguretat sovint.",
   },
   profile: {
     title: 'Perfil', edit: 'Edita el perfil', documents: 'Documents d’identitat', passport: 'Passaport', nationalId: 'DNI',
@@ -105,6 +110,18 @@ export const ca: DeepPartial<Messages> = {
     day_one: 'Cada dia', day_other: 'Cada {{n}} dies', week_one: 'Cada setmana', week_other: 'Cada {{n}} setmanes',
     month_one: 'Cada mes', month_other: 'Cada {{n}} mesos', year_one: 'Cada any', year_other: 'Cada {{n}} anys',
     variable: 'variable',
+  },
+  backup: {
+    reminder: { title: "Hora de fer una còpia", body: "Les teves dades només són en aquest dispositiu. Exporta una còpia per no perdre-les.", exportNow: "Exporta ara", snooze: "Recorda-m'ho en 7 dies" },
+    exported: "Còpia exportada",
+    imported: "Còpia restaurada",
+    deleted: "Totes les dades locals eliminades",
+    failed: "L'operació de còpia ha fallat. Torna-ho a provar.",
+    invalid: "Aquest fitxer no és una còpia vàlida.",
+    newerVersion: "Aquesta còpia es va crear amb una versió més recent de l'app. Actualitza l'app primer.",
+    importConfirm: "Restaurar substitueix TOTES les dades d'aquest dispositiu per les de la còpia. Continuar?",
+    deleteConfirm: "Això elimina de manera permanent totes les dades i fitxers d'aquest dispositiu. Exporta abans una còpia si la necessites.",
+    import: "Restaurar",
   },
   errors: { generic: 'Alguna cosa ha anat malament. Torna-ho a provar.', network: 'Sense connexió.', fileTooLarge: 'El fitxer és massa gran.', fileType: 'Tipus de fitxer no permès.' },
   billsUi: {

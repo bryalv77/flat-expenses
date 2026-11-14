@@ -15,6 +15,7 @@ export const en: Messages = {
     invalidEmail: 'Invalid email', shortPassword: 'At least 6 characters', nameRequired: 'Enter your name',
     wrongCredentials: 'Wrong email or password', emailInUse: 'That email is already registered',
     noAccount: 'No account yet?', haveAccount: 'Already have an account?',
+    useLocal: 'Use without an account (this device only)', localNoticeTitle: 'Your data stays on this device', localNoticeBody: 'Your data exists only on this device. If you lose it or uninstall the app, your data is lost for good unless you exported a copy.',
   },
   onboarding: {
     roleTitle: 'What is your role?', admin: 'I am the flat admin', adminDesc: 'Create the flat, upload bills and invite roommates.',
@@ -58,6 +59,10 @@ export const en: Messages = {
     admin: 'Admin', roommate: 'Roommate', removed: 'Removed', generateCode: 'Generate code', expiry: 'Expires', maxUses: 'Max uses',
     revoke: 'Revoke', settings: 'Flat settings', payments: 'Payments', recordPayment: 'Record payment',
     sensitive: 'Sensitive information', showBalance: 'Show balance to roommates', deleteHouse: 'Delete flat',
+  },
+  localMode: {
+    data: "Your data", export: "Export data", import: "Import data", deleteAll: "Delete all data", leave: "Leave local mode",
+    dataLossNotice: "Local mode: your data lives only on this device. If you uninstall the app or clear its data you will lose everything. Export a backup regularly.",
   },
   profile: {
     title: 'Profile', edit: 'Edit profile', documents: 'Identity documents', passport: 'Passport', nationalId: 'National ID',
@@ -104,6 +109,18 @@ export const en: Messages = {
     day_one: 'Every day', day_other: 'Every {{n}} days', week_one: 'Every week', week_other: 'Every {{n}} weeks',
     month_one: 'Every month', month_other: 'Every {{n}} months', year_one: 'Every year', year_other: 'Every {{n}} years',
     variable: 'variable',
+  },
+  backup: {
+    reminder: { title: "Time to back up", body: "Your data lives only on this device. Export a backup so you do not lose it.", exportNow: "Export now", snooze: "Remind me in 7 days" },
+    exported: "Backup exported",
+    imported: "Backup restored",
+    deleted: "All local data deleted",
+    failed: "The backup operation failed. Try again.",
+    invalid: "This file is not a valid backup.",
+    newerVersion: "This backup was made by a newer version of the app. Update the app first.",
+    importConfirm: "Restoring replaces ALL data on this device with the backup. Continue?",
+    deleteConfirm: "This permanently deletes all data and files on this device. Export a backup first if you need one.",
+    import: "Restore",
   },
   errors: { generic: 'Something went wrong. Try again.', network: 'No connection.', fileTooLarge: 'The file is too large.', fileType: 'File type not allowed.' },
   billsUi: {

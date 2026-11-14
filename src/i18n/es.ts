@@ -13,6 +13,7 @@ export const es = {
     invalidEmail: 'Correo no válido', shortPassword: 'Mínimo 6 caracteres', nameRequired: 'Introduce tu nombre',
     wrongCredentials: 'Correo o contraseña incorrectos', emailInUse: 'Ese correo ya está registrado',
     noAccount: '¿No tienes cuenta?', haveAccount: '¿Ya tienes cuenta?',
+    useLocal: 'Usar sin cuenta (solo en este dispositivo)', localNoticeTitle: 'Tus datos solo están en este dispositivo', localNoticeBody: 'Si pierdes el dispositivo o desinstalas la app, tus datos se pierden para siempre, salvo que hayas exportado una copia.',
   },
   onboarding: {
     roleTitle: '¿Cuál es tu rol?', admin: 'Soy admin del piso', adminDesc: 'Crea el piso, sube facturas e invita a tus roommies.',
@@ -56,6 +57,10 @@ export const es = {
     admin: 'Admin', roommate: 'Roommie', removed: 'Baja', generateCode: 'Generar código', expiry: 'Caduca', maxUses: 'Usos máximos',
     revoke: 'Revocar', settings: 'Ajustes del piso', payments: 'Pagos', recordPayment: 'Registrar pago',
     sensitive: 'Información sensible', showBalance: 'Mostrar balance a roommies', deleteHouse: 'Eliminar piso',
+  },
+  localMode: {
+    data: "Tus datos", export: "Exportar datos", import: "Importar datos", deleteAll: "Borrar todos los datos", leave: "Salir del modo local",
+    dataLossNotice: "Modo local: tus datos viven solo en este dispositivo. Si desinstalas la app o borras sus datos lo perderás todo. Exporta una copia de seguridad con regularidad.",
   },
   profile: {
     title: 'Perfil', edit: 'Editar perfil', documents: 'Documentos de identidad', passport: 'Pasaporte', nationalId: 'DNI',
@@ -102,6 +107,18 @@ export const es = {
     day_one: 'Cada día', day_other: 'Cada {{n}} días', week_one: 'Cada semana', week_other: 'Cada {{n}} semanas',
     month_one: 'Cada mes', month_other: 'Cada {{n}} meses', year_one: 'Cada año', year_other: 'Cada {{n}} años',
     variable: 'variable',
+  },
+  backup: {
+    reminder: { title: "Hora de hacer una copia", body: "Tus datos solo están en este dispositivo. Exporta una copia para no perderlos.", exportNow: "Exportar ahora", snooze: "Recordar en 7 días" },
+    exported: "Copia exportada",
+    imported: "Copia restaurada",
+    deleted: "Todos los datos locales eliminados",
+    failed: "La operación de copia falló. Inténtalo de nuevo.",
+    invalid: "Este archivo no es una copia válida.",
+    newerVersion: "Esta copia se creó con una versión más reciente de la app. Actualiza la app primero.",
+    importConfirm: "Restaurar reemplaza TODOS los datos de este dispositivo por los de la copia. ¿Continuar?",
+    deleteConfirm: "Esto elimina de forma permanente todos los datos y archivos de este dispositivo. Exporta antes una copia si la necesitas.",
+    import: "Restaurar",
   },
   errors: { generic: 'Algo salió mal. Inténtalo de nuevo.', network: 'Sin conexión.', fileTooLarge: 'El archivo es demasiado grande.', fileType: 'Tipo de archivo no permitido.' },
   billsUi: {
