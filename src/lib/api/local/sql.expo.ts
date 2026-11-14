@@ -28,3 +28,10 @@ export async function openLocalDb(name = 'costos-local.db'): Promise<SqlDb> {
   await migrate(db);
   return db;
 }
+
+let shared: Promise<SqlDb> | undefined;
+/** The one app-wide connection: the api, the web file store and backup must share it (OPFS allows a single writer). */
+export function getLocalDb(): Promise<SqlDb> {
+  shared ??= openLocalDb();
+  return shared;
+}

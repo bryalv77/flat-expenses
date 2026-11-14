@@ -54,8 +54,8 @@ let shared: FileStore | undefined;
 export const localFileStore: FileStore = (() => {
   const get = async () => {
     if (!shared) {
-      const { openLocalDb } = await import('./api/local/sql.expo');
-      shared = createWebFileStore(await openLocalDb());
+      const { getLocalDb } = await import('./api/local/sql.expo');
+      shared = createWebFileStore(await getLocalDb());
     }
     return shared;
   };
