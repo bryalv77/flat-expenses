@@ -1,0 +1,166 @@
+import { and, asc, desc, eq } from 'drizzle-orm';
+import { Hono } from 'hono';
+import { z } from 'zod';
+
+import { billsApp } from './bills';
+import { categoriesApp } from './categories';
+import { paymentsApp } from './payments';
+import { houses, invites, members } from './db/schema';
+import { purgePrefix } from './files';
+import { guard, session, type AppEnv } from './middleware';
+
+export const housesApp = new Hono<AppEnv>();
+housesApp.use('*', session);
+
+const houseFields = {
+  name: z.string().trim().min(1).max(100),
+  address: z.string().trim().max(200).nullish(),
+  splitMode: z.string().min(1).max(30).optional(),
+  fixedContributionCents: z.number().int().min(0).nullish(),
+  contributionDayOfMonth: z.number().int().min(1).max(31).nullish(),
+  showBalanceToRoommates: z.boolean().optional(),
+};
+const createSchema = z.object({ id: z.uuid().optional(), ...houseFields }); // the app generates ids for optimistic updates
+const updateSchema = z.object(houseFields).partial().strict();
+
+housesApp.get('/', async (c) => {
+  const rows = await c.var.db
+    .select({ house: houses, role: members.role })
+    .from(members)
+    .innerJoin(houses, eq(houses.id, members.houseId))
+    .where(and(eq(members.userId, c.var.uid), eq(members.status, 'ACTIVE')));
+  return c.json(rows.map((r) => ({ ...r.house, role: r.role })));
+});
+
+housesApp.post('/', async (c) => {
+  const body = createSchema.safeParse(await c.req.json().catch(() => null));
+  if (!body.success) return c.json({ error: 'invalid', issues: body.error.issues }, 400);
+  const v = body.data;
+  const { db, uid } = c.var;
+  const ud = await db.query.user.findFirst({ where: (u, { eq }) => eq(u.id, uid) });
+  const id = v.id ?? crypto.randomUUID();
+  // No interactive transactions on neon-http, so compensate: if the membership insert fails, drop the house.
+  const [house] = await db.insert(houses).values({ ...v, id, splitMode: v.splitMode ?? 'EQUAL', createdBy: uid }).returning();
+  try {
+    await db.insert(members).values({
+      houseId: id, userId: uid, role: 'ADMIN', status: 'ACTIVE', joinedAt: new Date(),
+      displayName: ud?.name, email: ud?.email, photoKey: ud?.photoKey,
+    });
+  } catch (e) {
+    await db.delete(houses).where(eq(houses.id, id));
+    throw e;
+  }
+  return c.json(house, 201);
+});
+
+housesApp.get('/:id', guard(false), async (c) => {
+  const id = c.req.param('id');
+  const [house] = await c.var.db.select().from(houses).where(eq(houses.id, id));
+  const list = await c.var.db.select().from(members).where(eq(members.houseId, id)).orderBy(asc(members.joinedAt)).limit(100);
+  return c.json({ house, members: list });
+});
+
+housesApp.patch('/:id', guard(true), async (c) => {
+  const body = updateSchema.safeParse(await c.req.json().catch(() => null));
+  if (!body.success) return c.json({ error: 'invalid', issues: body.error.issues }, 400);
+  const [house] = await c.var.db.update(houses).set(body.data).where(eq(houses.id, c.req.param('id'))).returning();
+  return c.json(house);
+});
+
+// Members, categories, bills and payments cascade in Postgres; the house's R2 objects are purged afterwards.
+housesApp.delete('/:id', guard(true), async (c) => {
+  await c.var.db.delete(houses).where(eq(houses.id, c.req.param('id')));
+  await purgePrefix(c.env.BUCKET, `houses/${c.req.param('id')}/`);
+  return c.body(null, 204);
+});
+
+// ---- Members ----
+const day = z.iso.date().transform((d) => new Date(`${d}T12:00:00Z`)); // same noon-UTC convention as the Firestore client
+const cents = z.number().int().min(0).nullable();
+
+const parse = async <T extends z.ZodType>(c: { req: { json: () => Promise<unknown> } }, schema: T) =>
+  schema.safeParse(await c.req.json().catch(() => null));
+
+const target = (c: { req: { param: (k: string) => string | undefined } }) =>
+  and(eq(members.houseId, c.req.param('id') ?? ''), eq(members.userId, c.req.param('memberId') ?? ''));
+
+housesApp.get('/:id/members', guard(false), async (c) =>
+  c.json(await c.var.db.select().from(members).where(eq(members.houseId, c.req.param('id'))).orderBy(asc(members.joinedAt)).limit(100)),
+);
+
+// Admin registers a roommate without an account (id guest_…); dates may be historical.
+housesApp.post('/:id/members/guests', guard(true), async (c) => {
+  const b = await parse(c, z.object({
+    id: z.string().regex(/^guest_[0-9a-f]{32}$/).optional(), // client-generated, like the Firestore client did
+    displayName: z.string().trim().min(1).max(100),
+    joinedAt: day,
+    removedAt: day.nullable(),
+    individualContributionCents: cents,
+  }));
+  if (!b.success) return c.json({ error: 'invalid', issues: b.error.issues }, 400);
+  const [m] = await c.var.db.insert(members).values({
+    houseId: c.req.param('id'), userId: b.data.id ?? `guest_${crypto.randomUUID().replaceAll('-', '')}`, role: 'ROOMMATE',
+    status: b.data.removedAt ? 'REMOVED' : 'ACTIVE', joinedAt: b.data.joinedAt, removedAt: b.data.removedAt,
+    individualContributionCents: b.data.individualContributionCents, displayName: b.data.displayName, email: '',
+  }).returning();
+  return c.json(m, 201);
+});
+
+// Admin removes a roommate; `removedAt` is the day they left (default: now).
+housesApp.post('/:id/members/:memberId/remove', guard(true), async (c) => {
+  const b = await parse(c, z.object({ removedAt: day.optional() }));
+  if (!b.success) return c.json({ error: 'invalid', issues: b.error.issues }, 400);
+  const [m] = await c.var.db.update(members).set({ status: 'REMOVED', removedAt: b.data.removedAt ?? new Date() }).where(target(c)).returning();
+  return m ? c.json(m) : c.json({ error: 'not_found' }, 404);
+});
+
+housesApp.post('/:id/members/:memberId/reactivate', guard(true), async (c) => {
+  const [m] = await c.var.db.update(members).set({ status: 'ACTIVE', removedAt: null }).where(target(c)).returning();
+  return m ? c.json(m) : c.json({ error: 'not_found' }, 404);
+});
+
+housesApp.patch('/:id/members/:memberId', guard(true), async (c) => {
+  const b = await parse(c, z.object({ individualContributionCents: cents }));
+  if (!b.success) return c.json({ error: 'invalid', issues: b.error.issues }, 400);
+  const [m] = await c.var.db.update(members).set(b.data).where(target(c)).returning();
+  return m ? c.json(m) : c.json({ error: 'not_found' }, 404);
+});
+
+housesApp.post('/:id/leave', guard(false), async (c) => {
+  const { db, uid } = c.var;
+  const houseId = c.req.param('id');
+  // The last admin can't leave: the house would be orphaned (delete it or hand over first).
+  const admins = await db.select().from(members).where(and(eq(members.houseId, houseId), eq(members.role, 'ADMIN'), eq(members.status, 'ACTIVE')));
+  if (admins.length === 1 && admins[0]!.userId === uid) return c.json({ error: 'last_admin' }, 409);
+  await db.update(members).set({ status: 'REMOVED', removedAt: new Date() }).where(and(eq(members.houseId, houseId), eq(members.userId, uid)));
+  return c.body(null, 204);
+});
+
+// ---- Invites (admin side; redeeming lives in invites.ts) ----
+const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // same as the client's inviteCode.ts (no lookalike characters)
+const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => ALPHABET[b % ALPHABET.length]).join('');
+
+housesApp.get('/:id/invites', guard(true), async (c) => {
+  const rows = await c.var.db.select().from(invites).where(eq(invites.houseId, c.req.param('id'))).orderBy(desc(invites.createdAt)).limit(50);
+  const now = new Date();
+  return c.json(rows.map((r) => ({ ...r, status: r.status === 'ACTIVE' && r.expiresAt < now ? 'EXPIRED' : r.status })));
+});
+
+housesApp.post('/:id/invites', guard(true), async (c) => {
+  const b = await parse(c, z.object({ code: z.string().regex(/^[A-HJKMNP-Z2-9]{8}$/).optional(), expiresAt: z.iso.datetime().transform((d) => new Date(d)), maxUses: z.number().int().min(1).max(100) }));
+  if (!b.success || b.data.expiresAt <= new Date()) return c.json({ error: 'invalid' }, 400);
+  const { code = newCode(), ...rest } = b.data;
+  const [inv] = await c.var.db.insert(invites).values({ code, houseId: c.req.param('id'), status: 'ACTIVE', createdBy: c.var.uid, ...rest })
+    .onConflictDoNothing().returning();
+  return inv ? c.json(inv, 201) : c.json({ error: 'code_taken' }, 409); // a client-chosen code can collide; the app retries
+});
+
+housesApp.post('/:id/invites/:code/revoke', guard(true), async (c) => {
+  const [inv] = await c.var.db.update(invites).set({ status: 'REVOKED' })
+    .where(and(eq(invites.houseId, c.req.param('id')), eq(invites.code, c.req.param('code')))).returning();
+  return inv ? c.json(inv) : c.json({ error: 'not_found' }, 404);
+});
+
+housesApp.route('/:id/categories', categoriesApp);
+housesApp.route('/:id/bills', billsApp);
+housesApp.route('/:id/payments', paymentsApp);

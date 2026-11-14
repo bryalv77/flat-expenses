@@ -13,6 +13,9 @@ export function authErrorKey(error: unknown): TranslationKey {
       return 'auth.emailInUse';
     case 'auth/network-request-failed':
       return 'errors.network';
+    case 'auth/invalid-action-code':
+    case 'auth/expired-action-code':
+      return 'account.resetLinkInvalid';
     case 'auth/requires-recent-login':
       return 'account.recentLogin';
     default:

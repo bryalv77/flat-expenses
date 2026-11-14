@@ -2,7 +2,11 @@
 // Aborts before deploying if the exported inline script no longer matches the CSP hash in firebase.json
 // (that mismatch would blank the site in production).
 //
-//   pnpm deploy:web
+//   pnpm deploy:web            # hosting only
+//   pnpm deploy:web --rules    # hosting + Firestore rules + Storage rules (only while Firebase is still the live backend)
+//
+// Hosting only by default on purpose: after the cutover (docs/cutover-plan.md) Firestore and Storage are frozen read-only, and
+// redeploying the normal rules would silently re-open writes.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -25,4 +29,5 @@ if (missing.length) {
 }
 console.log('\n✔ CSP hashes match firebase.json');
 
-run('pnpm', ['exec', 'firebase', 'deploy', '--only', 'hosting,firestore:rules,storage']);
+const withRules = process.argv.includes('--rules');
+run('pnpm', ['exec', 'firebase', 'deploy', '--only', withRules ? 'hosting,firestore:rules,storage' : 'hosting']);

@@ -5,5 +5,5 @@ const prettier = require('eslint-config-prettier/flat');
 module.exports = defineConfig([
   expo,
   prettier,
-  globalIgnores(['dist/*', '.expo/*']),
+  globalIgnores(['dist/*', '.expo/*', 'worker/*']),
 ]);

@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "costos-piso-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "workers_dev": true, // https://costos-piso-api.bryalv77.workers.dev
+  "preview_urls": false, // no extra public per-version URLs for this API
+  // Created with `wrangler r2 bucket create costos-piso-files --jurisdiction eu` (identity documents: GDPR; fixed at creation).
+  // `wrangler dev` simulates it locally.
+  "r2_buckets": [{ "binding": "BUCKET", "bucket_name": "costos-piso-files", "jurisdiction": "eu" }],
+  "env": { "local": { "r2_buckets": [{ "binding": "BUCKET", "bucket_name": "costos-piso-files" }] } } // bindings are not inherited by envs; `pnpm dev:local` reads .dev.vars.local (native Postgres)
+  // Secrets (never committed): wrangler secret put DATABASE_URL | BETTER_AUTH_SECRET
+}

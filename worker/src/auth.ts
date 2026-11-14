@@ -1,0 +1,70 @@
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { hashPassword, verifyPassword } from 'better-auth/crypto';
+import { bearer } from 'better-auth/plugins';
+import { eq } from 'drizzle-orm';
+
+import { deleteAccountData } from './account';
+import type { Db } from './db/client';
+import { account } from './db/schema';
+import { resetPasswordEmail, sendEmail, type EmailEnv } from './email';
+import { FIREBASE_HASH_PREFIX, firebaseParamsFromEnv, verifyFirebasePassword, type FirebaseScryptEnv } from './firebasePassword';
+import * as schema from './db/schema';
+
+export interface AuthEnv extends EmailEnv, FirebaseScryptEnv {
+  BUCKET: R2Bucket;
+  BETTER_AUTH_SECRET: string;
+  BETTER_AUTH_URL: string;
+}
+
+/** Origins of the hosted web app (Firebase Hosting serves both domains); the native app's scheme is only a trusted origin, not a CORS one. */
+export const WEB_ORIGINS = ['https://costos-piso.web.app', 'https://costos-piso.firebaseapp.com'];
+/** Expo web dev server: only when the Worker itself runs locally, so a page on someone's localhost:8081 can never call production. */
+export const devWebOrigins = (env: { BETTER_AUTH_URL: string }) => (env.BETTER_AUTH_URL.startsWith('http://localhost') ? ['http://localhost:8081', 'http://localhost:19006'] : []);
+
+/** Better Auth instance (issue #7 §4b). Email + password first; Google/Apple and email sending come next. */
+/** `waitUntil` keeps the Worker alive for background work (sending the reset email) after the response is sent. */
+export const createAuth = (db: Db, env: AuthEnv, waitUntil?: (p: Promise<unknown>) => void) =>
+  betterAuth({
+    secret: env.BETTER_AUTH_SECRET,
+    baseURL: env.BETTER_AUTH_URL,
+    database: drizzleAdapter(db, { provider: 'pg', schema }),
+    emailAndPassword: {
+      enabled: true,
+      // Users migrated from Firebase arrive with a Firebase scrypt hash. It is accepted once, then replaced by a Better Auth hash.
+      password: {
+        hash: hashPassword,
+        verify: async ({ hash, password }) => {
+          if (!hash.startsWith(FIREBASE_HASH_PREFIX)) return verifyPassword({ hash, password });
+          const params = firebaseParamsFromEnv(env);
+          if (!params || !(await verifyFirebasePassword(hash, password, params))) return false;
+          await db.update(account).set({ password: await hashPassword(password) }).where(eq(account.password, hash));
+          return true;
+        },
+      },
+      minPasswordLength: 6, // same as the app's forms (and Firebase); Better Auth defaults to 8
+      resetPasswordTokenExpiresIn: 3600,
+      revokeSessionsOnPasswordReset: true, // whoever had the old password is signed out everywhere
+      // The link goes through the Worker, which validates the token and redirects to `redirectTo?token=…` (a trusted origin).
+      sendResetPassword: async ({ user, url }) => {
+        const u = user as typeof user & { locale?: string | null };
+        await sendEmail(env, resetPasswordEmail(u, url));
+      },
+    },
+    advanced: {
+      disableOriginCheck: false, // explicit: Better Auth turns the check off by itself under NODE_ENV=test, hiding it from our tests
+      ...(waitUntil && { backgroundTasks: { handler: waitUntil } }),
+    },
+    user: {
+      // POST /api/auth/delete-user {password}: Better Auth verifies the password, we clean up, then it deletes user + sessions.
+      deleteUser: { enabled: true, beforeDelete: (u) => deleteAccountData(db, env.BUCKET, u.id) },
+      additionalFields: {
+        locale: { type: 'string', required: false },
+        accountRole: { type: 'string', required: false, defaultValue: 'USER', input: false },
+        photoKey: { type: 'string', required: false },
+      },
+    },
+    plugins: [bearer()], // the Expo client sends the session token as a Bearer header
+    trustedOrigins: ['costospiso://', ...WEB_ORIGINS, ...devWebOrigins(env)],
+  });
+export type Auth = ReturnType<typeof createAuth>;

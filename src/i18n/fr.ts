@@ -98,6 +98,8 @@ export const fr: DeepPartial<Messages> = {
     uploaded: 'Document envoyé', deleteAccountWarn: 'Vos fichiers et vos données personnelles seront supprimés. Cette action est irréversible.',
     passwordForDelete: 'Saisissez votre mot de passe pour confirmer', recentLogin: 'Reconnectez-vous pour supprimer votre compte.',
     activeHouse: 'Appartement actif', account: 'Compte',
+    resetTitle: 'Nouveau mot de passe', resetHint: 'Choisis un nouveau mot de passe pour ton compte.', resetDone: 'Mot de passe mis à jour. Tu peux te connecter.',
+    resetLinkInvalid: 'Le lien est invalide ou a expiré. Demande-en un nouveau.',
   },
   schedule: {
     day_one: 'Chaque jour', day_other: 'Tous les {{n}} jours', week_one: 'Chaque semaine', week_other: 'Toutes les {{n}} semaines',

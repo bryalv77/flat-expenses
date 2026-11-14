@@ -10,6 +10,7 @@
     "@react-native-community/datetimepicker": "9.1.0",
     "@shopify/react-native-skia": "^2.6.2",
     "@tanstack/react-query": "^5.104.0",
+    "better-auth": "^1.7.22",
     "date-fns": "^4.4.0",
     "expo": "~57.0.27",
     "expo-apple-authentication": "~57.0.2",
@@ -30,6 +31,7 @@
     "expo-linking": "~57.0.12",
     "expo-localization": "~57.0.2",
     "expo-router": "~57.0.25",
+    "expo-secure-store": "~57.0.4",
     "expo-sharing": "~57.0.22",
     "expo-splash-screen": "~57.0.9",
     "expo-status-bar": "~57.0.1",
@@ -82,6 +84,8 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "web:export": "expo export --platform web",
+    "rules:readonly": "node scripts/make-readonly-rules.mjs",
+    "test:rules:readonly": "firebase emulators:exec --only firestore,storage --project demo-costos \"node --test tests/rules/readonly.test.mjs\"",
     "test:rules": "firebase emulators:exec --only firestore,storage --project demo-costos \"node --test tests/rules/rules.test.mjs\"",
     "prepare": "husky",
     "eas": "eas",
@@ -100,7 +104,8 @@
     ],
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/dist/"
+      "/dist/",
+      "/worker/"
     ]
   },
   "packageManager": "pnpm@8.15.6"

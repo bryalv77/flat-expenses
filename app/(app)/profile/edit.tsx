@@ -144,7 +144,7 @@ function PasswordSection() {
 export default function EditProfileScreen() {
   const { t } = useT();
   const toast = useToast();
-  const { isPasswordAccount, firebaseUser } = useAuth();
+  const { isPasswordAccount, authUser } = useAuth();
   const { data: me } = useMe();
   const update = useUpdateProfile();
 
@@ -190,7 +190,7 @@ export default function EditProfileScreen() {
             />
           )}
         />
-        <TextField label={t('auth.email')} value={me?.email ?? firebaseUser?.email ?? ''} editable={false} hint={t('account.emailReadonly')} />
+        <TextField label={t('auth.email')} value={me?.email ?? authUser?.email ?? ''} editable={false} hint={t('account.emailReadonly')} />
         <Button title={t('common.save')} onPress={onSubmit} loading={formState.isSubmitting} disabled={!formState.isDirty} />
       </View>
       {isPasswordAccount ? (
