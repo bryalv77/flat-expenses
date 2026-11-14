@@ -5,6 +5,7 @@ import { Avatar, ListRow, Screen, Section, Text } from '@/components/ui';
 import { LocalDataSection } from '@/components/LocalDataSection';
 import { useAuth } from '@/features/auth';
 import { leaveLocalMode } from '@/features/auth/appModeSwitch';
+import { useBackupActions } from '@/features/backup';
 import { profileItems } from '@/features/profile/localMode';
 import { getAppMode } from '@/lib/appMode';
 import { useMe, useMyDocuments } from '@/features/profile/hooks';
@@ -19,6 +20,7 @@ export default function ProfileScreen() {
   const { data: user } = useMe();
   const { data: avatarUrl } = useFileUrl(user?.photoPath);
   const items = profileItems(getAppMode());
+  const backup = useBackupActions();
   const { data: docs } = useMyDocuments({ enabled: items.documents });
   const name = user?.displayName ?? authUser?.displayName ?? '';
 
@@ -42,7 +44,10 @@ export default function ProfileScreen() {
             />
           ) : null}
         </Section>
-        {items.localData ? <LocalDataSection /> : null}
+        {items.localData ? (
+          <LocalDataSection onExport={backup.onExport} onImport={backup.onImport} onDeleteAll={backup.onDeleteAll} />
+        ) : null}
+        {backup.sheet}
         {items.dataLossNotice ? (
           <Section footer={t('localMode.dataLossNotice')}>
             <ListRow icon="logout" title={t('localMode.leave')} onPress={() => void leaveLocalMode()} />
