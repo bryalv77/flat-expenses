@@ -6,7 +6,7 @@
     "dev": "wrangler dev",
     "dev:local": "wrangler dev --env local",
     "db:migrate:local": "DATABASE_URL='postgres://bryanalvarado@127.0.0.1:5432/costos_piso' drizzle-kit migrate",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler deploy --env=\"\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",

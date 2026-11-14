@@ -18,3 +18,11 @@ pnpm dev                 # wrangler dev on :8787
 Secrets in production: `wrangler secret put DATABASE_URL` / `BETTER_AUTH_SECRET`.
 Regenerate the Better Auth tables after changing `src/auth.ts`:
 `pnpm dlx @better-auth/cli@latest generate --config auth.cli.ts --output src/db/auth-schema.ts -y`, then `pnpm db:generate`.
+
+## Production
+
+Live at https://costos-piso-api.bryalv77.workers.dev (Cloudflare account of `bryalv77`). Neon project `costos-piso` (eu-central-1, main branch),
+R2 bucket `costos-piso-files` (EU jurisdiction, fixed at creation). Deploy with `pnpm deploy`; secrets are `DATABASE_URL`, `BETTER_AUTH_SECRET`
+and `BETTER_AUTH_URL` (`wrangler secret put NAME --env=""`). Apply new migrations to Neon with
+`DATABASE_URL=<neon url> pnpm db:migrate` before deploying code that needs them.
+
