@@ -5,7 +5,7 @@ import { Avatar, ListRow, Screen, Section, Text } from '@/components/ui';
 import { LocalDataSection } from '@/components/LocalDataSection';
 import { useAuth } from '@/features/auth';
 import { leaveLocalMode } from '@/features/auth/appModeSwitch';
-import { useBackupActions } from '@/features/backup';
+import { ExportReminderBanner, useBackupActions } from '@/features/backup';
 import { profileItems } from '@/features/profile/localMode';
 import { getAppMode } from '@/lib/appMode';
 import { useMe, useMyDocuments } from '@/features/profile/hooks';
@@ -44,6 +44,7 @@ export default function ProfileScreen() {
             />
           ) : null}
         </Section>
+        {items.localData ? <ExportReminderBanner onExport={backup.onExport} /> : null}
         {items.localData ? (
           <LocalDataSection onExport={backup.onExport} onImport={backup.onImport} onDeleteAll={backup.onDeleteAll} />
         ) : null}

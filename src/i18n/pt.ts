@@ -112,6 +112,7 @@ export const pt: DeepPartial<Messages> = {
     variable: 'variável',
   },
   backup: {
+    reminder: { title: "Hora de fazer uma cópia", body: "Os seus dados estão apenas neste dispositivo. Exporte uma cópia para não os perder.", exportNow: "Exportar agora", snooze: "Lembrar em 7 dias" },
     exported: "Cópia exportada",
     imported: "Cópia restaurada",
     deleted: "Todos os dados locais eliminados",

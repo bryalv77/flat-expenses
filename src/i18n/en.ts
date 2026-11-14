@@ -111,6 +111,7 @@ export const en: Messages = {
     variable: 'variable',
   },
   backup: {
+    reminder: { title: "Time to back up", body: "Your data lives only on this device. Export a backup so you do not lose it.", exportNow: "Export now", snooze: "Remind me in 7 days" },
     exported: "Backup exported",
     imported: "Backup restored",
     deleted: "All local data deleted",

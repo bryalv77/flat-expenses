@@ -109,6 +109,7 @@ export const es = {
     variable: 'variable',
   },
   backup: {
+    reminder: { title: "Hora de hacer una copia", body: "Tus datos solo están en este dispositivo. Exporta una copia para no perderlos.", exportNow: "Exportar ahora", snooze: "Recordar en 7 días" },
     exported: "Copia exportada",
     imported: "Copia restaurada",
     deleted: "Todos los datos locales eliminados",
