@@ -34,6 +34,7 @@
     "expo-secure-store": "~57.0.4",
     "expo-sharing": "~57.0.22",
     "expo-splash-screen": "~57.0.9",
+    "expo-sqlite": "~57.0.5",
     "expo-status-bar": "~57.0.1",
     "expo-symbols": "~57.0.3",
     "expo-system-ui": "~57.0.4",
@@ -59,9 +60,11 @@
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.2",
     "@react-native/jest-preset": "^0.86.3",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^26.6.4",
     "@types/react": "~19.2.2",
+    "better-sqlite3": "^13.2.0",
     "eas-cli": "^24.11.0",
     "eslint": "^9.39.5",
     "eslint-config-expo": "^57.0.2",
@@ -107,6 +110,11 @@
       "/dist/",
       "/worker/",
       "/.claude/"
+    ]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
     ]
   },
   "packageManager": "pnpm@8.15.6"
