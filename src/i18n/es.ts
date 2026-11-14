@@ -58,6 +58,10 @@ export const es = {
     revoke: 'Revocar', settings: 'Ajustes del piso', payments: 'Pagos', recordPayment: 'Registrar pago',
     sensitive: 'Información sensible', showBalance: 'Mostrar balance a roommies', deleteHouse: 'Eliminar piso',
   },
+  localMode: {
+    data: "Tus datos", export: "Exportar datos", import: "Importar datos", deleteAll: "Borrar todos los datos", leave: "Salir del modo local",
+    dataLossNotice: "Modo local: tus datos viven solo en este dispositivo. Si desinstalas la app o borras sus datos lo perderás todo. Exporta una copia de seguridad con regularidad.",
+  },
   profile: {
     title: 'Perfil', edit: 'Editar perfil', documents: 'Documentos de identidad', passport: 'Pasaporte', nationalId: 'DNI',
     addDocument: 'Añadir documento', changePassword: 'Cambiar contraseña', settings: 'Ajustes', theme: 'Apariencia',

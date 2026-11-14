@@ -40,6 +40,14 @@ export function createWebFileStore(db: SqlDb): FileStore {
       await db.run('delete from blobs where path = ?', [key]);
       revoke(key);
     },
+    async list(prefix) {
+      const p = prefix ? assertSafeKey(prefix, { folder: true }) + '/' : '';
+      const rows = await db.all<{ path: string }>(
+        p ? 'select path from blobs where path >= ? and path < ?' : 'select path from blobs',
+        p ? [p, p.slice(0, -1) + '0'] : [],
+      );
+      return rows.map((r) => r.path);
+    },
     async deleteFolder(path) {
       const prefix = assertSafeKey(path, { folder: true }) + '/';
       // '0' is the character after '/', so this range is exactly the keys under the prefix.
@@ -64,5 +72,6 @@ export const localFileStore: FileStore = (() => {
     getUrl: async (...a) => (await get()).getUrl(...a),
     delete: async (...a) => (await get()).delete(...a),
     deleteFolder: async (...a) => (await get()).deleteFolder(...a),
+    list: async (...a) => (await get()).list!(...a),
   };
 })();

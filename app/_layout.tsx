@@ -14,6 +14,7 @@ import { decideRoute, type GuardInput } from '@/features/auth/routeGuard';
 import { useMyHouses } from '@/features/houses/hooks';
 import { useT } from '@/i18n';
 import { getAppMode, loadAppMode } from '@/lib/appMode';
+import { sweepLocalOrphans } from '@/lib/api/local/startup';
 import { queryClient } from '@/lib/queryClient';
 import { ThemeProvider, spacing, useTheme } from '@/theme';
 
@@ -95,7 +96,10 @@ function ModeGate({ children }: { children: ReactNode }) {
   const [loaded, setLoaded] = useState(false);
   const treeKey = useSyncExternalStore(subscribeTreeReset, getTreeKey, getTreeKey);
   useEffect(() => {
-    void loadAppMode().then(() => setLoaded(true));
+    void loadAppMode()
+      // Before the UI is usable, so an upload still waiting for its bill is never mistaken for an orphan. Never throws.
+      .then((mode) => (mode === 'local' ? sweepLocalOrphans() : undefined))
+      .then(() => setLoaded(true));
   }, []);
   return loaded ? <Fragment key={treeKey}>{children}</Fragment> : null; // the native splash stays up meanwhile
 }

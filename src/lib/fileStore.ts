@@ -7,6 +7,8 @@ export interface FileStore {
   getUrl(storagePath: string): Promise<string>;
   delete(storagePath: string): Promise<void>;
   deleteFolder(path: string): Promise<void>;
+  /** Keys under a prefix, recursively. Local stores only (startup orphan sweep). */
+  list?(prefix: string): Promise<string[]>;
 }
 
 // Wraps the existing storage.ts functions (Firebase Storage or the Worker).

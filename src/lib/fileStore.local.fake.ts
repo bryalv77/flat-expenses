@@ -20,6 +20,16 @@ export class Directory {
     if (opts.intermediates) for (let d = this.uri; d.length > 'file:///'.length; d = parentOf(d)) dirs.add(d);
     dirs.add(this.uri);
   }
+  list() {
+    const base = this.uri + '/';
+    const kids = new Map<string, File | Directory>();
+    for (const k of files.keys()) {
+      if (!k.startsWith(base)) continue;
+      const uri = base + k.slice(base.length).split('/')[0];
+      kids.set(uri, files.has(uri) ? new File(uri) : new Directory(uri));
+    }
+    return [...kids.values()];
+  }
   delete() {
     if (!this.exists) throw new Error('does not exist');
     [...files.keys()].filter((k) => k.startsWith(this.uri + '/')).forEach((k) => files.delete(k));

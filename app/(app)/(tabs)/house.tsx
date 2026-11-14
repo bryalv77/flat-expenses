@@ -12,7 +12,9 @@ import { useActiveHouse, useDeleteHouse, useUpdateHouse } from '@/features/house
 import { useMyMember } from '@/features/houses/useMyMember';
 import { isGuestMember, useLeaveHouse } from '@/features/members/hooks';
 import { MemberAvatar } from '@/features/members/MemberAvatar';
+import { houseActions } from '@/features/profile/localMode';
 import { useT } from '@/i18n';
+import { getAppMode } from '@/lib/appMode';
 import { formatDate } from '@/lib/format';
 import { spacing, useTheme } from '@/theme';
 import type { SplitMode } from '@/types/domain';
@@ -33,6 +35,7 @@ export default function HouseScreen() {
   const router = useRouter();
   const toast = useToast();
   const { authUser } = useAuth();
+  const actions = houseActions(getAppMode());
   const { house, isAdmin, isLoading } = useActiveHouse();
   const { members } = useMyMember(house?.id);
   const update = useUpdateHouse();
@@ -105,7 +108,7 @@ export default function HouseScreen() {
           {isAdmin ? (
             <>
               <ListRow icon="card" title={t('hub.paymentsLink')} chevron onPress={() => router.push('/payments')} />
-              <ListRow icon="plus" title={t('hub.inviteLink')} chevron onPress={() => router.push('/members/invite')} />
+              {actions.invite ? <ListRow icon="plus" title={t('hub.inviteLink')} chevron onPress={() => router.push('/members/invite')} /> : null}
               <ListRow icon="plus" title={t('hub.addGuest')} chevron onPress={() => router.push('/members/new')} />
             </>
           ) : null}

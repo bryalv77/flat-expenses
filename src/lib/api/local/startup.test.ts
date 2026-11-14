@@ -1,3 +1,5 @@
+jest.mock('../../fileStore', () => ({ getFileStore: jest.fn() }));
+
 import { migrate } from './migrate';
 import { sweepLocalOrphans } from './startup';
 import { createTestDb } from './testDb';
