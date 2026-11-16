@@ -60,6 +60,7 @@ export const es = {
   },
   localMode: {
     data: "Tus datos", export: "Exportar datos", import: "Importar datos", deleteAll: "Borrar todos los datos", leave: "Salir del modo local",
+    logIn: "Iniciar sesión / Crear cuenta",
     dataLossNotice: "Modo local: tus datos viven solo en este dispositivo. Si desinstalas la app o borras sus datos lo perderás todo. Exporta una copia de seguridad con regularidad.",
   },
   profile: {
@@ -119,6 +120,17 @@ export const es = {
     importConfirm: "Restaurar reemplaza TODOS los datos de este dispositivo por los de la copia. ¿Continuar?",
     deleteConfirm: "Esto elimina de forma permanente todos los datos y archivos de este dispositivo. Exporta antes una copia si la necesitas.",
     import: "Restaurar",
+  },
+  sync: {
+    uploading: "Subiendo tus datos…",
+    chooseTitle: "Tienes datos en este dispositivo y en tu cuenta",
+    chooseBody: "¿Quieres añadir los datos de este dispositivo a tu cuenta, o quedarte solo con los datos que ya tienes en la cuenta?",
+    upload: "Añadir datos locales a mi cuenta",
+    discard: "Quedarme solo con los datos de mi cuenta",
+    backToLocal: "Volver al modo local",
+    discardConfirmTitle: "¿Descartar los datos locales?",
+    discardConfirmBody: "Se eliminarán los datos de este dispositivo. Los datos de tu cuenta se conservan.",
+    failed: "No se pudo sincronizar. Inténtalo de nuevo.",
   },
   errors: { generic: 'Algo salió mal. Inténtalo de nuevo.', network: 'Sin conexión.', fileTooLarge: 'El archivo es demasiado grande.', fileType: 'Tipo de archivo no permitido.' },
   billsUi: {

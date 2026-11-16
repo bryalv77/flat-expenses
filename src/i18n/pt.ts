@@ -63,6 +63,7 @@ export const pt: DeepPartial<Messages> = {
   },
   localMode: {
     data: "Os teus dados", export: "Exportar dados", import: "Importar dados", deleteAll: "Apagar todos os dados", leave: "Sair do modo local",
+    logIn: "Iniciar sessão / Criar conta",
     dataLossNotice: "Modo local: os teus dados ficam apenas neste dispositivo. Se desinstalares a app ou apagares os seus dados, perdes tudo. Exporta uma cópia de segurança com regularidade.",
   },
   profile: {
@@ -122,6 +123,17 @@ export const pt: DeepPartial<Messages> = {
     importConfirm: "Restaurar substitui TODOS os dados deste dispositivo pelos da cópia. Continuar?",
     deleteConfirm: "Isto elimina permanentemente todos os dados e ficheiros deste dispositivo. Exporta antes uma cópia se precisares.",
     import: "Restaurar",
+  },
+  sync: {
+    uploading: "A carregar os teus dados…",
+    chooseTitle: "Tens dados neste dispositivo e na tua conta",
+    chooseBody: "Queres adicionar os dados deste dispositivo à tua conta, ou ficar apenas com os dados que já tens na conta?",
+    upload: "Adicionar dados locais à minha conta",
+    discard: "Ficar apenas com os dados da minha conta",
+    backToLocal: "Voltar ao modo local",
+    discardConfirmTitle: "Descartar os dados locais?",
+    discardConfirmBody: "Os dados deste dispositivo serão eliminados. Os dados da tua conta são mantidos.",
+    failed: "A sincronização falhou. Tenta novamente.",
   },
   errors: { generic: 'Algo correu mal. Tenta novamente.', network: 'Sem ligação.', fileTooLarge: 'O ficheiro é demasiado grande.', fileType: 'Tipo de ficheiro não permitido.' },
   billsUi: {

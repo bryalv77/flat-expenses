@@ -6,6 +6,7 @@ import { LocalDataSection } from '@/components/LocalDataSection';
 import { useAuth } from '@/features/auth';
 import { leaveLocalMode } from '@/features/auth/appModeSwitch';
 import { ExportReminderBanner, useBackupActions } from '@/features/backup';
+import { markPendingSync } from '@/features/sync/pending';
 import { profileItems } from '@/features/profile/localMode';
 import { getAppMode } from '@/lib/appMode';
 import { useMe, useMyDocuments } from '@/features/profile/hooks';
@@ -51,7 +52,13 @@ export default function ProfileScreen() {
         {backup.sheet}
         {items.dataLossNotice ? (
           <Section footer={t('localMode.dataLossNotice')}>
-            <ListRow icon="logout" title={t('localMode.leave')} onPress={() => void leaveLocalMode()} />
+            <ListRow
+              icon="person"
+              title={t('localMode.logIn')}
+              onPress={() => {
+                void markPendingSync().then(() => leaveLocalMode());
+              }}
+            />
           </Section>
         ) : null}
         <Section>

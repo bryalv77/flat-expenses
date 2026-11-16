@@ -1,5 +1,6 @@
 import { signOut as firebaseSignOut } from 'firebase/auth';
 
+import { clearPendingSync } from '@/features/sync/pending';
 import { getApiAuth } from '@/lib/apiAuth';
 import { saveAppMode } from '@/lib/appMode';
 import { auth } from '@/lib/firebase';
@@ -37,7 +38,14 @@ async function switchTo(mode: 'local' | 'cloud') {
 /** Cloud and local never mix: sign out of cloud (and drop its token) first, then switch and remount. */
 export async function enterLocalMode() {
   await signOutOfCloud();
+  await clearPendingSync();
   await switchTo('local');
 }
 
 export const leaveLocalMode = () => switchTo('cloud');
+
+/**
+ * Startup fallback: switch to local without any cloud call. Used when the auth provider restores no
+ * valid session, so the app opens in local mode instead of sitting on a login screen (or a spinner).
+ */
+export const startInLocalMode = () => switchTo('local');

@@ -11,20 +11,28 @@ jest.mock('@/lib/apiAuth', () => ({
     clearToken: async () => void calls.push('clearToken'),
   }),
 }));
+jest.mock('@/features/sync/pending', () => ({
+  clearPendingSync: async () => void calls.push('pendingSync:clear'),
+}));
 
-import { enterLocalMode, getTreeKey, leaveLocalMode, subscribeTreeReset } from './appModeSwitch';
+import { enterLocalMode, getTreeKey, leaveLocalMode, startInLocalMode, subscribeTreeReset } from './appModeSwitch';
 
 beforeEach(() => (calls.length = 0));
 
 describe('appModeSwitch', () => {
-  it('entering local signs out of cloud and clears the token before saving the mode', async () => {
+  it('entering local signs out of cloud, clears the pending sync flag and the token before saving the mode', async () => {
     await enterLocalMode();
-    expect(calls).toEqual(['cloud.signOut', 'clearToken', 'save:local', 'qc.clear', 'house:null']);
+    expect(calls).toEqual(['cloud.signOut', 'clearToken', 'pendingSync:clear', 'save:local', 'qc.clear', 'house:null']);
   });
 
   it('leaving local saves cloud and clears caches', async () => {
     await leaveLocalMode();
     expect(calls).toEqual(['save:cloud', 'qc.clear', 'house:null']);
+  });
+
+  it('startInLocalMode switches to local without any cloud call', async () => {
+    await startInLocalMode();
+    expect(calls).toEqual(['save:local', 'qc.clear', 'house:null']);
   });
 
   it('resets the tree (key changes, subscribers notified)', async () => {
