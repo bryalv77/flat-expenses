@@ -4,7 +4,8 @@ import { useAuth } from '@/features/auth/AuthContext';
 import { api } from '@/lib/db';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
-import { deleteFile, newId, prepareFile, storagePaths, uploadFile, type PickedFile } from '@/lib/storage';
+import { getFileStore } from '@/lib/fileStore';
+import { newId, prepareFile, storagePaths, type PickedFile } from '@/lib/storage';
 import type { DocumentType, Locale, User, UserDocument } from '@/types/domain';
 
 export function useMe() {
@@ -30,9 +31,9 @@ export function useUploadAvatar() {
       const uid = authUser?.uid;
       if (!uid) throw new Error('Not signed in');
       const prepared = await prepareFile(file, 'avatar');
-      const uploaded = await uploadFile(storagePaths.avatar(uid, `${newId()}-${prepared.name}`), prepared, onProgress);
+      const uploaded = await getFileStore().upload(storagePaths.avatar(uid, `${newId()}-${prepared.name}`), prepared, onProgress);
       await api.updateMyProfile({ photoPath: uploaded.storagePath });
-      if (previousPath) await deleteFile(previousPath).catch(() => undefined);
+      if (previousPath) await getFileStore().delete(previousPath).catch(() => undefined);
       return uploaded.storagePath;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.me }),
@@ -53,11 +54,11 @@ export function useAddDocument() {
       if (!uid) throw new Error('Not signed in');
       const id = newId();
       const prepared = await prepareFile(file, 'document');
-      const uploaded = await uploadFile(storagePaths.userDocument(uid, id, prepared.name), prepared, onProgress);
+      const uploaded = await getFileStore().upload(storagePaths.userDocument(uid, id, prepared.name), prepared, onProgress);
       try {
         await api.addMyDocument({ id, type, ...uploaded, mimeType: uploaded.mimeType });
       } catch (e) {
-        await deleteFile(uploaded.storagePath).catch(() => undefined);
+        await getFileStore().delete(uploaded.storagePath).catch(() => undefined);
         throw e;
       }
       return id;
@@ -71,7 +72,7 @@ export function useDeleteDocument() {
   return useMutation({
     mutationFn: async (doc: UserDocument) => {
       await api.deleteMyDocument({ id: doc.id });
-      await deleteFile(doc.storagePath).catch(() => undefined);
+      await getFileStore().delete(doc.storagePath).catch(() => undefined);
     },
     ...optimisticOptions<UserDocument, UserDocument[]>(qc, qk.myDocuments, (old, doc) => old.filter((d) => d.id !== doc.id)),
   });

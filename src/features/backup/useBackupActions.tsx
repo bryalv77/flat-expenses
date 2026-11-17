@@ -52,7 +52,7 @@ export function useBackupActions(): { onExport: () => void; onImport: () => void
       if (p?.kind === 'import') await importBackup(db, appBackupFiles, p.archive);
       else if (p?.kind === 'delete') await wipeAllLocalData(db, appBackupFiles);
       else return;
-      qc.clear();
+      await qc.resetQueries(); // refetch active queries so the gate sees the new (or empty) database
       toast.success(t(p.kind === 'import' ? 'backup.imported' : 'backup.deleted'));
     } catch (e) {
       fail(e);

@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, type BillInput } from '@/lib/db';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
-import { deleteFile, newId, prepareFile, storagePaths, uploadFile, type PickedFile } from '@/lib/storage';
+import { getFileStore } from '@/lib/fileStore';
+import { newId, prepareFile, storagePaths, type PickedFile } from '@/lib/storage';
 import type { Bill, BillFile } from '@/types/domain';
 
 type BillFields = Omit<BillInput, 'files'>;
@@ -32,7 +33,7 @@ async function uploadBillFiles(houseId: string, billId: string, files: PickedFil
     for (const file of files) {
       const prepared = await prepareFile(file, 'bill'); // compresses images, HEIC → JPEG
       const path = storagePaths.bill(houseId, billId, `${newId().slice(0, 8)}-${prepared.name}`);
-      const u = await uploadFile(path, prepared, (f) => onProgress?.((done.length + f) / files.length));
+      const u = await getFileStore().upload(path, prepared, (f) => onProgress?.((done.length + f) / files.length));
       done.push({ storagePath: u.storagePath, fileName: u.fileName, mimeType: u.mimeType, sizeBytes: u.sizeBytes });
     }
   } catch (e) {
@@ -42,7 +43,7 @@ async function uploadBillFiles(houseId: string, billId: string, files: PickedFil
   return done;
 }
 
-const removeFiles = (files: BillFile[]) => Promise.all(files.map((f) => deleteFile(f.storagePath).catch(() => undefined)));
+const removeFiles = (files: BillFile[]) => Promise.all(files.map((f) => getFileStore().delete(f.storagePath).catch(() => undefined)));
 
 export interface CreateBillVars {
   fields: BillFields;

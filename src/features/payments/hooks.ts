@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { monthKey, monthStart } from '@/lib/dates';
 import { api } from '@/lib/db';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
@@ -8,9 +9,11 @@ import type { MemberPayment } from '@/types/domain';
 
 /** Payments whose `month` (first day of month, ISO) is within [from, to]. Members can read; only admins write. */
 export function usePayments(houseId: string | null | undefined, range: { from: string; to: string }) {
+  // `month` is always a first-of-month date and the backends (Worker, local) reject any other value, so callers may pass a month end.
+  const q = { from: monthStart(monthKey(range.from)), to: monthStart(monthKey(range.to)) };
   return useQuery({
-    queryKey: qk.payments(houseId ?? '', range.from, range.to),
-    queryFn: () => api.listPayments({ houseId: houseId as string, ...range }),
+    queryKey: qk.payments(houseId ?? '', q.from, q.to),
+    queryFn: () => api.listPayments({ houseId: houseId as string, ...q }),
     enabled: Boolean(houseId),
   });
 }
