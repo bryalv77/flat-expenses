@@ -73,3 +73,8 @@ firebase.readonly.json
 # local iOS release build
 /build
 *.ipa
+
+# playwright
+test-results/
+playwright-report/
+.e2e-dist/
