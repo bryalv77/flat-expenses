@@ -69,3 +69,7 @@ scripts/.import-data/
 .readonly/
 firebase.readonly.json
 .claude/
+
+# local iOS release build
+/build
+*.ipa

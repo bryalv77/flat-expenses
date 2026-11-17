@@ -80,8 +80,8 @@
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
     "test": "jest",
@@ -94,6 +94,7 @@
     "test:rules": "firebase emulators:exec --only firestore,storage --project demo-costos \"node --test tests/rules/rules.test.mjs\"",
     "prepare": "husky",
     "eas": "eas",
+    "release:ios": "node scripts/release-ios.mjs",
     "deploy:mobile": "node scripts/deploy-mobile.mjs",
     "deploy:web": "node scripts/deploy-web.mjs"
   },
