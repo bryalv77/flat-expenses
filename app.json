@@ -16,9 +16,9 @@
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "NSCameraUsageDescription": "Costos Piso usa la c\u00e1mara para fotografiar facturas y documentos.",
+        "NSCameraUsageDescription": "Costos Piso usa la cámara para fotografiar facturas y documentos.",
         "NSPhotoLibraryUsageDescription": "Costos Piso accede a tus fotos para adjuntar facturas, documentos y tu foto de perfil.",
-        "NSPhotoLibraryAddUsageDescription": "Costos Piso guarda im\u00e1genes en tu fototeca cuando lo pides."
+        "NSPhotoLibraryAddUsageDescription": "Costos Piso guarda imágenes en tu fototeca cuando lo pides."
       }
     },
     "android": {
@@ -50,7 +50,7 @@
         "expo-image-picker",
         {
           "photosPermission": "Costos Piso accede a tus fotos para adjuntar facturas, documentos y tu foto de perfil.",
-          "cameraPermission": "Costos Piso usa la c\u00e1mara para fotografiar facturas y documentos.",
+          "cameraPermission": "Costos Piso usa la cámara para fotografiar facturas y documentos.",
           "microphonePermission": false
         }
       ],
