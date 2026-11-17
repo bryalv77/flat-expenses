@@ -51,7 +51,7 @@ function GateOverlay({ settled, onRetry }: { settled: boolean; onRetry?: () => v
 /** Runs the pure guard decision and performs its redirect. */
 function useGate(input: Omit<GuardInput, 'mode' | 'group' | 'onSync'>) {
   const router = useRouter();
-  const segments = useSegments();
+  const segments: string[] = useSegments(); // widened: without generated route types (CI) the tuple has no index 1
   const group = segments[0] as string | undefined;
   const onSync = group === '(app)' && segments[1] === 'sync';
   const { settled, redirect } = decideRoute({ ...input, mode: getAppMode(), group, onSync });
