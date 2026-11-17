@@ -102,18 +102,42 @@ function ModeGate({ children }: { children: ReactNode }) {
   const [loaded, setLoaded] = useState(false);
   const treeKey = useSyncExternalStore(subscribeTreeReset, getTreeKey, getTreeKey);
   useEffect(() => {
+    let mounted = true;
+    // A hung native call (SecureStore / SQLite on iOS) must never keep the native splash up forever.
+    // GateOverlay is what hides the splash, and it only mounts once children render.
+    const bailout = setTimeout(() => {
+      if (mounted) setLoaded(true);
+    }, 5000);
     void (async () => {
-      // Before the UI is usable, so an upload still waiting for its bill is never mistaken for an orphan. Never throws.
-      const mode = await loadAppMode(hasCloudSession);
-      if (mode === 'local') await sweepLocalOrphans();
-      await loadPendingSync();
-      setLoaded(true);
+      try {
+        const mode = await loadAppMode(hasCloudSession);
+        if (mode === 'local') {
+          // Best effort: cap the orphan sweep so a stuck SQLite open cannot brick startup.
+          await Promise.race([sweepLocalOrphans(), new Promise<void>((resolve) => setTimeout(resolve, 2500))]);
+        }
+        await loadPendingSync();
+      } catch {
+        // Startup helpers are best effort — get the UI up regardless.
+      } finally {
+        clearTimeout(bailout);
+        if (mounted) setLoaded(true);
+      }
     })();
+    return () => {
+      mounted = false;
+      clearTimeout(bailout);
+    };
   }, []);
   return loaded ? <Fragment key={treeKey}>{children}</Fragment> : null; // the native splash stays up meanwhile
 }
 
 export default function RootLayout() {
+  // Last-resort safety net: even if a gate never settles, never leave the splash image up forever.
+  useEffect(() => {
+    const id = setTimeout(() => void SplashScreen.hideAsync(), 9000);
+    return () => clearTimeout(id);
+  }, []);
+
   return (
     <GestureHandlerRootView style={styles.flex}>
       <SafeAreaProvider>

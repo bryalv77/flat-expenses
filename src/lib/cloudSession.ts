@@ -9,7 +9,12 @@ import { tokenStorage } from './tokenStorage';
 export async function hasCloudSession(): Promise<boolean> {
   if (!USE_API) return false;
   try {
-    return (await tokenStorage.get()) != null;
+    // SecureStore (Keychain) can stall on iOS; treat a slow read as "no session" so startup proceeds in local mode.
+    const token = await Promise.race([
+      tokenStorage.get(),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000)),
+    ]);
+    return token != null;
   } catch {
     return false;
   }
