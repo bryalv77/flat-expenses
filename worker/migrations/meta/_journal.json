@@ -15,6 +15,13 @@
       "when": 1794661152933,
       "tag": "0001_unique_masque",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795194029582,
+      "tag": "0002_category_names",
+      "breakpoints": true
     }
   ]
 }

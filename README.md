@@ -63,6 +63,7 @@ Everything lives in `src/i18n/`:
 - Fallback chain for a missing key: the locale → English → Spanish → the key itself (a dev-only `console.warn` reports the miss). A new language can therefore ship incomplete.
 - First run: the device language (`expo-localization`) is matched to the registry, falling back to Spanish. An explicit choice in Settings (or the saved profile language) always wins and is persisted.
 - Numbers, money and dates use `Intl` with the registry's `intlLocale` (`src/lib/format.ts`); plurals use `Intl.PluralRules` through keys such as `schedule.week_one` / `schedule.week_other` (`tp('schedule.week', n)`).
+- Category names are data, not UI strings. A category can carry optional per-language names (`names`: language -> name; Worker column `categories.names`, local migration `0002_category_names`, edited in the category form). `useCategories` resolves what each viewer sees: their own translation, else the default-category translation (`suggestedCategories.*`, matched in any language), else the stored `name`; `baseName` keeps the stored one for the form. The legacy Firestore backend does not store `names`.
 - Machine-assisted translations: have a native speaker review `fr`, `de`, `pt`, `it`, `ca` before launching in those markets.
 
 ### Adding a language

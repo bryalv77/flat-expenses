@@ -47,6 +47,7 @@ export const pt: DeepPartial<Messages> = {
     fixed: 'Fixo', variable: 'Variável', expected: 'Montante esperado', every: 'A cada', anchor: 'Data de referência',
     active: 'Ativa', archive: 'Arquivar', days: 'Dias', weeks: 'Semanas', months: 'Meses', years: 'Anos',
     seedSuggested: 'Adicionar sugeridas', empty: 'Sem categorias',
+    translations: 'Traduções', translationsHint: 'Opcional. Cada colega vê o nome no seu idioma; se faltar, o nome acima.',
   },
   reports: {
     title: 'Relatórios', overview: 'Resumo', byCategory: 'Categoria', seasonality: 'Sazonalidade', lookup: 'Consulta',

@@ -22,7 +22,24 @@ export function runCategoriesContract(make: ApiFactory): void {
         isActive: true,
         sortOrder: 0,
         notes: null,
+        names: null,
       });
+    });
+
+    it('stores per-language names, patches them and clears them with null', async () => {
+      const houseId = await newHouse(ctx);
+      const id = await newCategory(ctx, houseId, { name: 'Luz', names: { en: 'Electricity', de: 'Strom' } });
+      expect((await find(houseId, id))?.names).toEqual({ en: 'Electricity', de: 'Strom' });
+      await ctx.api.updateCategory({ houseId, id, names: { fr: 'Électricité' } });
+      expect(await find(houseId, id)).toMatchObject({ name: 'Luz', names: { fr: 'Électricité' } });
+      await ctx.api.updateCategory({ houseId, id, names: null });
+      expect((await find(houseId, id))?.names).toBeNull();
+    });
+
+    it('rejects malformed language names', async () => {
+      const houseId = await newHouse(ctx);
+      await expect(newCategory(ctx, houseId, { names: { 'not a code': 'x' } as never })).rejects.toBeDefined();
+      await expect(newCategory(ctx, houseId, { names: { en: '' } })).rejects.toBeDefined();
     });
 
     it('createCategory stores every optional field', async () => {

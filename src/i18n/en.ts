@@ -46,6 +46,7 @@ export const en: Messages = {
     fixed: 'Fixed', variable: 'Variable', expected: 'Expected amount', every: 'Every', anchor: 'Reference date',
     active: 'Active', archive: 'Archive', days: 'Days', weeks: 'Weeks', months: 'Months', years: 'Years',
     seedSuggested: 'Add suggested', empty: 'No categories',
+    translations: 'Translations', translationsHint: 'Optional. Each roommate sees the name in their language; otherwise the name above.',
   },
   reports: {
     title: 'Reports', overview: 'Overview', byCategory: 'Category', seasonality: 'Seasonality', lookup: 'Lookup',
