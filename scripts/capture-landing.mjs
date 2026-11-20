@@ -21,9 +21,18 @@ for (const n of ['Ana', 'Marco', 'Lucía']) {
   await tab('Flat'); await btn('Add roommate without account').click();
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill(n); await save();
 }
-const lu = [86.4, 112.35, 74.1, 98.2, 131.5, 64.8, 92.3];
-for (let m = 6; m >= 0; m--) {
-  for (const [cat, amt, day] of [['Rent', '1200', 1], ['Electricity', String(lu[m]), 8], ['Internet', '39.90', 12]]) {
+// Seasonal electricity/gas so the year chart has a story; the other categories give the donut real slices.
+// Index = months ago (0 = this month). Winter heating peaks in Jan; gas is heating-only, water quarterly.
+const lu = [96, 78, 66, 62, 58, 64, 72, 88, 104, 128, 142, 121];
+const gas = { 0: 41.2, 8: 58.4, 9: 66.1, 10: 72.3, 11: 61.5 };
+const water = { 0: 47.9, 3: 52.4, 6: 49.3, 9: 55.1 };
+for (let m = 11; m >= 0; m--) {
+  const bills = [['Rent', '1200', 1], ['Electricity', String(lu[m]), 8], ['Internet', '39.90', 12], ['Phone', '24.90', 15], ['Netflix', '15', 18], ['Cleaning', '60', 22]];
+  if (gas[m]) bills.push(['Gas', String(gas[m]), 10]);
+  if (water[m]) bills.push(['Water', String(water[m]), 20]);
+  for (const [cat, amt, day] of bills) {
+    console.log(`bill ${cat} ${iso(m, day)}`);
+    await page.screenshot({ path: '/tmp/shots/last.png' });
     await tab('Overview'); await btn(/Add bill$/).click();
     await btn(new RegExp(`${cat}$`)).click();
     await page.getByRole('textbox', { name: 'Amount', exact: true }).fill(amt);
@@ -31,6 +40,10 @@ for (let m = 6; m >= 0; m--) {
     await save();
   }
 }
+// A real-looking name instead of the default "Roommie".
+await tab('Profile'); await btn('Edit profile').click();
+await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Sofía'); await save();
+await page.waitForTimeout(1500); await page.goto('/'); await page.getByRole('tab', { name: 'Overview' }).waitFor();
 await tab('Overview'); await page.getByText('Remind me in 7 days').click().catch(() => {});
 const scrollTo = (y) => page.evaluate((y) => document.querySelectorAll('*').forEach((e) => { if (e.scrollHeight > e.clientHeight + 20 && /auto|scroll/.test(getComputedStyle(e).overflowY)) e.scrollTop = y; }), y);
 // Offsets keep the collapsed iOS header from slicing through a card.
