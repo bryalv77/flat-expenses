@@ -29,7 +29,7 @@ const TABLES: Record<string, string[]> = {
   users: ['id', 'email', 'display_name', 'photo_path', 'account_role', 'locale', 'created_at', 'updated_at'],
   houses: ['id', 'name', 'address', 'currency', 'split_mode', 'fixed_contribution_cents', 'contribution_day_of_month', 'show_balance_to_roommates', 'created_by', 'created_at', 'updated_at'],
   members: ['house_id', 'user_id', 'role', 'status', 'joined_at', 'removed_at', 'individual_contribution_cents', 'display_name', 'email', 'photo_path'],
-  categories: ['id', 'house_id', 'name', 'icon', 'color', 'amount_type', 'expected_amount_cents', 'interval_unit', 'interval_count', 'anchor_date', 'is_active', 'sort_order', 'notes', 'created_at', 'updated_at'],
+  categories: ['id', 'house_id', 'name', 'icon', 'color', 'amount_type', 'expected_amount_cents', 'interval_unit', 'interval_count', 'anchor_date', 'is_active', 'sort_order', 'notes', 'names', 'created_at', 'updated_at'],
   bills: ['id', 'house_id', 'category_id', 'amount_cents', 'charge_date', 'period_start_date', 'period_end_date', 'notes', 'ocr_status', 'ocr_data', 'created_by', 'created_at', 'updated_at'],
   bill_files: ['id', 'bill_id', 'path', 'file_name', 'mime_type', 'size_bytes', 'position'],
   payments: ['id', 'house_id', 'member_id', 'month', 'amount_cents', 'note', 'paid_at', 'recorded_by'],

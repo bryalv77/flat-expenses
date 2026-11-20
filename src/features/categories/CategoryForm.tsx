@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { z } from 'zod';
 
 import { Button, ColorPicker, DatePickerField, IconPicker, ListRow, MoneyInput, Section, SegmentedControl, Switch, TextField } from '@/components/ui';
-import { useT } from '@/i18n';
+import { LOCALES, useT } from '@/i18n';
 import type { CategoryInput } from '@/lib/db';
 import { todayISO } from '@/lib/dates';
 import { spacing } from '@/theme';
@@ -22,6 +22,7 @@ const schema = z
     anchorDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     isActive: z.boolean(),
     notes: z.string().optional(),
+    names: z.record(z.string(), z.string()).optional(),
   })
   .superRefine((v, ctx) => {
     if (v.amountType === 'FIXED' && (v.expectedAmountCents === null || v.expectedAmountCents <= 0)) {
@@ -29,6 +30,12 @@ const schema = z
     }
   });
 type FormValues = z.infer<typeof schema>;
+
+/** Drops blank entries; `null` (not undefined) so an edit that clears every translation really clears them. */
+function cleanNames(names: Record<string, string> | undefined): Record<string, string> | null {
+  const entries = Object.entries(names ?? {}).map(([k, v]) => [k, v.trim()] as const).filter(([, v]) => v);
+  return entries.length ? Object.fromEntries(entries) : null;
+}
 
 interface Props {
   initial?: ExpenseCategory;
@@ -41,7 +48,7 @@ export function CategoryForm({ initial, submitLabel, onSubmit }: Props) {
   const { control, handleSubmit, watch, formState } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: initial?.name ?? '',
+      name: initial?.baseName ?? initial?.name ?? '',
       icon: initial?.icon ?? 'home',
       color: initial?.color ?? '#007AFF',
       amountType: initial?.amountType ?? 'VARIABLE',
@@ -51,6 +58,7 @@ export function CategoryForm({ initial, submitLabel, onSubmit }: Props) {
       anchorDate: initial?.anchorDate ?? todayISO(),
       isActive: initial?.isActive ?? true,
       notes: initial?.notes ?? '',
+      names: (initial?.names ?? {}) as Record<string, string>,
     },
   });
   const amountType = watch('amountType');
@@ -69,6 +77,7 @@ export function CategoryForm({ initial, submitLabel, onSubmit }: Props) {
       anchorDate: v.anchorDate,
       isActive: v.isActive,
       notes: v.notes ? v.notes : null,
+      names: cleanNames(v.names),
     }),
   );
 
@@ -76,6 +85,19 @@ export function CategoryForm({ initial, submitLabel, onSubmit }: Props) {
     <View style={{ gap: spacing.lg }}>
       <Section>
         <Controller control={control} name="name" render={({ field }) => <TextField inline label={t('categories.name')} value={field.value} onChangeText={field.onChange} error={errors.name ? t('hub.nameRequired') : undefined} />} />
+      </Section>
+      <Section header={t('categories.translations')} footer={t('categories.translationsHint')}>
+        <Controller
+          control={control}
+          name="names"
+          render={({ field }) => (
+            <>
+              {LOCALES.map((l) => (
+                <TextField key={l.code} inline label={l.label} value={field.value?.[l.code] ?? ''} onChangeText={(s) => field.onChange({ ...field.value, [l.code]: s })} />
+              ))}
+            </>
+          )}
+        />
       </Section>
       <Section header={t('categories.icon')}>
         <View style={{ padding: spacing.md }}>

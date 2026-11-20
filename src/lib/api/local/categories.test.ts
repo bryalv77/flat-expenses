@@ -23,7 +23,7 @@ describe('local categories', () => {
     const i = id();
     await api.createCategory({ houseId: H, id: i, ...cat() });
     expect(await api.listCategories({ houseId: H })).toEqual([
-      { id: i, name: 'Luz', icon: 'bolt', color: '#FFAA00', amountType: 'VARIABLE', expectedAmountCents: null, intervalUnit: 'MONTH', intervalCount: 1, anchorDate: '2026-01-01', isActive: true, sortOrder: 0, notes: null },
+      { id: i, name: 'Luz', icon: 'bolt', color: '#FFAA00', amountType: 'VARIABLE', expectedAmountCents: null, intervalUnit: 'MONTH', intervalCount: 1, anchorDate: '2026-01-01', isActive: true, sortOrder: 0, notes: null, names: null },
     ]);
   });
 

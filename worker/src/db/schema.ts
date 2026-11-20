@@ -76,6 +76,7 @@ export const categories = pgTable('categories', {
   isActive: boolean('is_active').notNull().default(true),
   sortOrder: integer('sort_order').notNull().default(0),
   notes: text('notes'),
+  names: jsonb('names').$type<Record<string, string>>(), // optional per-language names, language -> name
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

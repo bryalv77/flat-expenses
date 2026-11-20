@@ -47,6 +47,7 @@ export const de: DeepPartial<Messages> = {
     fixed: 'Fest', variable: 'Variabel', expected: 'Erwarteter Betrag', every: 'Alle', anchor: 'Bezugsdatum',
     active: 'Aktiv', archive: 'Archivieren', days: 'Tage', weeks: 'Wochen', months: 'Monate', years: 'Jahre',
     seedSuggested: 'Vorschläge hinzufügen', empty: 'Keine Kategorien',
+    translations: 'Übersetzungen', translationsHint: 'Optional. Alle Mitbewohner sehen den Namen in ihrer Sprache, sonst den obigen.',
   },
   reports: {
     title: 'Berichte', overview: 'Übersicht', byCategory: 'Kategorie', seasonality: 'Saisonalität', lookup: 'Abfrage',

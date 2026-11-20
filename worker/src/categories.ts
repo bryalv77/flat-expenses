@@ -21,10 +21,11 @@ const shape = z.object({
   isActive: z.boolean(),
   sortOrder: z.number().int().min(0).max(10_000),
   notes: z.string().max(500).nullable(),
+  names: z.record(z.string().regex(/^[a-z]{2,3}$/), z.string().trim().min(1).max(60)).refine((o) => Object.keys(o).length <= 12).nullable(),
 });
 const fixedNeedsAmount = (v: { amountType?: string; expectedAmountCents?: number | null }) =>
   v.amountType !== 'FIXED' || v.expectedAmountCents != null;
-const create = shape.extend({ id: z.uuid() }).partial({ id: true, expectedAmountCents: true, isActive: true, sortOrder: true, notes: true }).strict()
+const create = shape.extend({ id: z.uuid() }).partial({ id: true, expectedAmountCents: true, isActive: true, sortOrder: true, notes: true, names: true }).strict()
   .refine(fixedNeedsAmount, { message: 'FIXED categories need expectedAmountCents', path: ['expectedAmountCents'] });
 const update = shape.partial().strict();
 

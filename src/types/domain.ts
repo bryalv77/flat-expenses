@@ -77,6 +77,10 @@ export interface ExpenseCategory {
   isActive: boolean;
   sortOrder: number;
   notes: string | null;
+  /** Optional per-language names (`{ de: 'Strom' }`); the viewer's language wins, otherwise `name`. */
+  names?: Partial<Record<Locale, string>> | null;
+  /** Set by `useCategories`: the stored name, since `name` there is already in the viewer's language. */
+  baseName?: string;
 }
 
 export const MAX_BILL_FILES = 5;

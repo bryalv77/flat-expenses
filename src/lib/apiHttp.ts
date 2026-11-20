@@ -27,7 +27,7 @@ const toMember = (m: any): HouseMember => ({
 const toCategory = (c: any): ExpenseCategory => ({
   id: c.id, name: c.name, icon: normalizeIconName(c.icon), color: c.color, amountType: c.amountType,
   expectedAmountCents: c.expectedAmountCents ?? null, intervalUnit: c.intervalUnit, intervalCount: c.intervalCount,
-  anchorDate: c.anchorDate, isActive: c.isActive, sortOrder: c.sortOrder, notes: c.notes ?? null,
+  anchorDate: c.anchorDate, isActive: c.isActive, sortOrder: c.sortOrder, notes: c.notes ?? null, names: c.names ?? null,
 });
 const toBill = (b: any): Bill => ({
   id: b.id, categoryId: b.categoryId, amountCents: b.amountCents, chargeDate: b.chargeDate ?? null,

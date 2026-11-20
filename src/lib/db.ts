@@ -163,6 +163,7 @@ const mapCategory = (id: string, c: DocumentData): ExpenseCategory => ({
   isActive: c.isActive,
   sortOrder: c.sortOrder,
   notes: c.notes ?? null,
+  names: null, // the legacy Firestore model has no translations
 });
 
 // ---------- input shapes ----------
@@ -191,6 +192,8 @@ export interface CategoryInput {
   isActive?: boolean;
   sortOrder?: number;
   notes?: string | null;
+  /** Not stored by the legacy Firestore backend (frozen; its rules do not know the field). */
+  names?: ExpenseCategory['names'];
 }
 
 export interface BillInput {
@@ -535,7 +538,7 @@ export const firestoreApi = {
       updatedAt: serverTimestamp(),
     });
   },
-  updateCategory: async ({ houseId, id, ...rest }: Partial<CategoryInput> & { houseId: string; id: string }): Promise<void> => {
+  updateCategory: async ({ houseId, id, names: _names, ...rest }: Partial<CategoryInput> & { houseId: string; id: string }): Promise<void> => {
     await updateDoc(doc(categoriesCol(houseId), id), { ...defined(rest), updatedAt: serverTimestamp() });
   },
   archiveCategory: async (v: { houseId: string; id: string; isActive: boolean }): Promise<void> => {

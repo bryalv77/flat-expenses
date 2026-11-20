@@ -46,4 +46,7 @@ create index payments_house_month on payments (house_id, month);
 create table meta (key text primary key, value text);
 create table blobs (path text primary key, mime_type text not null, data blob not null);
 `,
+  /* 0002_category_names */ `
+alter table categories add column names text;
+`,
 ];

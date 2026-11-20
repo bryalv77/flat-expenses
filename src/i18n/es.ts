@@ -44,6 +44,7 @@ export const es = {
     fixed: 'Fijo', variable: 'Variable', expected: 'Importe esperado', every: 'Cada', anchor: 'Fecha de referencia',
     active: 'Activa', archive: 'Archivar', days: 'Días', weeks: 'Semanas', months: 'Meses', years: 'Años',
     seedSuggested: 'Añadir sugeridas', empty: 'Sin categorías',
+    translations: 'Traducciones', translationsHint: 'Opcional. Cada roommie ve el nombre en su idioma; si falta, el de arriba.',
   },
   reports: {
     title: 'Informes', overview: 'Resumen', byCategory: 'Categoría', seasonality: 'Estacionalidad', lookup: 'Consulta',

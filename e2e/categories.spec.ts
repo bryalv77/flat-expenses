@@ -23,6 +23,19 @@ test.describe('categories', () => {
     await expect(button(page, /Seguro$/)).toBeVisible();
   });
 
+  test('a category can carry per-language names; the viewer sees theirs and the form keeps the stored one', async ({ page }) => {
+    await openCategories(page);
+    await button(page, 'New category').click();
+    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Garaje');
+    await page.getByRole('textbox', { name: 'English', exact: true }).fill('Garage');
+    await save(page);
+    await expect(button(page, 'Garage')).toBeVisible();
+    await expect(page.getByText('Garaje')).toHaveCount(0);
+    await button(page, 'Garage').click();
+    await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue('Garaje');
+    await expect(page.getByRole('textbox', { name: 'English', exact: true })).toHaveValue('Garage');
+  });
+
   test('edits a category', async ({ page }) => {
     await openCategories(page);
     await button(page, 'Gas').click();

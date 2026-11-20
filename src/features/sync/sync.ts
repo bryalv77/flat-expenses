@@ -108,6 +108,7 @@ export async function uploadLocalToCloud(deps: SyncDeps, local: LocalHouseData[]
         isActive: c.isActive,
         sortOrder: c.sortOrder,
         notes: c.notes ?? undefined,
+        names: c.names ?? undefined,
       });
     }
 

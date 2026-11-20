@@ -16,6 +16,11 @@ export const SUGGESTED_CATEGORIES: Suggested[] = [
   { nameKey: 'suggestedCategories.netflix', icon: 'tv', color: '#AF52DE', amountType: 'FIXED', expectedAmountCents: 1500, intervalUnit: 'WEEK', intervalCount: 4 },
 ];
 
+/** Name shown to a viewer: their own translation, else the default-category translation, else the stored name. */
+export function categoryDisplayName(c: { name: string; names?: Partial<Record<string, string>> | null }, locale: string, t: (key: TranslationKey) => string): string {
+  return c.names?.[locale]?.trim() || localizeCategoryName(c.name, t);
+}
+
 /**
  * Stored names are plain data, so flats created before names were translated keep "Alquiler" whatever the UI language.
  * A name equal to a default category in ANY language is shown in the current one; custom names are untouched.

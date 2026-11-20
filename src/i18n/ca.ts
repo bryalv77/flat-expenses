@@ -47,6 +47,7 @@ export const ca: DeepPartial<Messages> = {
     fixed: 'Fix', variable: 'Variable', expected: 'Import esperat', every: 'Cada', anchor: 'Data de referència',
     active: 'Activa', archive: 'Arxiva', days: 'Dies', weeks: 'Setmanes', months: 'Mesos', years: 'Anys',
     seedSuggested: 'Afegeix les suggerides', empty: 'Cap categoria',
+    translations: 'Traduccions', translationsHint: 'Opcional. Cada company veu el nom en el seu idioma; si falta, el de dalt.',
   },
   reports: {
     title: 'Informes', overview: 'Resum', byCategory: 'Categoria', seasonality: 'Estacionalitat', lookup: 'Consulta',
