@@ -38,7 +38,7 @@ export function createLocalApi(
   };
   // Anything not (yet) implemented rejects with a clear error instead of `undefined is not a function`.
   return new Proxy(impl as unknown as Api, {
-    get: (t, name) => (name in t ? (t as never)[name] : async () => {
+    get: (t, name) => (name in t || name === 'then' || typeof name === 'symbol' ? (t as never)[name] : async () => {
       throw new NotImplementedError(`localApi.${String(name)}${(UNAVAILABLE as readonly string[]).includes(String(name)) ? ' (not available in local mode)' : ''}`);
     }),
   });
@@ -47,7 +47,8 @@ export function createLocalApi(
 /** App singleton: opens the on-device database on first use. */
 let pending: Promise<Api> | undefined;
 export const localApi: Api = new Proxy({} as Api, {
-  get: (_t, name) => async (...args: unknown[]) => {
+  // 'then'/symbols -> undefined, else `await localApi` treats the proxy as a thenable and calls it.
+  get: (_t, name) => (name === 'then' || typeof name === 'symbol') ? undefined : async (...args: unknown[]) => {
     // require, not import(): Jest's VM rejects dynamic import(); lazy so tests never load expo-sqlite.
     pending ??= (require('./sql.expo') as typeof import('./sql.expo')).getLocalDb().then((db) => createLocalApi(db));
     const api = await pending;

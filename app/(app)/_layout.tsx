@@ -22,6 +22,7 @@ export default function AppLayout() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="sync" options={{ headerShown: false }} />
       <Stack.Screen name="categories/index" options={{ title: t('categories.title') }} />
       <Stack.Screen name="categories/new" options={{ title: t('categories.new'), presentation: 'modal' }} />
       <Stack.Screen name="categories/[id]" options={{ title: t('categories.title') }} />

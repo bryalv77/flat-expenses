@@ -63,6 +63,7 @@ export const it: DeepPartial<Messages> = {
   },
   localMode: {
     data: "I tuoi dati", export: "Esporta i dati", import: "Importa dati", deleteAll: "Elimina tutti i dati", leave: "Esci dalla modalità locale",
+    logIn: "Accedi / Crea account",
     dataLossNotice: "Modalità locale: i tuoi dati restano solo su questo dispositivo. Se disinstalli l'app o ne cancelli i dati perderai tutto. Esporta regolarmente un backup.",
   },
   profile: {
@@ -106,6 +107,9 @@ export const it: DeepPartial<Messages> = {
     resetTitle: 'Nuova password', resetHint: 'Scegli una nuova password per il tuo account.', resetDone: 'Password aggiornata. Ora puoi accedere.',
     resetLinkInvalid: 'Il link non è valido o è scaduto. Richiedine uno nuovo.',
   },
+  suggestedCategories: {
+    rent: 'Affitto', electricity: 'Luce', internet: 'Internet', phone: 'Telefono', gas: 'Gas', cleaning: 'Pulizie', water: 'Acqua', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Ogni giorno', day_other: 'Ogni {{n}} giorni', week_one: 'Ogni settimana', week_other: 'Ogni {{n}} settimane',
     month_one: 'Ogni mese', month_other: 'Ogni {{n}} mesi', year_one: 'Ogni anno', year_other: 'Ogni {{n}} anni',
@@ -122,6 +126,17 @@ export const it: DeepPartial<Messages> = {
     importConfirm: "Il ripristino sostituisce TUTTI i dati di questo dispositivo con il backup. Continuare?",
     deleteConfirm: "Elimina in modo permanente tutti i dati e i file su questo dispositivo. Esporta prima un backup se ti serve.",
     import: "Ripristina",
+  },
+  sync: {
+    uploading: "Caricamento dei tuoi dati…",
+    chooseTitle: "Hai dati su questo dispositivo e nel tuo account",
+    chooseBody: "Vuoi aggiungere i dati di questo dispositivo al tuo account, o tenere solo i dati già presenti nel tuo account?",
+    upload: "Aggiungi i dati locali al mio account",
+    discard: "Tieni solo i dati del mio account",
+    backToLocal: "Torna alla modalità locale",
+    discardConfirmTitle: "Scartare i dati locali?",
+    discardConfirmBody: "I dati di questo dispositivo verranno eliminati. I dati del tuo account vengono conservati.",
+    failed: "Sincronizzazione non riuscita. Riprova.",
   },
   errors: { generic: 'Qualcosa è andato storto. Riprova.', network: 'Nessuna connessione.', fileTooLarge: 'Il file è troppo grande.', fileType: 'Tipo di file non consentito.' },
   billsUi: {

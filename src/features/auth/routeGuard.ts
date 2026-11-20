@@ -4,6 +4,7 @@ export const AUTH_HOME = '/(auth)/welcome';
 export const ONBOARDING_HOME = '/onboarding/role';
 export const LOCAL_ONBOARDING_HOME = '/onboarding/create-house'; // local mode has no role choice and no join-house
 export const APP_HOME = '/(app)/(tabs)';
+export const SYNC_HOME = '/(app)/sync'; // local→cloud sync, shown once after a cloud login that came from local mode
 
 export interface GuardInput {
   mode: AppMode;
@@ -14,6 +15,10 @@ export interface GuardInput {
   hasHouse: boolean;
   /** First route segment ('(auth)', '(app)', 'onboarding'). */
   group: string | undefined;
+  /** True while a local→cloud sync is pending (the user logged in from local mode). */
+  pendingSync?: boolean;
+  /** True when the current route is the sync screen itself. */
+  onSync?: boolean;
 }
 
 export interface GuardDecision {
@@ -30,6 +35,8 @@ export function decideRoute(i: GuardInput): GuardDecision {
     return { settled: inAuth, redirect: inAuth ? null : AUTH_HOME };
   }
   if (!i.profileReady || i.housesStatus !== 'success') return { settled: false, redirect: null };
+  // A cloud login that came from local mode must resolve the sync before the app proceeds.
+  if (i.pendingSync) return i.onSync ? { settled: true, redirect: null } : { settled: false, redirect: SYNC_HOME };
   const allowed = i.hasHouse ? i.group === '(app)' || i.group === 'onboarding' : i.group === 'onboarding';
   if (allowed) return { settled: true, redirect: null };
   return { settled: false, redirect: i.hasHouse ? APP_HOME : i.mode === 'local' ? LOCAL_ONBOARDING_HOME : ONBOARDING_HOME };

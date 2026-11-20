@@ -11,9 +11,11 @@ import { Button, ErrorBoundary, Text, ToastProvider } from '@/components/ui';
 import { AuthProvider, useAuth } from '@/features/auth';
 import { getTreeKey, subscribeTreeReset } from '@/features/auth/appModeSwitch';
 import { decideRoute, type GuardInput } from '@/features/auth/routeGuard';
+import { getPendingSync, loadPendingSync, subscribePendingSync } from '@/features/sync/pending';
 import { useMyHouses } from '@/features/houses/hooks';
 import { useT } from '@/i18n';
 import { getAppMode, loadAppMode } from '@/lib/appMode';
+import { hasCloudSession } from '@/lib/cloudSession';
 import { sweepLocalOrphans } from '@/lib/api/local/startup';
 import { queryClient } from '@/lib/queryClient';
 import { ThemeProvider, spacing, useTheme } from '@/theme';
@@ -47,10 +49,12 @@ function GateOverlay({ settled, onRetry }: { settled: boolean; onRetry?: () => v
 }
 
 /** Runs the pure guard decision and performs its redirect. */
-function useGate(input: Omit<GuardInput, 'mode' | 'group'>) {
+function useGate(input: Omit<GuardInput, 'mode' | 'group' | 'onSync'>) {
   const router = useRouter();
-  const group = useSegments()[0] as string | undefined;
-  const { settled, redirect } = decideRoute({ ...input, mode: getAppMode(), group });
+  const segments: string[] = useSegments(); // widened: without generated route types (CI) the tuple has no index 1
+  const group = segments[0] as string | undefined;
+  const onSync = group === '(app)' && segments[1] === 'sync';
+  const { settled, redirect } = decideRoute({ ...input, mode: getAppMode(), group, onSync });
   useEffect(() => {
     if (redirect) router.replace(redirect as Href);
   }, [redirect, router]);
@@ -68,12 +72,14 @@ function SignedInGate({ profileReady }: { profileReady: boolean }) {
 
 function HouseGate() {
   const houses = useMyHouses();
+  const pendingSync = useSyncExternalStore(subscribePendingSync, getPendingSync, getPendingSync);
   const settled = useGate({
     signedIn: true,
     initializing: false,
     profileReady: true,
     housesStatus: houses.isSuccess ? 'success' : houses.isError ? 'error' : 'loading',
     hasHouse: (houses.data?.length ?? 0) > 0,
+    pendingSync,
   });
   return <GateOverlay settled={settled} onRetry={houses.isError ? () => void houses.refetch() : undefined} />;
 }
@@ -96,15 +102,42 @@ function ModeGate({ children }: { children: ReactNode }) {
   const [loaded, setLoaded] = useState(false);
   const treeKey = useSyncExternalStore(subscribeTreeReset, getTreeKey, getTreeKey);
   useEffect(() => {
-    void loadAppMode()
-      // Before the UI is usable, so an upload still waiting for its bill is never mistaken for an orphan. Never throws.
-      .then((mode) => (mode === 'local' ? sweepLocalOrphans() : undefined))
-      .then(() => setLoaded(true));
+    let mounted = true;
+    // A hung native call (SecureStore / SQLite on iOS) must never keep the native splash up forever.
+    // GateOverlay is what hides the splash, and it only mounts once children render.
+    const bailout = setTimeout(() => {
+      if (mounted) setLoaded(true);
+    }, 5000);
+    void (async () => {
+      try {
+        const mode = await loadAppMode(hasCloudSession);
+        if (mode === 'local') {
+          // Best effort: cap the orphan sweep so a stuck SQLite open cannot brick startup.
+          await Promise.race([sweepLocalOrphans(), new Promise<void>((resolve) => setTimeout(resolve, 2500))]);
+        }
+        await loadPendingSync();
+      } catch {
+        // Startup helpers are best effort — get the UI up regardless.
+      } finally {
+        clearTimeout(bailout);
+        if (mounted) setLoaded(true);
+      }
+    })();
+    return () => {
+      mounted = false;
+      clearTimeout(bailout);
+    };
   }, []);
   return loaded ? <Fragment key={treeKey}>{children}</Fragment> : null; // the native splash stays up meanwhile
 }
 
 export default function RootLayout() {
+  // Last-resort safety net: even if a gate never settles, never leave the splash image up forever.
+  useEffect(() => {
+    const id = setTimeout(() => void SplashScreen.hideAsync(), 9000);
+    return () => clearTimeout(id);
+  }, []);
+
   return (
     <GestureHandlerRootView style={styles.flex}>
       <SafeAreaProvider>

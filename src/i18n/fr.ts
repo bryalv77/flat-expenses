@@ -63,6 +63,7 @@ export const fr: DeepPartial<Messages> = {
   },
   localMode: {
     data: "Vos données", export: "Exporter les données", import: "Importer des données", deleteAll: "Supprimer toutes les données", leave: "Quitter le mode local",
+    logIn: "Se connecter / Créer un compte",
     dataLossNotice: "Mode local : vos données restent uniquement sur cet appareil. Si vous désinstallez l'app ou effacez ses données, tout sera perdu. Exportez régulièrement une sauvegarde.",
   },
   profile: {
@@ -106,6 +107,9 @@ export const fr: DeepPartial<Messages> = {
     resetTitle: 'Nouveau mot de passe', resetHint: 'Choisis un nouveau mot de passe pour ton compte.', resetDone: 'Mot de passe mis à jour. Tu peux te connecter.',
     resetLinkInvalid: 'Le lien est invalide ou a expiré. Demande-en un nouveau.',
   },
+  suggestedCategories: {
+    rent: 'Loyer', electricity: 'Électricité', internet: 'Internet', phone: 'Téléphone', gas: 'Gaz', cleaning: 'Ménage', water: 'Eau', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Chaque jour', day_other: 'Tous les {{n}} jours', week_one: 'Chaque semaine', week_other: 'Toutes les {{n}} semaines',
     month_one: 'Chaque mois', month_other: 'Tous les {{n}} mois', year_one: 'Chaque année', year_other: 'Tous les {{n}} ans',
@@ -122,6 +126,17 @@ export const fr: DeepPartial<Messages> = {
     importConfirm: "La restauration remplace TOUTES les données de cet appareil par la sauvegarde. Continuer ?",
     deleteConfirm: "Cela supprime définitivement toutes les données et fichiers de cet appareil. Exportez d'abord une sauvegarde si besoin.",
     import: "Restaurer",
+  },
+  sync: {
+    uploading: "Envoi de vos données…",
+    chooseTitle: "Vous avez des données sur cet appareil et dans votre compte",
+    chooseBody: "Voulez-vous ajouter les données de cet appareil à votre compte, ou conserver uniquement les données déjà présentes dans votre compte ?",
+    upload: "Ajouter les données locales à mon compte",
+    discard: "Conserver uniquement mes données de compte",
+    backToLocal: "Retour au mode local",
+    discardConfirmTitle: "Supprimer les données locales ?",
+    discardConfirmBody: "Les données de cet appareil seront supprimées. Les données de votre compte sont conservées.",
+    failed: "La synchronisation a échoué. Réessayez.",
   },
   errors: { generic: 'Une erreur est survenue. Réessayez.', network: 'Pas de connexion.', fileTooLarge: 'Le fichier est trop volumineux.', fileType: 'Type de fichier non autorisé.' },
   billsUi: {

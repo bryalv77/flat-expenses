@@ -122,12 +122,12 @@ export default function HouseScreen() {
               leading={<MemberAvatar name={m.displayName} photoPath={m.photoPath} />}
               title={m.userId === authUser?.uid ? `${m.displayName} (${t('hub.youTag')})` : m.displayName}
               subtitle={`${t('hub.joined')} ${formatDate(m.joinedAt.slice(0, 10), locale, 'medium')}${m.removedAt ? ` → ${formatDate(m.removedAt.slice(0, 10), locale, 'medium')}` : ''}`}
-              trailing={
-                <View style={{ flexDirection: 'row', gap: spacing.xs }}>
-                  {isGuestMember(m) ? <Badge label={t('hub.noAccount')} tone="neutral" /> : null}
-                  {m.status === 'REMOVED' ? <Badge label={t('house.removed')} tone="red" /> : null}
-                  <Badge label={m.role === 'ADMIN' ? t('house.admin') : t('house.roommate')} tone={m.role === 'ADMIN' ? 'blue' : 'neutral'} />
-                </View>
+              meta={
+                <>
+                  <Badge small label={m.role === 'ADMIN' ? t('house.admin') : t('house.roommate')} tone={m.role === 'ADMIN' ? 'blue' : 'neutral'} />
+                  {isGuestMember(m) ? <Badge small label={t('hub.noAccount')} tone="neutral" /> : null}
+                  {m.status === 'REMOVED' ? <Badge small label={t('house.removed')} tone="red" /> : null}
+                </>
               }
               chevron={isAdmin}
               onPress={isAdmin ? () => router.push({ pathname: '/members/[id]', params: { id: m.id } }) : undefined}

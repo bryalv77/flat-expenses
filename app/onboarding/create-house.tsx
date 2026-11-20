@@ -6,6 +6,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 
+import { LanguageChips } from '@/components/LanguageChips';
 import { Button, ListRow, MoneyInput, Screen, SegmentedControl, Section, Switch, Text, TextField, useToast } from '@/components/ui';
 import { useCreateHouse } from '@/features/houses/hooks';
 import { seedSuggestedCategories } from '@/features/houses/seed';
@@ -63,7 +64,7 @@ export default function CreateHouseScreen() {
         fixedContributionCents: fixed ? v.fixedContributionCents : null,
         contributionDayOfMonth: fixed ? v.contributionDayOfMonth : null,
       });
-      if (v.seedCategories) await seedSuggestedCategories(qc, houseId);
+      if (v.seedCategories) await seedSuggestedCategories(qc, houseId, t);
       haptics.success();
       router.replace('/(app)/(tabs)' as Href);
     } catch {
@@ -80,6 +81,7 @@ export default function CreateHouseScreen() {
   return (
     <Screen>
       <View style={styles.form}>
+        <LanguageChips />
         <Text variant="largeTitle">{t('onboarding.createHouse')}</Text>
         <Controller
           control={control}

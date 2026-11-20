@@ -2,6 +2,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
+import { getPendingSync } from '@/features/sync/pending';
 import { getApiAuth } from '@/lib/apiAuth';
 import { orNetworkError, toAuthError } from '@/lib/authErrors';
 import { api } from '@/lib/db';
@@ -10,6 +11,24 @@ import { qk } from '@/lib/queryKeys';
 import { useUiStore } from '@/lib/uiStore';
 
 import { AuthContext, type AuthContextValue, type AuthUser, type SignUpInput } from './AuthContext';
+import { startInLocalMode } from './appModeSwitch';
+
+/** Startup session restore must not hang forever on a slow/unreachable Worker: cap it, then fall back to local. */
+const SESSION_TIMEOUT_MS = 8000;
+const withTimeout = <T,>(p: Promise<T>, ms: number): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const id = setTimeout(() => reject(new Error('timeout')), ms);
+    p.then(
+      (v) => {
+        clearTimeout(id);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(id);
+        reject(e);
+      },
+    );
+  });
 
 export function ApiAuthProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
@@ -21,24 +40,35 @@ export function ApiAuthProvider({ children }: { children: ReactNode }) {
   const profileReady = authUser !== null && profileFor === authUser.uid;
   const signingUp = useRef(false);
 
-  /** Asks the Worker who the stored token belongs to. A rejected token is dropped; a network error keeps it for next time. */
-  const refresh = useCallback(async () => {
+  /** Asks the Worker who the stored token belongs to. A rejected token is dropped; a network error keeps it for next time.
+   *  Resolves `true` when a user is signed in, `false` otherwise. */
+  const refresh = useCallback(async (): Promise<boolean> => {
     // Offline at startup: keep the token for next time and show the signed-out screens meanwhile.
-    const { data, error } = await orNetworkError(() => client.getSession()).catch(() => ({ data: null, error: { status: 0 } }));
+    const { data, error } = await orNetworkError(() => withTimeout(client.getSession(), SESSION_TIMEOUT_MS)).catch(
+      () => ({ data: null, error: { status: 0 } }),
+    );
     if (data?.user) {
       setAuthUser({ uid: data.user.id, email: data.user.email, displayName: data.user.name });
-      return;
+      return true;
     }
     if (error?.status === 401 || (!error && !data)) await clearToken(); // a rejected token is dropped for good
     setAuthUser(null);
     qc.clear();
+    return false;
   }, [client, clearToken, qc]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      await refresh();
-      if (!cancelled) setInitializing(false);
+      const signedIn = await refresh();
+      if (cancelled) return;
+      if (signedIn || getPendingSync()) {
+        // Signed in, or the user explicitly navigated here to log in (pending sync): show the UI.
+        setInitializing(false);
+      } else {
+        // No valid session at startup: open in local mode rather than a login screen (or a stuck spinner).
+        await startInLocalMode();
+      }
     })();
     return () => {
       cancelled = true;

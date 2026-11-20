@@ -63,6 +63,7 @@ export const de: DeepPartial<Messages> = {
   },
   localMode: {
     data: "Deine Daten", export: "Daten exportieren", import: "Daten importieren", deleteAll: "Alle Daten löschen", leave: "Lokalen Modus verlassen",
+    logIn: "Anmelden / Konto erstellen",
     dataLossNotice: "Lokaler Modus: Deine Daten liegen nur auf diesem Gerät. Wenn du die App deinstallierst oder ihre Daten löschst, geht alles verloren. Exportiere regelmäßig eine Sicherung.",
   },
   profile: {
@@ -106,6 +107,9 @@ export const de: DeepPartial<Messages> = {
     resetTitle: 'Neues Passwort', resetHint: 'Wähle ein neues Passwort für dein Konto.', resetDone: 'Passwort aktualisiert. Du kannst dich jetzt anmelden.',
     resetLinkInvalid: 'Der Link ist ungültig oder abgelaufen. Fordere einen neuen an.',
   },
+  suggestedCategories: {
+    rent: 'Miete', electricity: 'Strom', internet: 'Internet', phone: 'Telefon', gas: 'Gas', cleaning: 'Reinigung', water: 'Wasser', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Jeden Tag', day_other: 'Alle {{n}} Tage', week_one: 'Jede Woche', week_other: 'Alle {{n}} Wochen',
     month_one: 'Jeden Monat', month_other: 'Alle {{n}} Monate', year_one: 'Jedes Jahr', year_other: 'Alle {{n}} Jahre',
@@ -122,6 +126,17 @@ export const de: DeepPartial<Messages> = {
     importConfirm: "Beim Wiederherstellen werden ALLE Daten auf diesem Gerät durch das Backup ersetzt. Fortfahren?",
     deleteConfirm: "Dadurch werden alle Daten und Dateien auf diesem Gerät endgültig gelöscht. Exportiere vorher ein Backup, falls nötig.",
     import: "Wiederherstellen",
+  },
+  sync: {
+    uploading: "Daten werden hochgeladen…",
+    chooseTitle: "Du hast Daten auf diesem Gerät und in deinem Konto",
+    chooseBody: "Möchtest du die Daten dieses Geräts zu deinem Konto hinzufügen oder nur die Daten behalten, die bereits in deinem Konto sind?",
+    upload: "Lokale Daten zu meinem Konto hinzufügen",
+    discard: "Nur meine Kontodaten behalten",
+    backToLocal: "Zurück zum lokalen Modus",
+    discardConfirmTitle: "Lokale Daten verwerfen?",
+    discardConfirmBody: "Die Daten dieses Geräts werden gelöscht. Deine Kontodaten bleiben erhalten.",
+    failed: "Synchronisierung fehlgeschlagen. Versuche es erneut.",
   },
   errors: { generic: 'Etwas ist schiefgelaufen. Versuche es erneut.', network: 'Keine Verbindung.', fileTooLarge: 'Die Datei ist zu groß.', fileType: 'Dateityp nicht erlaubt.' },
   billsUi: {

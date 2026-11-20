@@ -7,7 +7,7 @@ import { Card, Chip, EmptyState, isIconName, ListRow, Section, Text, type IconNa
 import { getEffectiveDate } from '@/features/finance';
 import { useT } from '@/i18n';
 import { addMonthsToKey } from '@/lib/dates';
-import { formatDate, formatMoney, formatMonth } from '@/lib/format';
+import { formatDate, formatMoney, formatMonth, formatMonthName } from '@/lib/format';
 import { spacing } from '@/theme';
 
 import { lastNMonths, lookupMonth, monthlySeries, totalsByMonth } from '..';
@@ -46,7 +46,7 @@ export function OverviewSection({ data }: { data: ReportData }) {
 
   const chartData = series.map((row) => ({
     key: row.month,
-    label: formatMonth(row.month, locale, 'short'),
+    label: formatMonthName(Number(row.month.slice(5, 7)), locale, 'short'), // month only: 12 bars are too narrow for "Jan 2026"
     segments: Object.entries(row.byCategory).map(([categoryId, value]) => ({
       key: categoryId,
       value,
@@ -83,7 +83,7 @@ export function OverviewSection({ data }: { data: ReportData }) {
       </ScrollView>
 
       <Card>
-        <Text variant="headline">{`${formatMonth(months[0], locale, 'short')} ${months[0].slice(0, 4)} – ${formatMonth(months[11], locale, 'short')} ${months[11].slice(0, 4)}`}</Text>
+        <Text variant="headline">{`${formatMonth(months[0], locale, 'short')} – ${formatMonth(months[11], locale, 'short')}`}</Text>
         <StackedBarChart
           data={chartData}
           selectedKey={selected}

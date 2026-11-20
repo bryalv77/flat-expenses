@@ -62,6 +62,7 @@ export const en: Messages = {
   },
   localMode: {
     data: "Your data", export: "Export data", import: "Import data", deleteAll: "Delete all data", leave: "Leave local mode",
+    logIn: "Log in / Create account",
     dataLossNotice: "Local mode: your data lives only on this device. If you uninstall the app or clear its data you will lose everything. Export a backup regularly.",
   },
   profile: {
@@ -105,6 +106,9 @@ export const en: Messages = {
     resetTitle: 'New password', resetHint: 'Choose a new password for your account.', resetDone: 'Password updated. You can sign in now.',
     resetLinkInvalid: 'This link is invalid or has expired. Request a new one.',
   },
+  suggestedCategories: {
+    rent: 'Rent', electricity: 'Electricity', internet: 'Internet', phone: 'Phone', gas: 'Gas', cleaning: 'Cleaning', water: 'Water', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Every day', day_other: 'Every {{n}} days', week_one: 'Every week', week_other: 'Every {{n}} weeks',
     month_one: 'Every month', month_other: 'Every {{n}} months', year_one: 'Every year', year_other: 'Every {{n}} years',
@@ -121,6 +125,17 @@ export const en: Messages = {
     importConfirm: "Restoring replaces ALL data on this device with the backup. Continue?",
     deleteConfirm: "This permanently deletes all data and files on this device. Export a backup first if you need one.",
     import: "Restore",
+  },
+  sync: {
+    uploading: "Uploading your data…",
+    chooseTitle: "You have data on this device and in your account",
+    chooseBody: "Do you want to add this device's data to your account, or keep only the data already in your account?",
+    upload: "Add local data to my account",
+    discard: "Keep only my account data",
+    backToLocal: "Back to local mode",
+    discardConfirmTitle: "Discard local data?",
+    discardConfirmBody: "This device's data will be deleted. Your account data is kept.",
+    failed: "The sync failed. Try again.",
   },
   errors: { generic: 'Something went wrong. Try again.', network: 'No connection.', fileTooLarge: 'The file is too large.', fileType: 'File type not allowed.' },
   billsUi: {

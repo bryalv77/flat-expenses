@@ -63,6 +63,7 @@ export const ca: DeepPartial<Messages> = {
   },
   localMode: {
     data: "Les teves dades", export: "Exporta les dades", import: "Importa dades", deleteAll: "Esborra totes les dades", leave: "Surt del mode local",
+    logIn: "Inicia sessió / Crea un compte",
     dataLossNotice: "Mode local: les teves dades viuen només en aquest dispositiu. Si desinstal·les l'app o n'esborres les dades ho perdràs tot. Exporta una còpia de seguretat sovint.",
   },
   profile: {
@@ -106,6 +107,9 @@ export const ca: DeepPartial<Messages> = {
     resetTitle: 'Nova contrasenya', resetHint: 'Tria una contrasenya nova per al teu compte.', resetDone: 'Contrasenya actualitzada. Ja pots iniciar sessió.',
     resetLinkInvalid: 'L\'enllaç no és vàlid o ha caducat. Sol·licita\'n un de nou.',
   },
+  suggestedCategories: {
+    rent: 'Lloguer', electricity: 'Llum', internet: 'Internet', phone: 'Telèfon', gas: 'Gas', cleaning: 'Neteja', water: 'Aigua', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Cada dia', day_other: 'Cada {{n}} dies', week_one: 'Cada setmana', week_other: 'Cada {{n}} setmanes',
     month_one: 'Cada mes', month_other: 'Cada {{n}} mesos', year_one: 'Cada any', year_other: 'Cada {{n}} anys',
@@ -122,6 +126,17 @@ export const ca: DeepPartial<Messages> = {
     importConfirm: "Restaurar substitueix TOTES les dades d'aquest dispositiu per les de la còpia. Continuar?",
     deleteConfirm: "Això elimina de manera permanent totes les dades i fitxers d'aquest dispositiu. Exporta abans una còpia si la necessites.",
     import: "Restaurar",
+  },
+  sync: {
+    uploading: "Pujant les teves dades…",
+    chooseTitle: "Tens dades en aquest dispositiu i al teu compte",
+    chooseBody: "Vols afegir les dades d'aquest dispositiu al teu compte, o quedar-te només amb les dades que ja tens al compte?",
+    upload: "Afegeix les dades locals al meu compte",
+    discard: "Queda't només amb les dades del meu compte",
+    backToLocal: "Torna al mode local",
+    discardConfirmTitle: "Vols descartar les dades locals?",
+    discardConfirmBody: "S'eliminaran les dades d'aquest dispositiu. Les dades del teu compte es conserven.",
+    failed: "No s'ha pogut sincronitzar. Torna-ho a provar.",
   },
   errors: { generic: 'Alguna cosa ha anat malament. Torna-ho a provar.', network: 'Sense connexió.', fileTooLarge: 'El fitxer és massa gran.', fileType: 'Tipus de fitxer no permès.' },
   billsUi: {

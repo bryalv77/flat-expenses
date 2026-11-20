@@ -45,3 +45,19 @@ describe('local', () => {
     expect(d({ ...l, housesStatus: 'success', hasHouse: true, group: '(app)' })).toEqual({ settled: true, redirect: null });
   });
 });
+
+describe('pending sync (cloud, signed in)', () => {
+  const si = { signedIn: true, profileReady: true, housesStatus: 'success' as const, hasHouse: true };
+  it('routes to the sync screen before the app', () => {
+    expect(d({ ...si, pendingSync: true, group: '(app)' })).toEqual({ settled: false, redirect: '/(app)/sync' });
+  });
+  it('settles on the sync screen itself', () => {
+    expect(d({ ...si, pendingSync: true, onSync: true, group: '(app)' })).toEqual({ settled: true, redirect: null });
+  });
+  it('ignores pending sync once resolved', () => {
+    expect(d({ ...si, pendingSync: false, group: '(app)' })).toEqual({ settled: true, redirect: null });
+  });
+  it('waits for profile and houses before routing to sync', () => {
+    expect(d({ signedIn: true, pendingSync: true, profileReady: false, housesStatus: 'loading', hasHouse: false, group: '(app)' })).toEqual({ settled: false, redirect: null });
+  });
+});
