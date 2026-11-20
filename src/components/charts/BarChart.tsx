@@ -33,6 +33,7 @@ export function BarChart({ data, height = 200, selectedKey, onSelect, accessibil
   const plotH = height - PAD.top - PAD.bottom;
   const slot = data.length ? plotW / data.length : plotW;
   const barW = Math.min(36, slot * 0.62);
+  const labelEvery = Math.max(1, Math.ceil(38 / slot)); // ~38px per label; counted back from the latest bar so it is always labelled
   const y = (v: number) => PAD.top + plotH - (v / max) * plotH;
 
   return (
@@ -57,9 +58,11 @@ export function BarChart({ data, height = 200, selectedKey, onSelect, accessibil
             return (
               <G key={d.key}>
                 <Rect x={x} y={PAD.top + plotH - h} width={barW} height={h} rx={4} fill={d.color ?? colors.tint} opacity={selected ? 1 : 0.35} />
-                <SvgText x={x + barW / 2} y={height - 8} fontSize={10} fontFamily={fontFamily} fill={colors.secondaryLabel} textAnchor="middle">
-                  {d.label}
-                </SvgText>
+                {(data.length - 1 - i) % labelEvery === 0 ? (
+                  <SvgText x={x + barW / 2} y={height - 8} fontSize={10} fontFamily={fontFamily} fill={colors.secondaryLabel} textAnchor="middle">
+                    {d.label}
+                  </SvgText>
+                ) : null}
               </G>
             );
           })}

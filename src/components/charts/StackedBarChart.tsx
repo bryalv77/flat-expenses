@@ -36,6 +36,7 @@ export function StackedBarChart({ data, height = 220, selectedKey, onSelect, acc
   const plotH = height - PAD.top - PAD.bottom;
   const slot = data.length ? plotW / data.length : plotW;
   const barW = Math.min(36, slot * 0.62);
+  const labelEvery = Math.max(1, Math.ceil(38 / slot)); // ~38px per label; counted back from the latest bar so it is always labelled
   const scale = (v: number) => (v / max) * plotH;
 
   return (
@@ -68,9 +69,11 @@ export function StackedBarChart({ data, height = 220, selectedKey, onSelect, acc
                     acc += s.value;
                     return <Rect key={s.key} x={x} y={yy} width={barW} height={Math.max(1, h - 1)} fill={s.color} rx={2} />;
                   })}
-                <SvgText x={x + barW / 2} y={height - 8} fontSize={10} fontFamily={fontFamily} fill={colors.secondaryLabel} textAnchor="middle">
-                  {d.label}
-                </SvgText>
+                {(data.length - 1 - i) % labelEvery === 0 ? (
+                  <SvgText x={x + barW / 2} y={height - 8} fontSize={10} fontFamily={fontFamily} fill={colors.secondaryLabel} textAnchor="middle">
+                    {d.label}
+                  </SvgText>
+                ) : null}
               </G>
             );
           })}
