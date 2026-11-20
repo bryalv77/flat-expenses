@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Costos Piso",
+    "name": "Cuota",
     "slug": "costos-piso",
     "version": "1.3.3",
     "orientation": "portrait",
@@ -16,9 +16,9 @@
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "NSCameraUsageDescription": "Costos Piso usa la cámara para fotografiar facturas y documentos.",
-        "NSPhotoLibraryUsageDescription": "Costos Piso accede a tus fotos para adjuntar facturas, documentos y tu foto de perfil.",
-        "NSPhotoLibraryAddUsageDescription": "Costos Piso guarda imágenes en tu fototeca cuando lo pides."
+        "NSCameraUsageDescription": "Cuota usa la cámara para fotografiar facturas y documentos.",
+        "NSPhotoLibraryUsageDescription": "Cuota accede a tus fotos para adjuntar facturas, documentos y tu foto de perfil.",
+        "NSPhotoLibraryAddUsageDescription": "Cuota guarda imágenes en tu fototeca cuando lo pides."
       }
     },
     "android": {
@@ -49,8 +49,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Costos Piso accede a tus fotos para adjuntar facturas, documentos y tu foto de perfil.",
-          "cameraPermission": "Costos Piso usa la cámara para fotografiar facturas y documentos.",
+          "photosPermission": "Cuota accede a tus fotos para adjuntar facturas, documentos y tu foto de perfil.",
+          "cameraPermission": "Cuota usa la cámara para fotografiar facturas y documentos.",
           "microphonePermission": false
         }
       ],

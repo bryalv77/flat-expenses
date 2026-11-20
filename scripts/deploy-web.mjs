@@ -1,12 +1,8 @@
-// Builds the web app and deploys it to Firebase: Hosting + Firestore rules + Storage rules.
-// Aborts before deploying if the exported inline script no longer matches the CSP hash in firebase.json
-// (that mismatch would blank the site in production).
+// Builds the static web app and deploys it to Cloudflare Pages (project `costos-piso`, created on first deploy).
+// Headers/CSP live in public/_headers (Expo copies public/ into dist/). Aborts before deploying if the exported inline script
+// no longer matches the CSP hash there (that mismatch would blank the site in production).
 //
-//   pnpm deploy:web            # hosting only
-//   pnpm deploy:web --rules    # hosting + Firestore rules + Storage rules (only while Firebase is still the live backend)
-//
-// Hosting only by default on purpose: after the cutover (docs/cutover-plan.md) Firestore and Storage are frozen read-only, and
-// redeploying the normal rules would silently re-open writes.
+//   pnpm deploy:web
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -20,14 +16,13 @@ const run = (cmd, args) => {
 run('pnpm', ['exec', 'expo', 'export', '--platform', 'web']);
 
 const html = readFileSync('dist/index.html', 'utf8');
-const csp = readFileSync('firebase.json', 'utf8');
+const csp = readFileSync('public/_headers', 'utf8');
 const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
 const missing = inline.map((s) => `sha256-${createHash('sha256').update(s).digest('base64')}`).filter((h) => !csp.includes(h));
 if (missing.length) {
-  console.error(`\n✖ CSP hash mismatch. Add to script-src in firebase.json: ${missing.map((h) => `'${h}'`).join(' ')}`);
+  console.error(`\n✖ CSP hash mismatch. Add to script-src in public/_headers: ${missing.map((h) => `'${h}'`).join(' ')}`);
   process.exit(1);
 }
-console.log('\n✔ CSP hashes match firebase.json');
+console.log('\n✔ CSP hashes match public/_headers');
 
-const withRules = process.argv.includes('--rules');
-run('pnpm', ['exec', 'firebase', 'deploy', '--only', withRules ? 'hosting,firestore:rules,storage' : 'hosting']);
+run('pnpm', ['exec', 'wrangler', 'pages', 'deploy', 'dist', '--project-name=costos-piso', '--branch=main']);

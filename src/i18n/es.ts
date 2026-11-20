@@ -6,7 +6,7 @@ export const es = {
     all: 'Todas', copy: 'Copiar', copied: 'Copiado', share: 'Compartir', yes: 'Sí', no: 'No', back: 'Atrás',
   },
   auth: {
-    welcomeTitle: 'Costos Piso', welcomeSubtitle: 'Gestiona los gastos compartidos de tu piso sin dramas.',
+    welcomeTitle: 'Cuota', welcomeSubtitle: 'Gestiona los gastos compartidos de tu piso sin dramas.',
     signIn: 'Iniciar sesión', signUp: 'Crear cuenta', email: 'Correo electrónico', password: 'Contraseña',
     name: 'Nombre', forgot: '¿Olvidaste tu contraseña?', reset: 'Enviar enlace', resetSent: 'Te hemos enviado un correo para restablecerla.',
     google: 'Continuar con Google', apple: 'Continuar con Apple', or: 'o', signOut: 'Cerrar sesión',
@@ -80,7 +80,7 @@ export const es = {
     individualContribution: 'Aportación individual', inheritHouse: 'Usa la del piso', memberDocs: 'Documentos de identidad',
     noDocs: 'No ha subido documentos', adminOnlySensitive: 'Información sensible: solo visible para admins del piso.',
     openFile: 'Abrir', activeInvites: 'Códigos activos', noInvites: 'Sin códigos activos', expiresIn: 'Caduca en (días)',
-    uses: 'Usos', usesLeft: '{{n}} usos', shareMessage: 'Únete a mi piso en Costos Piso con el código {{code}}', newCode: 'Nuevo código',
+    uses: 'Usos', usesLeft: '{{n}} usos', shareMessage: 'Únete a mi piso en Cuota con el código {{code}}', newCode: 'Nuevo código',
     codeReady: 'Código listo para compartir', archivedSection: 'Archivadas', unarchive: 'Restaurar', saved: 'Guardado',
     categoryDeleteHint: 'Desliza para archivar', reorderUp: 'Subir', reorderDown: 'Bajar', intervalCount: 'Cada (número)',
     nameRequired: 'Introduce un nombre', expectedRequired: 'Introduce el importe esperado', month: 'Mes', amountPaid: 'Importe pagado',

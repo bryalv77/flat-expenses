@@ -375,12 +375,12 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
       await call('PATCH', '/api/me', u.token, { locale: 'en' });
       const sent: { url: string; init: RequestInit }[] = [];
       vi.stubGlobal('fetch', async (url: string, init: RequestInit) => (sent.push({ url, init }), new Response('{}', { status: 200 })));
-      const resend = { ...env, EMAIL_MODE: undefined, RESEND_API_KEY: 're_test_key', EMAIL_FROM: 'Costos Piso <noreply@example.com>' };
+      const resend = { ...env, EMAIL_MODE: undefined, RESEND_API_KEY: 're_test_key', EMAIL_FROM: 'Cuota <noreply@example.com>' };
       expect((await request(`english-${run}@test.dev`, resend)).status).toBe(200);
       await vi.waitFor(() => expect(sent).toHaveLength(1));
       const body = JSON.parse(String(sent[0]!.init.body));
       expect([sent[0]!.url, (sent[0]!.init.headers as Record<string, string>).authorization]).toEqual(['https://api.resend.com/emails', 'Bearer re_test_key']);
-      expect([body.from, body.to, body.subject]).toEqual(['Costos Piso <noreply@example.com>', [`english-${run}@test.dev`], 'Reset your Costos Piso password']);
+      expect([body.from, body.to, body.subject]).toEqual(['Cuota <noreply@example.com>', [`english-${run}@test.dev`], 'Reset your Cuota password']);
       expect(body.html).toContain('/api/auth/reset-password/');
 
       vi.stubGlobal('fetch', async () => new Response('nope', { status: 500 })); // provider down

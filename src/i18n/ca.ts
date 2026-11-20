@@ -9,7 +9,7 @@ export const ca: DeepPartial<Messages> = {
     all: 'Totes', copy: 'Copia', copied: 'Copiat', share: 'Comparteix', yes: 'Sí', no: 'No', back: 'Enrere',
   },
   auth: {
-    welcomeTitle: 'Costos Piso', welcomeSubtitle: 'Gestiona les despeses compartides del teu pis sense drames.',
+    welcomeTitle: 'Cuota', welcomeSubtitle: 'Gestiona les despeses compartides del teu pis sense drames.',
     signIn: 'Inicia la sessió', signUp: 'Crea un compte', email: 'Correu electrònic', password: 'Contrasenya',
     name: 'Nom', forgot: 'Has oblidat la contrasenya?', reset: 'Envia l’enllaç', resetSent: 'T’hem enviat un correu per restablir-la.',
     google: 'Continua amb Google', apple: 'Continua amb Apple', or: 'o', signOut: 'Tanca la sessió',
@@ -83,7 +83,7 @@ export const ca: DeepPartial<Messages> = {
     individualContribution: 'Aportació individual', inheritHouse: 'Usa la del pis', memberDocs: 'Documents d’identitat',
     noDocs: 'No ha pujat cap document', adminOnlySensitive: 'Informació sensible: només visible per als admins del pis.',
     openFile: 'Obre', activeInvites: 'Codis actius', noInvites: 'Cap codi actiu', expiresIn: 'Caduca d’aquí a (dies)',
-    uses: 'Usos', usesLeft: '{{n}} usos', shareMessage: 'Uneix-te al meu pis a Costos Piso amb el codi {{code}}', newCode: 'Nou codi',
+    uses: 'Usos', usesLeft: '{{n}} usos', shareMessage: 'Uneix-te al meu pis a Cuota amb el codi {{code}}', newCode: 'Nou codi',
     codeReady: 'Codi a punt per compartir', archivedSection: 'Arxivades', unarchive: 'Restaura', saved: 'Desat',
     categoryDeleteHint: 'Llisca per arxivar', reorderUp: 'Puja', reorderDown: 'Baixa', intervalCount: 'Cada (nombre)',
     nameRequired: 'Introdueix un nom', expectedRequired: 'Introdueix l’import esperat', month: 'Mes', amountPaid: 'Import pagat',

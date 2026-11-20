@@ -1,4 +1,4 @@
-# costos-piso-api
+# costos-piso-api (Cuota API)
 
 Cloudflare Worker (Hono) + Neon Postgres (Drizzle) + Better Auth. Design and phases: issue #7 (and #8 for the local mode).
 Independent package: it is excluded from the app's tsconfig, jest and eslint.
@@ -33,7 +33,7 @@ and redirects to `https://costos-piso.web.app/reset-password?token=…`. Real se
 
 ```
 wrangler secret put RESEND_API_KEY --env=""
-wrangler secret put EMAIL_FROM --env=""     # e.g. Costos Piso <noreply@yourdomain.com>
+wrangler secret put EMAIL_FROM --env=""     # e.g. Cuota <noreply@yourdomain.com>
 ```
 
 Without them nothing is sent and the link is never logged. `EMAIL_MODE=log` (in `.dev.vars.local`) prints the email to the console for local development.

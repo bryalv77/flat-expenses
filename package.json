@@ -76,7 +76,8 @@
     "jest-expo": "^57.0.5",
     "pdf-lib": "^1.17.1",
     "prettier": "^3.9.9",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "wrangler": "^4.165.0"
   },
   "scripts": {
     "start": "expo start",
@@ -98,7 +99,9 @@
     "eas": "eas",
     "release:ios": "node scripts/release-ios.mjs",
     "deploy:mobile": "node scripts/deploy-mobile.mjs",
-    "deploy:web": "node scripts/deploy-web.mjs"
+    "deploy:web": "node scripts/deploy-web.mjs",
+    "deploy": "pnpm expo export -p web && wrangler deploy",
+    "preview": "pnpm expo export -p web && wrangler dev"
   },
   "private": true,
   "jest": {
