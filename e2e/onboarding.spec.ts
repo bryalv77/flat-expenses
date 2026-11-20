@@ -8,6 +8,17 @@ test.describe('local onboarding', () => {
     await expect(page.getByText('Join', { exact: false })).toHaveCount(0);
   });
 
+  test('the language picker is visible on first run and names the suggested categories in that language', async ({ page }) => {
+    await page.goto('/');
+    await button(page, 'Español').click();
+    await expect(page.getByText('Crear piso').first()).toBeVisible();
+    await page.getByLabel('Nombre del piso').fill('Casa ES');
+    await button(page, 'Crear piso').click();
+    await expect(page.getByRole('tab', { name: 'Resumen' })).toBeVisible();
+    await expect(page.getByText('Alquiler').first()).toBeVisible();
+    await expect(page.getByText('Rent')).toHaveCount(0);
+  });
+
   test('requires a flat name', async ({ page }) => {
     await page.goto('/');
     await button(page, 'Create flat').click();
@@ -19,13 +30,13 @@ test.describe('local onboarding', () => {
     await expect(page.getByText('Casa Test').first()).toBeVisible();
     await expect(page.getByText('Hi, Roommie')).toBeVisible();
     await expect(page.getByText('UPCOMING CHARGES')).toBeVisible();
-    await expect(page.getByText('Alquiler').first()).toBeVisible();
+    await expect(page.getByText('Rent').first()).toBeVisible();
   });
 
   test('can skip the suggested categories', async ({ page }) => {
     await startFlat(page, 'Sin Categorias', { suggested: false });
     await page.goto('/categories');
-    await expect(page.getByText('Alquiler')).toHaveCount(0);
+    await expect(page.getByText('Rent')).toHaveCount(0);
   });
 
   test('the flat survives a reload (data is on the device)', async ({ page }) => {

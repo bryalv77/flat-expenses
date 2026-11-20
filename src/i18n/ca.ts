@@ -107,6 +107,9 @@ export const ca: DeepPartial<Messages> = {
     resetTitle: 'Nova contrasenya', resetHint: 'Tria una contrasenya nova per al teu compte.', resetDone: 'Contrasenya actualitzada. Ja pots iniciar sessió.',
     resetLinkInvalid: 'L\'enllaç no és vàlid o ha caducat. Sol·licita\'n un de nou.',
   },
+  suggestedCategories: {
+    rent: 'Lloguer', electricity: 'Llum', internet: 'Internet', phone: 'Telèfon', gas: 'Gas', cleaning: 'Neteja', water: 'Aigua', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Cada dia', day_other: 'Cada {{n}} dies', week_one: 'Cada setmana', week_other: 'Cada {{n}} setmanes',
     month_one: 'Cada mes', month_other: 'Cada {{n}} mesos', year_one: 'Cada any', year_other: 'Cada {{n}} anys',

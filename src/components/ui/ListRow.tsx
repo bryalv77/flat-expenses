@@ -24,6 +24,8 @@ export interface ListRowProps {
   /** Replaces the icon bubble (e.g. an Avatar). */
   leading?: ReactNode;
   trailing?: ReactNode;
+  /** Small tags shown under the subtitle (e.g. role badges); wraps instead of squeezing the title. */
+  meta?: ReactNode;
   chevron?: boolean;
   destructive?: boolean;
   onPress?: () => void;
@@ -31,7 +33,7 @@ export interface ListRowProps {
   accessibilityLabel?: string;
 }
 
-export function ListRow({ title, subtitle, value, icon, iconColor, leading, trailing, chevron, destructive, onPress, swipeActions, accessibilityLabel }: ListRowProps) {
+export function ListRow({ title, subtitle, value, icon, iconColor, leading, trailing, meta, chevron, destructive, onPress, swipeActions, accessibilityLabel }: ListRowProps) {
   const { colors } = useTheme();
   const ref = useRef<Swipeable>(null);
 
@@ -60,6 +62,7 @@ export function ListRow({ title, subtitle, value, icon, iconColor, leading, trai
             {subtitle}
           </Text>
         ) : null}
+        {meta ? <View style={styles.meta}>{meta}</View> : null}
       </View>
       {value ? (
         <Text variant="body" color="secondaryLabel" numberOfLines={1} style={styles.value}>
@@ -108,6 +111,7 @@ const styles = StyleSheet.create({
   row: { minHeight: MIN_TOUCH + 4, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   bubble: { width: 30, height: 30, borderRadius: 7, alignItems: 'center', justifyContent: 'center' },
   texts: { flex: 1, justifyContent: 'center' },
+  meta: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 3 },
   value: { maxWidth: '45%', textAlign: 'right' },
   actions: { flexDirection: 'row' },
   action: { width: 84, alignItems: 'center', justifyContent: 'center', borderRadius: radii.sm / 2 },

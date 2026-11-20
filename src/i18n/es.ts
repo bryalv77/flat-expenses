@@ -104,6 +104,9 @@ export const es = {
     resetTitle: 'Nueva contraseña', resetHint: 'Elige una contraseña nueva para tu cuenta.', resetDone: 'Contraseña actualizada. Ya puedes iniciar sesión.',
     resetLinkInvalid: 'El enlace no es válido o ha caducado. Solicita uno nuevo.',
   },
+  suggestedCategories: {
+    rent: 'Alquiler', electricity: 'Luz', internet: 'Internet', phone: 'Teléfono', gas: 'Gas', cleaning: 'Limpieza', water: 'Agua', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Cada día', day_other: 'Cada {{n}} días', week_one: 'Cada semana', week_other: 'Cada {{n}} semanas',
     month_one: 'Cada mes', month_other: 'Cada {{n}} meses', year_one: 'Cada año', year_other: 'Cada {{n}} años',

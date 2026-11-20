@@ -106,6 +106,9 @@ export const en: Messages = {
     resetTitle: 'New password', resetHint: 'Choose a new password for your account.', resetDone: 'Password updated. You can sign in now.',
     resetLinkInvalid: 'This link is invalid or has expired. Request a new one.',
   },
+  suggestedCategories: {
+    rent: 'Rent', electricity: 'Electricity', internet: 'Internet', phone: 'Phone', gas: 'Gas', cleaning: 'Cleaning', water: 'Water', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Every day', day_other: 'Every {{n}} days', week_one: 'Every week', week_other: 'Every {{n}} weeks',
     month_one: 'Every month', month_other: 'Every {{n}} months', year_one: 'Every year', year_other: 'Every {{n}} years',

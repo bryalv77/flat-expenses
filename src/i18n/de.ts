@@ -107,6 +107,9 @@ export const de: DeepPartial<Messages> = {
     resetTitle: 'Neues Passwort', resetHint: 'Wähle ein neues Passwort für dein Konto.', resetDone: 'Passwort aktualisiert. Du kannst dich jetzt anmelden.',
     resetLinkInvalid: 'Der Link ist ungültig oder abgelaufen. Fordere einen neuen an.',
   },
+  suggestedCategories: {
+    rent: 'Miete', electricity: 'Strom', internet: 'Internet', phone: 'Telefon', gas: 'Gas', cleaning: 'Reinigung', water: 'Wasser', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Jeden Tag', day_other: 'Alle {{n}} Tage', week_one: 'Jede Woche', week_other: 'Alle {{n}} Wochen',
     month_one: 'Jeden Monat', month_other: 'Alle {{n}} Monate', year_one: 'Jedes Jahr', year_other: 'Alle {{n}} Jahre',

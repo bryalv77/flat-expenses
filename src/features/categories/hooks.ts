@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { useT } from '@/i18n';
 import { api, type CategoryInput } from '@/lib/db';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
@@ -71,15 +72,16 @@ export function useReorderCategories(houseId: string) {
   });
 }
 
-/** Seeds the suggested categories (Alquiler, Luz, Internet, …). Existing names are skipped server-side by the unique key. */
+/** Seeds the suggested categories (rent, electricity, internet, …) named in the UI language. Existing names are skipped server-side by the unique key. */
 export function useSeedSuggestedCategories(houseId: string) {
   const qc = useQueryClient();
+  const { t } = useT();
   return useMutation({
     mutationFn: async () => {
       const anchorDate = new Date().toISOString().slice(0, 10);
       await Promise.all(
-        SUGGESTED_CATEGORIES.map((c, sortOrder) =>
-          api.createCategory({ ...c, anchorDate, sortOrder, houseId, id: newId() }).catch(() => undefined),
+        SUGGESTED_CATEGORIES.map(({ nameKey, ...c }, sortOrder) =>
+          api.createCategory({ ...c, name: t(nameKey), anchorDate, sortOrder, houseId, id: newId() }).catch(() => undefined),
         ),
       );
     },

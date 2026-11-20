@@ -9,7 +9,7 @@ test.describe('reports', () => {
 
   test('every report section renders with bills and the numbers add up', async ({ page }) => {
     await startFlat(page);
-    await addBill(page, { category: 'Luz', amount: '60' });
+    await addBill(page, { category: 'Electricity', amount: '60' });
     await addBill(page, { category: 'Gas', amount: '40' });
     await tab(page, 'Reports');
 
@@ -19,7 +19,7 @@ test.describe('reports', () => {
     await button(page, 'You vs roommates').click();
     await expect(button(page, 'All time')).toBeVisible();
     await button(page, 'Category').click();
-    await expect(button(page, /Luz$/)).toBeVisible();
+    await expect(button(page, /Electricity$/)).toBeVisible();
     await button(page, 'Seasonality').click();
     await expect(button(page, 'All')).toBeVisible();
     await button(page, 'Lookup').click();
@@ -33,7 +33,7 @@ test.describe('reports', () => {
 
   test('exports the bills as CSV', async ({ page }) => {
     await startFlat(page);
-    await addBill(page, { category: 'Luz', amount: '60' });
+    await addBill(page, { category: 'Electricity', amount: '60' });
     await tab(page, 'Reports');
     const [download] = await Promise.all([page.waitForEvent('download'), button(page, 'Export CSV').first().click()]);
     expect(download.suggestedFilename()).toMatch(/\.csv$/);

@@ -8,9 +8,9 @@ test.describe('swipe and filters', () => {
   test.beforeEach(async ({ page }) => startFlat(page));
 
   test('swipe-to-delete in the expenses list removes the bill after confirming', async ({ page }) => {
-    await addBill(page, { category: 'Agua', amount: '12' });
+    await addBill(page, { category: 'Water', amount: '12' });
     await tab(page, 'Expenses');
-    const row = page.getByRole('button', { name: /^Agua/ });
+    const row = page.getByRole('button', { name: /^Water/ });
     const box = (await row.boundingBox())!;
     // The swipe only reacts to touch input (a mouse drag is just a click), so drive it through CDP.
     const cdp = await page.context().newCDPSession(page);
@@ -25,23 +25,23 @@ test.describe('swipe and filters', () => {
   });
 
   test('period and category chips filter the expenses list', async ({ page }) => {
-    await addBill(page, { category: 'Luz', amount: '40', notes: 'reciente' });
+    await addBill(page, { category: 'Electricity', amount: '40', notes: 'reciente' });
     await addBill(page, { category: 'Gas', amount: '20', date: '2025-01-15', notes: 'antiguo' });
     await tab(page, 'Expenses');
-    await expect(page.getByRole('button', { name: /^Luz/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Electricity/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /^Gas/ })).toHaveCount(0); // outside "This month"
     await button(page, 'All', true).first().click();
     await expect(page.getByRole('button', { name: /^Gas/ })).toBeVisible();
-    await button(page, /\sLuz$/).click(); // category chip (icon + label; the list rows are named exactly "Luz")
+    await button(page, /\sElectricity$/).click(); // category chip (icon + label; the list rows are named exactly "Electricity")
     await expect(page.getByRole('button', { name: /^Gas/ })).toHaveCount(0);
   });
 
   test('reorders categories with the move buttons', async ({ page }) => {
     await openCategories(page);
-    const first = () => page.getByRole('button', { name: /^(Alquiler|Luz)$/ }).first();
-    await expect(first()).toHaveAccessibleName('Alquiler');
+    const first = () => page.getByRole('button', { name: /^(Rent|Electricity)$/ }).first();
+    await expect(first()).toHaveAccessibleName('Rent');
     await button(page, 'Move down').first().click();
-    await expect(first()).toHaveAccessibleName('Luz');
+    await expect(first()).toHaveAccessibleName('Electricity');
   });
 });
 
@@ -49,14 +49,14 @@ test.describe('files', () => {
   test('attaches a file to a bill and it shows on the bill detail', async ({ page }) => {
     await startFlat(page);
     await button(page, /Add bill$/).click();
-    await button(page, /Luz$/).click();
+    await button(page, /Electricity$/).click();
     await page.getByRole('textbox', { name: 'Amount', exact: true }).fill('30');
     await page.getByRole('textbox', { name: 'Charge date', exact: true }).fill(today());
     await page.locator('input[type=file]').setInputFiles({ name: 'factura.png', mimeType: 'image/png', buffer: PNG });
     await expect(vtext(page, 'factura.png')).toBeVisible();
     await save(page);
     await tab(page, 'Expenses');
-    await page.getByRole('button', { name: /^Luz/ }).click();
+    await page.getByRole('button', { name: /^Electricity/ }).click();
     await expect(vtext(page, /factura\.jpg/)).toBeVisible();
   });
 

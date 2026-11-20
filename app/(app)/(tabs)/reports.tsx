@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Chip, EmptyState, Icon, Screen, Skeleton, useToast } from '@/components/ui';
+import { Chip, EmptyState, Icon, Screen, Skeleton, Text, useToast } from '@/components/ui';
 import { addMonthsToKey, monthEnd, monthStart } from '@/lib/dates';
 import { useT } from '@/i18n';
 import { haptics } from '@/lib/haptics';
@@ -63,7 +63,10 @@ export default function ReportsScreen() {
       hitSlop={8}
       style={styles.export}
     >
-      <Icon name="share" size={22} color={colors.tint} />
+      <Icon name="share" size={18} color={colors.tint} />
+      <Text variant="subhead" style={{ color: colors.tint, fontWeight: '600' }}>
+        CSV
+      </Text>
     </Pressable>
   );
 
@@ -107,5 +110,5 @@ const styles = StyleSheet.create({
   body: { gap: spacing.lg, paddingHorizontal: spacing.lg },
   segments: { gap: spacing.sm, paddingVertical: spacing.xs },
   skeletons: { gap: spacing.md },
-  export: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  export: { minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
 });

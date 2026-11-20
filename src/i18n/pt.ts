@@ -107,6 +107,9 @@ export const pt: DeepPartial<Messages> = {
     resetTitle: 'Nova palavra-passe', resetHint: 'Escolhe uma nova palavra-passe para a tua conta.', resetDone: 'Palavra-passe atualizada. Já podes iniciar sessão.',
     resetLinkInvalid: 'A ligação não é válida ou expirou. Pede uma nova.',
   },
+  suggestedCategories: {
+    rent: 'Renda', electricity: 'Eletricidade', internet: 'Internet', phone: 'Telefone', gas: 'Gás', cleaning: 'Limpeza', water: 'Água', netflix: 'Netflix',
+  },
   schedule: {
     day_one: 'Todos os dias', day_other: 'A cada {{n}} dias', week_one: 'Todas as semanas', week_other: 'A cada {{n}} semanas',
     month_one: 'Todos os meses', month_other: 'A cada {{n}} meses', year_one: 'Todos os anos', year_other: 'A cada {{n}} anos',

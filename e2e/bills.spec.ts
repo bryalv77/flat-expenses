@@ -4,10 +4,10 @@ test.describe('bills', () => {
   test.beforeEach(async ({ page }) => startFlat(page));
 
   test('add a bill: shows in overview total, expenses list and by-category chart', async ({ page }) => {
-    await addBill(page, { category: 'Luz', amount: '50,25', notes: 'nota uno' });
+    await addBill(page, { category: 'Electricity', amount: '50,25', notes: 'nota uno' });
     await expect(page.getByText('€50.25').first()).toBeVisible();
     await tab(page, 'Expenses');
-    await expect(page.getByRole('button', { name: /^Luz/ })).toContainText('nota uno');
+    await expect(page.getByRole('button', { name: /^Electricity/ })).toContainText('nota uno');
     await expect(page.getByText(/NOVEMBER 2026 · €50\.25/i)).toBeVisible();
   });
 
@@ -20,20 +20,20 @@ test.describe('bills', () => {
 
   test('saving without an amount does not create a bill', async ({ page }) => {
     await button(page, /Add bill$/).click();
-    await button(page, /Luz$/).click();
+    await button(page, /Electricity$/).click();
     await button(page, 'Save').click();
     await expect(page).toHaveURL(/bills\/new/);
     await expect(button(page, 'Save')).toBeVisible();
   });
 
   test('search narrows the list', async ({ page }) => {
-    await addBill(page, { category: 'Luz', amount: '40', notes: 'enero invierno' });
+    await addBill(page, { category: 'Electricity', amount: '40', notes: 'enero invierno' });
     await addBill(page, { category: 'Gas', amount: '20', notes: 'bombona' });
     await tab(page, 'Expenses');
-    await expect(page.getByRole('button', { name: /^Luz/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Electricity/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /^Gas/ })).toBeVisible();
     await page.getByRole('textbox', { name: 'Search' }).fill('bombona');
-    await expect(page.getByRole('button', { name: /^Luz/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /^Electricity/ })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /^Gas/ })).toBeVisible();
   });
 
@@ -57,9 +57,9 @@ test.describe('bills', () => {
   });
 
   test('deletes a bill from its detail page', async ({ page }) => {
-    await addBill(page, { category: 'Agua', amount: '12' });
+    await addBill(page, { category: 'Water', amount: '12' });
     await tab(page, 'Expenses');
-    await page.getByRole('button', { name: /^Agua/ }).click();
+    await page.getByRole('button', { name: /^Water/ }).click();
     await button(page, /Delete$/).click();
     await confirm(page, 'Delete');
     await expect(page.getByText('No bills yet')).toBeVisible();

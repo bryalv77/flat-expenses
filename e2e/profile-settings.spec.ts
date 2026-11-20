@@ -15,7 +15,7 @@ test.describe('profile', () => {
   });
 
   test('export downloads a zip; import restores that snapshot', async ({ page }, info) => {
-    await addBill(page, { category: 'Luz', amount: '10', notes: 'antes' });
+    await addBill(page, { category: 'Electricity', amount: '10', notes: 'antes' });
     await tab(page, 'Profile');
     const [download] = await Promise.all([page.waitForEvent('download'), button(page, 'Export data').click()]);
     expect(download.suggestedFilename()).toMatch(/^costos-backup-\d{4}-\d{2}-\d{2}\.zip$/);

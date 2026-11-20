@@ -34,7 +34,7 @@ test.describe('roommates', () => {
 
   test('splits a bill equally between roommates', async ({ page }) => {
     await addRoommate(page, 'Ana');
-    await addBill(page, { category: 'Luz', amount: '100' });
+    await addBill(page, { category: 'Electricity', amount: '100' });
     await expect(page.getByText('€50.00').first()).toBeVisible();
   });
 
