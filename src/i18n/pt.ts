@@ -108,7 +108,7 @@ export const pt: DeepPartial<Messages> = {
     resetLinkInvalid: 'A ligação não é válida ou expirou. Pede uma nova.',
   },
   suggestedCategories: {
-    rent: 'Renda', electricity: 'Eletricidade', internet: 'Internet', phone: 'Telefone', gas: 'Gás', cleaning: 'Limpeza', water: 'Água', netflix: 'Netflix',
+    rent: 'Renda', electricity: 'Luz', internet: 'Internet', phone: 'Telefone', gas: 'Gás', cleaning: 'Limpeza', water: 'Água', netflix: 'Netflix',
   },
   schedule: {
     day_one: 'Todos os dias', day_other: 'A cada {{n}} dias', week_one: 'Todas as semanas', week_other: 'A cada {{n}} semanas',

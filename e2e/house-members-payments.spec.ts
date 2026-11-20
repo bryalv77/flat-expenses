@@ -65,10 +65,11 @@ test.describe('payments (fixed contribution)', () => {
 
   // Regression: screens asked for payments up to the month END, which the payments schema rejects, so Save spun on retries and the list never loaded.
   test('records a roommate payment and shows the totals', async ({ page }) => {
+    await page.clock.setFixedTime(new Date(2026, 5, 17, 12)); // the prorated amount depends on the move-in day, so pin "today"
     await startFlat(page, 'Fija', { fixed: 100 });
     await addRoommate(page, 'Ana');
     await button(page, 'Roommate payments').click();
-    await expect(vtext(page, /Pending €43\.33/)).toBeVisible(); // 100 prorated: Ana moved in on the 17th, 14/30 days
+    await expect(vtext(page, /Pending €43\.33/)).toBeVisible(); // 100 prorated: Ana moves in on the 17th of a 30-day month
     await button(page, 'Ana').click();
     await page.getByRole('textbox', { name: 'Amount paid', exact: true }).fill('43,33');
     await save(page);
