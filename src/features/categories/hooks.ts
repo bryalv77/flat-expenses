@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 import { useT } from '@/i18n';
 import { api, type CategoryInput } from '@/lib/db';
@@ -7,13 +8,17 @@ import { qk } from '@/lib/queryKeys';
 import { newId } from '@/lib/storage';
 import type { ExpenseCategory } from '@/types/domain';
 
-import { SUGGESTED_CATEGORIES } from './suggested';
+import { SUGGESTED_CATEGORIES, localizeCategoryName } from './suggested';
 
 export function useCategories(houseId: string | null | undefined) {
+  const { t } = useT();
+  // Every screen (bills, reports, charts) reads categories through here, so default names are localised once.
+  const select = useCallback((list: ExpenseCategory[]) => list.map((c) => ({ ...c, name: localizeCategoryName(c.name, t) })), [t]);
   return useQuery({
     queryKey: qk.categories(houseId ?? ''),
     queryFn: () => api.listCategories({ houseId: houseId as string }),
     enabled: Boolean(houseId),
+    select,
   });
 }
 

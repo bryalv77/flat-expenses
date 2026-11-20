@@ -1,0 +1,19 @@
+import { translate } from '@/i18n/translate';
+
+import { localizeCategoryName } from './suggested';
+
+const en = (key: Parameters<typeof translate>[1]) => translate('en', key);
+const es = (key: Parameters<typeof translate>[1]) => translate('es', key);
+
+describe('localizeCategoryName', () => {
+  it('shows stored default names in the UI language, whichever language they were saved in', () => {
+    expect(localizeCategoryName('Alquiler', en)).toBe('Rent');
+    expect(localizeCategoryName('Teléfono', en)).toBe('Phone');
+    expect(localizeCategoryName('Electricity', es)).toBe('Luz');
+    expect(localizeCategoryName(' loyer ', en)).toBe('Rent');
+  });
+  it('leaves custom names alone', () => {
+    expect(localizeCategoryName('Garaje', en)).toBe('Garaje');
+    expect(localizeCategoryName('Rent (garage)', en)).toBe('Rent (garage)');
+  });
+});
