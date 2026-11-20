@@ -19,6 +19,19 @@ test.describe('local onboarding', () => {
     await expect(page.getByText('Rent')).toHaveCount(0);
   });
 
+  test('categories saved in Spanish follow the UI language when it changes', async ({ page }) => {
+    await page.goto('/');
+    await button(page, 'Español').click();
+    await page.getByLabel('Nombre del piso').fill('Casa ES');
+    await button(page, 'Crear piso').click();
+    await page.getByRole('tab', { name: 'Perfil' }).click();
+    await button(page, 'Ajustes').click();
+    await button(page, 'English').click();
+    await page.goto('/categories');
+    await expect(page.getByText('Rent').first()).toBeVisible();
+    await expect(page.getByText('Alquiler')).toHaveCount(0);
+  });
+
   test('requires a flat name', async ({ page }) => {
     await page.goto('/');
     await button(page, 'Create flat').click();

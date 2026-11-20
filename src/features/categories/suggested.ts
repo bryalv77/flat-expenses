@@ -1,5 +1,6 @@
 import type { CategoryInput } from '@/lib/db';
-import type { TranslationKey } from '@/i18n';
+import { LOCALES } from '@/i18n/locales';
+import { translate, type TranslationKey } from '@/i18n/translate';
 
 type Suggested = Omit<CategoryInput, 'name' | 'anchorDate' | 'sortOrder'> & { nameKey: TranslationKey };
 
@@ -14,3 +15,13 @@ export const SUGGESTED_CATEGORIES: Suggested[] = [
   { nameKey: 'suggestedCategories.water', icon: 'drop', color: '#32ADE6', amountType: 'VARIABLE', intervalUnit: 'MONTH', intervalCount: 3 },
   { nameKey: 'suggestedCategories.netflix', icon: 'tv', color: '#AF52DE', amountType: 'FIXED', expectedAmountCents: 1500, intervalUnit: 'WEEK', intervalCount: 4 },
 ];
+
+/**
+ * Stored names are plain data, so flats created before names were translated keep "Alquiler" whatever the UI language.
+ * A name equal to a default category in ANY language is shown in the current one; custom names are untouched.
+ */
+export function localizeCategoryName(name: string, t: (key: TranslationKey) => string): string {
+  const n = name.trim().toLowerCase();
+  const hit = SUGGESTED_CATEGORIES.find((c) => LOCALES.some((l) => translate(l.code, c.nameKey).toLowerCase() === n));
+  return hit ? t(hit.nameKey) : name;
+}
