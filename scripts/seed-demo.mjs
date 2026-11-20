@@ -151,7 +151,7 @@ async function invoicePdf({ house, category, amountCents, chargeDate, periodStar
   page.drawLine({ start: { x: 40, y: 500 }, end: { x: 555, y: 500 }, thickness: 0.7, color: grey });
   text('TOTAL', 40, 478, 14, bold);
   text(eur(amountCents), 460, 478, 14, bold);
-  text('Pago por domiciliación bancaria. Documento de demostración generado para Costos Piso.', 40, 60, 9, font, grey);
+  text('Pago por domiciliación bancaria. Documento de demostración generado para Cuota.', 40, 60, 9, font, grey);
   return pdf.save();
 }
 

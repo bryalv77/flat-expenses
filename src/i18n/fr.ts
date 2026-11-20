@@ -9,7 +9,7 @@ export const fr: DeepPartial<Messages> = {
     all: 'Toutes', copy: 'Copier', copied: 'Copié', share: 'Partager', yes: 'Oui', no: 'Non', back: 'Retour',
   },
   auth: {
-    welcomeTitle: 'Costos Piso', welcomeSubtitle: 'Gérez les dépenses partagées de votre appartement sans prise de tête.',
+    welcomeTitle: 'Cuota', welcomeSubtitle: 'Gérez les dépenses partagées de votre appartement sans prise de tête.',
     signIn: 'Se connecter', signUp: 'Créer un compte', email: 'E-mail', password: 'Mot de passe',
     name: 'Nom', forgot: 'Mot de passe oublié ?', reset: 'Envoyer le lien', resetSent: 'Nous vous avons envoyé un e-mail pour le réinitialiser.',
     google: 'Continuer avec Google', apple: 'Continuer avec Apple', or: 'ou', signOut: 'Se déconnecter',
@@ -83,7 +83,7 @@ export const fr: DeepPartial<Messages> = {
     individualContribution: 'Contribution individuelle', inheritHouse: 'Utiliser celle de l’appartement', memberDocs: 'Pièces d’identité',
     noDocs: 'Aucun document envoyé', adminOnlySensitive: 'Informations sensibles : visibles uniquement par les admins de l’appartement.',
     openFile: 'Ouvrir', activeInvites: 'Codes actifs', noInvites: 'Aucun code actif', expiresIn: 'Expire dans (jours)',
-    uses: 'Utilisations', usesLeft: '{{n}} utilisations', shareMessage: 'Rejoins mon appartement sur Costos Piso avec le code {{code}}', newCode: 'Nouveau code',
+    uses: 'Utilisations', usesLeft: '{{n}} utilisations', shareMessage: 'Rejoins mon appartement sur Cuota avec le code {{code}}', newCode: 'Nouveau code',
     codeReady: 'Code prêt à partager', archivedSection: 'Archivées', unarchive: 'Restaurer', saved: 'Enregistré',
     categoryDeleteHint: 'Faites glisser pour archiver', reorderUp: 'Monter', reorderDown: 'Descendre', intervalCount: 'Tous les (nombre)',
     nameRequired: 'Saisissez un nom', expectedRequired: 'Saisissez le montant attendu', month: 'Mois', amountPaid: 'Montant payé',

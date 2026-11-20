@@ -9,7 +9,7 @@ export const pt: DeepPartial<Messages> = {
     all: 'Todas', copy: 'Copiar', copied: 'Copiado', share: 'Partilhar', yes: 'Sim', no: 'Não', back: 'Voltar',
   },
   auth: {
-    welcomeTitle: 'Costos Piso', welcomeSubtitle: 'Gere as despesas partilhadas do teu apartamento sem dramas.',
+    welcomeTitle: 'Cuota', welcomeSubtitle: 'Gere as despesas partilhadas do teu apartamento sem dramas.',
     signIn: 'Iniciar sessão', signUp: 'Criar conta', email: 'E-mail', password: 'Palavra-passe',
     name: 'Nome', forgot: 'Esqueceste-te da palavra-passe?', reset: 'Enviar ligação', resetSent: 'Enviámos-te um e-mail para a repor.',
     google: 'Continuar com o Google', apple: 'Continuar com a Apple', or: 'ou', signOut: 'Terminar sessão',
@@ -83,7 +83,7 @@ export const pt: DeepPartial<Messages> = {
     individualContribution: 'Contribuição individual', inheritHouse: 'Usar a do apartamento', memberDocs: 'Documentos de identificação',
     noDocs: 'Não carregou documentos', adminOnlySensitive: 'Informação sensível: visível apenas para os admins do apartamento.',
     openFile: 'Abrir', activeInvites: 'Códigos ativos', noInvites: 'Sem códigos ativos', expiresIn: 'Expira em (dias)',
-    uses: 'Utilizações', usesLeft: '{{n}} utilizações', shareMessage: 'Junta-te ao meu apartamento no Costos Piso com o código {{code}}', newCode: 'Novo código',
+    uses: 'Utilizações', usesLeft: '{{n}} utilizações', shareMessage: 'Junta-te ao meu apartamento no Cuota com o código {{code}}', newCode: 'Novo código',
     codeReady: 'Código pronto a partilhar', archivedSection: 'Arquivadas', unarchive: 'Restaurar', saved: 'Guardado',
     categoryDeleteHint: 'Desliza para arquivar', reorderUp: 'Subir', reorderDown: 'Descer', intervalCount: 'A cada (número)',
     nameRequired: 'Introduz um nome', expectedRequired: 'Introduz o montante esperado', month: 'Mês', amountPaid: 'Montante pago',

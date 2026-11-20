@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Costos Piso — Firestore security rules. DEFAULT DENY: anything not matched below is rejected.
+// Cuota — Firestore security rules. DEFAULT DENY: anything not matched below is rejected.
 // Document model: docs/firestore-model.md. Rules tests: tests/rules/.
 //
 // Key ideas

@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// Costos Piso — Storage rules. DEFAULT DENY.
+// Cuota — Storage rules. DEFAULT DENY.
 // House membership is checked against Firestore (houses/{houseId}/members/{uid}) with firestore.get()/exists(),
 // so only ACTIVE members read bill files and only ACTIVE ADMINs write them.
 // Deploying these rules needs the "Firebase Rules Firestore Service Agent" IAM role (the CLI offers to grant it).

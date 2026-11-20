@@ -1,7 +1,7 @@
 export interface EmailEnv {
   /** Resend API key. With EMAIL_FROM it turns real sending on (needs a sending domain verified at Resend). */
   RESEND_API_KEY?: string;
-  /** e.g. `Costos Piso <noreply@yourdomain.com>` */
+  /** e.g. `Cuota <noreply@yourdomain.com>` */
   EMAIL_FROM?: string;
   /** `log` prints emails to the console instead (local dev and tests only: the text contains the reset link). */
   EMAIL_MODE?: string;
@@ -35,8 +35,8 @@ export async function sendEmail(env: EmailEnv, email: Email): Promise<void> {
 const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 const COPY = {
-  es: { subject: 'Restablece tu contraseña de Costos Piso', hi: (n: string) => `Hola ${n},`, body: 'Recibimos una solicitud para restablecer tu contraseña. El enlace caduca en 1 hora.', cta: 'Crear nueva contraseña', ignore: 'Si no fuiste tú, ignora este correo: tu contraseña no cambiará.' },
-  en: { subject: 'Reset your Costos Piso password', hi: (n: string) => `Hi ${n},`, body: 'We received a request to reset your password. The link expires in 1 hour.', cta: 'Set a new password', ignore: "If this wasn't you, ignore this email: your password won't change." },
+  es: { subject: 'Restablece tu contraseña de Cuota', hi: (n: string) => `Hola ${n},`, body: 'Recibimos una solicitud para restablecer tu contraseña. El enlace caduca en 1 hora.', cta: 'Crear nueva contraseña', ignore: 'Si no fuiste tú, ignora este correo: tu contraseña no cambiará.' },
+  en: { subject: 'Reset your Cuota password', hi: (n: string) => `Hi ${n},`, body: 'We received a request to reset your password. The link expires in 1 hour.', cta: 'Set a new password', ignore: "If this wasn't you, ignore this email: your password won't change." },
 } as const;
 
 /** Spanish unless the user's saved language is English (the app's default language is Spanish). */

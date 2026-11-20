@@ -8,7 +8,7 @@ export const en: Messages = {
     all: 'All', copy: 'Copy', copied: 'Copied', share: 'Share', yes: 'Yes', no: 'No', back: 'Back',
   },
   auth: {
-    welcomeTitle: 'Costos Piso', welcomeSubtitle: 'Manage your flat’s shared costs without the drama.',
+    welcomeTitle: 'Cuota', welcomeSubtitle: 'Manage your flat’s shared costs without the drama.',
     signIn: 'Sign in', signUp: 'Create account', email: 'Email', password: 'Password',
     name: 'Name', forgot: 'Forgot your password?', reset: 'Send link', resetSent: 'We sent you an email to reset it.',
     google: 'Continue with Google', apple: 'Continue with Apple', or: 'or', signOut: 'Sign out',
@@ -82,7 +82,7 @@ export const en: Messages = {
     individualContribution: 'Individual contribution', inheritHouse: 'Uses the flat’s', memberDocs: 'Identity documents',
     noDocs: 'No documents uploaded', adminOnlySensitive: 'Sensitive information: only visible to flat admins.',
     openFile: 'Open', activeInvites: 'Active codes', noInvites: 'No active codes', expiresIn: 'Expires in (days)',
-    uses: 'Uses', usesLeft: '{{n}} uses', shareMessage: 'Join my flat on Costos Piso with code {{code}}', newCode: 'New code',
+    uses: 'Uses', usesLeft: '{{n}} uses', shareMessage: 'Join my flat on Cuota with code {{code}}', newCode: 'New code',
     codeReady: 'Code ready to share', archivedSection: 'Archived', unarchive: 'Restore', saved: 'Saved',
     categoryDeleteHint: 'Swipe to archive', reorderUp: 'Move up', reorderDown: 'Move down', intervalCount: 'Every (number)',
     nameRequired: 'Enter a name', expectedRequired: 'Enter the expected amount', month: 'Month', amountPaid: 'Amount paid',
