@@ -48,6 +48,7 @@ It never overwrites rows that already exist, never prints or saves password hash
 pnpm migrate:firebase --emulator --project demo-costos                       # dry run against the local emulators
 pnpm migrate:firebase --emulator --project demo-costos --database-url <url> --apply --verify
 pnpm migrate:firebase --database-url <neon url> --r2 remote --apply --verify   # the real thing
+DATABASE_URL=<neon url> pnpm migrate:firebase --compare                     # read-only: every row Firebase would write vs what Postgres holds (pass the URL by env: pnpm echoes arguments)
 ```
 
 What it does: every Auth user becomes a Better Auth `user` + `account` (email/password keeps its Firebase hash, Google/Apple become linked
