@@ -22,3 +22,15 @@ describe('initAnalytics', () => {
     await expect(initAnalytics(app)).resolves.toBeUndefined();
   });
 });
+
+describe('initAnalytics with the Worker API as backend', () => {
+  it('never initialises: no third-party analytics without a consent banner', async () => {
+    jest.resetModules();
+    jest.doMock('./http', () => ({ USE_API: true }));
+    jest.doMock('./appMode', () => ({ loadAppMode: jest.fn().mockResolvedValue('cloud') }));
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- Jest's VM rejects dynamic import()
+    const { initAnalytics: init } = require('./analytics') as typeof import('./analytics');
+    await init(app);
+    expect(mockGetAnalytics).not.toHaveBeenCalled();
+  });
+});
