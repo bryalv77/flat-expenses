@@ -1,4 +1,5 @@
-// Builds the static web app and deploys it to Cloudflare Pages (project `costos-piso`, created on first deploy).
+// Builds the static web app and deploys it as a Cloudflare Worker with static assets (root wrangler.jsonc, name `costos-piso`).
+// Not `wrangler pages deploy`: Pages projects are not created in this account, and the landing already ships this way.
 // Headers/CSP live in public/_headers (Expo copies public/ into dist/). Aborts before deploying if the exported inline script
 // no longer matches the CSP hash there (that mismatch would blank the site in production).
 //
@@ -25,4 +26,4 @@ if (missing.length) {
 }
 console.log('\n✔ CSP hashes match public/_headers');
 
-run('pnpm', ['exec', 'wrangler', 'pages', 'deploy', 'dist', '--project-name=costos-piso', '--branch=main']);
+run('pnpm', ['exec', 'wrangler', 'deploy']);
