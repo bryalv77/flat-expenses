@@ -37,7 +37,7 @@ export function MonthStepper({
         </View>
       </Pressable>
       <Text variant="headline" style={styles.monthLabel}>
-        {formatMonth(month, locale, 'long')}
+        {sentenceCase(formatMonth(month, locale, 'long'))}
       </Text>
       <Pressable
         onPress={() => canNext && onChange(addMonthsToKey(month, 1))}
@@ -90,11 +90,14 @@ export function SectionTitle({ children }: { children: string }) {
   );
 }
 
+// Only the first letter: CSS `capitalize` turns Spanish "noviembre de 2026" into "Noviembre De 2026".
+const sentenceCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 const styles = StyleSheet.create({
   stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   arrow: { minWidth: MIN_TOUCH, minHeight: MIN_TOUCH, alignItems: 'center', justifyContent: 'center' },
   flip: { transform: [{ rotate: '180deg' }] },
-  monthLabel: { textAlign: 'center', flex: 1, textTransform: 'capitalize' },
+  monthLabel: { textAlign: 'center', flex: 1 },
   chips: { gap: spacing.sm, paddingVertical: spacing.xs },
   title: { marginTop: spacing.sm },
 });

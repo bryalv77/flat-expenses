@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cuota — shared flat costs, without the drama</title>
-<meta name="description" content="Bills, who owes what, and a year of reports for your flat. Works offline on one phone or shared with the whole flat.">
+<title>Cuota — los gastos del piso, sin dramas</title>
+<meta name="description" content="Facturas, quién debe qué y un año de informes para tu piso. Funciona sin conexión en un solo móvil o compartida con todo el piso.">
 <meta name="theme-color" content="#F4F1EA">
 <link rel="icon" href="img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,6 +43,9 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between}
 .btn.blue{background:var(--blue)} .btn.blue:hover{background:var(--blue-ink)}
 .btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)} .btn.ghost:hover{background:var(--ink);color:var(--paper)}
 nav .btn{min-height:42px;padding:0 1.1rem;font-size:.92rem}
+.navr{display:flex;align-items:center;gap:.6rem}
+.lang{min-height:42px;min-width:46px;padding:0 .8rem;border-radius:999px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font:600 .85rem var(--body);cursor:pointer;transition:background .2s,color .2s}
+.lang:hover{background:var(--ink);color:var(--paper)}
 
 /* hero */
 .hero{padding:112px 0 72px;position:relative}
@@ -99,6 +102,11 @@ section{padding:96px 0}
 .people b:nth-child(1){background:var(--blue);transition-delay:.1s}.people b:nth-child(2){background:var(--amber);transition-delay:.2s}.people b:nth-child(3){background:var(--violet);transition-delay:.3s}.people b:nth-child(4){background:var(--green);transition-delay:.4s}
 .split p.cap{color:var(--ink-2);max-width:26rem}
 .split .phone{margin-inline:auto}
+/* Spanish copy runs longer: keep the headline on two lines */
+html[lang=es] h1{font-size:clamp(2.6rem,9.2vw,4.7rem)}
+/* Spanish writes the currency after the figure */
+html[lang=es] .split .big{display:flex;flex-direction:row-reverse;justify-content:flex-end}
+html[lang=es] .split .big small{margin:.28em 0 0 .08em;vertical-align:baseline}
 
 /* scrolly */
 .scrolly{background:var(--ink);color:var(--paper);border-radius:var(--r) var(--r) 0 0;padding-bottom:0}
@@ -167,22 +175,22 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
 <body>
 <nav id="nav"><div class="wrap">
   <a class="brand" href="#top"><img src="img/icon.png" alt="" width="34" height="34">Cuota</a>
-  <a class="btn" href="#get">Get the app</a>
+  <div class="navr"><button class="lang" id="lang" type="button" aria-label="Switch to English">EN</button><a class="btn" href="#get"><span data-i18n="cta">Descarga la app</span></a></div>
 </div></nav>
 
 <main id="top">
 <header class="hero"><div class="wrap grid">
   <div>
-    <p class="eyebrow">For flatmates</p>
-    <h1><span class="l"><span>Split the bills.</span></span><span class="l"><span>Keep the <em>friends.<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 70 3, 200 3, 297 11"/></svg></em></span></span></h1>
-    <p class="lede">Rent, electricity, internet. Add each bill once and see exactly what everyone owes, this month and across the whole year.</p>
-    <div class="cta"><a class="btn blue" href="#get">Get the app</a><a class="btn ghost" href="#how">See how it works</a></div>
+    <p class="eyebrow"><span data-i18n="eyebrowHero">Para compañeros de piso</span></p>
+    <h1><span class="l"><span><span data-i18n="h1a">Cuentas claras.</span></span></span><span class="l"><span><span data-i18n="h1b">Amistades</span> <em><span data-i18n="h1c">largas.</span><svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 70 3, 200 3, 297 11"/></svg></em></span></span></h1>
+    <p class="lede"><span data-i18n="lede">Alquiler, luz, internet. Añade cada factura una vez y mira exactamente cuánto debe cada uno, este mes y en todo el año.</span></p>
+    <div class="cta"><a class="btn blue" href="#get"><span data-i18n="cta">Descarga la app</span></a><a class="btn ghost" href="#how"><span data-i18n="see">Mira cómo funciona</span></a></div>
   </div>
   <div class="stage" id="stage">
-    <div class="phone" id="heroPhone"><div class="scr"><img src="img/overview.webp" alt="Cuota overview showing the month total of €1,326.30 and each person’s share" width="390" height="844" fetchpriority="high"></div></div>
-    <div class="chip a"><span class="f" style="display:flex;gap:.7rem;align-items:center"><i>⚡</i><span>Luz<small>8 Nov · €86.40</small></span></span></div>
-    <div class="chip b"><span class="f" style="display:flex;gap:.7rem;align-items:center"><i>✓</i><span>Your share<small>€331.57</small></span></span></div>
-    <div class="chip c"><span class="f" style="display:flex;gap:.7rem;align-items:center"><i>⌁</i><span>Internet<small>12 Nov · €39.90</small></span></span></div>
+    <div class="phone" id="heroPhone"><div class="scr"><img src="img/es/overview.webp" data-img="overview" alt="Resumen de Cuota con el total del mes y la parte de cada persona" data-alt="overviewHero" width="390" height="844" fetchpriority="high"></div></div>
+    <div class="chip a"><span class="f" style="display:flex;gap:.7rem;align-items:center"><i>⚡</i><span data-i18n="chipA">Luz<small>8 nov · 86,40 €</small></span></span></div>
+    <div class="chip b"><span class="f" style="display:flex;gap:.7rem;align-items:center"><i>✓</i><span data-i18n="chipB">Tu parte<small>331,57 €</small></span></span></div>
+    <div class="chip c"><span class="f" style="display:flex;gap:.7rem;align-items:center"><i>⌁</i><span data-i18n="chipC">Internet<small>12 nov · 39,90 €</small></span></span></div>
   </div>
 </div></header>
 
@@ -190,66 +198,86 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
 
 <section id="split"><div class="wrap split">
   <div class="reveal">
-    <p class="eyebrow">The point of it all</p>
-    <h2>One number per person.</h2>
-    <div class="big" aria-label="€331.57 per person"><small>€</small><span id="count" data-to="331.57">331.57</span></div>
+    <p class="eyebrow"><span data-i18n="eyebrowSplit">Lo que importa</span></p>
+    <h2><span data-i18n="h2Split">Un número por persona.</span></h2>
+    <div class="big" aria-label="331,57 € por persona"><small>€</small><span id="count" data-to="331.57">331,57</span></div>
     <div class="people" aria-hidden="true"><b>A</b><b>M</b><b>L</b><b>R</b></div>
-    <p class="cap">€1,326.30 of November bills, split between four. Switch to a fixed monthly contribution when your flat works that way.</p>
+    <p class="cap"><span data-i18n="cap">1.326,30 € en facturas de noviembre, entre cuatro. Pasa a una aportación mensual fija si tu piso funciona así.</span></p>
   </div>
-  <div class="phone reveal" style="--d:.15s"><div class="scr"><img src="img/overview2.webp" alt="Per-person split and a donut chart of costs by category" width="390" height="844" loading="lazy"></div></div>
+  <div class="phone reveal" style="--d:.15s"><div class="scr"><img src="img/es/overview2.webp" data-img="overview2" alt="Reparto por persona y gráfico de gastos por categoría" data-alt="overview2" width="390" height="844" loading="lazy"></div></div>
 </div></section>
 
 <section class="scrolly" id="how"><div class="wrap">
-  <p class="eyebrow" style="color:var(--amber)">How it works</p>
-  <h2>From a pile of invoices to a calm month.</h2>
+  <p class="eyebrow" style="color:var(--amber)"><span data-i18n="eyebrowHow">Cómo funciona</span></p>
+  <h2><span data-i18n="h2How">De un montón de facturas a un mes tranquilo.</span></h2>
   <div class="steps" id="steps">
     <div class="pin" aria-hidden="true"><div class="phone"><div class="scr" id="pinImgs">
-      <img class="on" src="img/flat.webp" alt="" loading="lazy"><img src="img/expenses.webp" alt="" loading="lazy"><img src="img/reports2.webp" alt="" loading="lazy"><img src="img/overview.webp" alt="" loading="lazy">
+      <img class="on" src="img/es/flat.webp" data-img="flat" alt="" loading="lazy"><img src="img/es/expenses.webp" data-img="expenses" alt="" loading="lazy"><img src="img/es/reports2.webp" data-img="reports2" alt="" loading="lazy"><img src="img/es/overview.webp" data-img="overview" alt="" loading="lazy">
     </div></div></div>
-    <article class="step on"><span class="n">01</span><h3>Set up the flat</h3><p>Name it, add your flatmates (with or without accounts), pick suggested categories like rent, electricity and internet.</p></article>
-    <article class="step"><span class="n">02</span><h3>Log every bill</h3><p>Pick a category, type the amount, attach the invoice. Filter by month, category or notes whenever you need to find one.</p></article>
-    <article class="step"><span class="n">03</span><h3>Watch the year take shape</h3><p>Monthly stacks by category, seasonality, forecasts and a CSV export for the accountant in the flat.</p></article>
-    <article class="step"><span class="n">04</span><h3>Know who owes what</h3><p>The overview always shows the month total, your share, and what’s coming in the next 30 days.</p></article>
+    <article class="step on"><span class="n">01</span><h3><span data-i18n="s1h">Monta el piso</span></h3><p><span data-i18n="s1p">Ponle nombre, añade a tus compañeros (con o sin cuenta) y elige categorías sugeridas como alquiler, luz e internet.</span></p></article>
+    <article class="step"><span class="n">02</span><h3><span data-i18n="s2h">Apunta cada factura</span></h3><p><span data-i18n="s2p">Elige la categoría, escribe el importe y adjunta la factura. Filtra por mes, categoría o notas cuando necesites encontrar una.</span></p></article>
+    <article class="step"><span class="n">03</span><h3><span data-i18n="s3h">Mira cómo se forma el año</span></h3><p><span data-i18n="s3p">Barras mensuales por categoría, estacionalidad, previsiones y exportación a CSV para quien lleve las cuentas del piso.</span></p></article>
+    <article class="step"><span class="n">04</span><h3><span data-i18n="s4h">Sabe quién debe qué</span></h3><p><span data-i18n="s4p">El resumen siempre muestra el total del mes, tu parte y lo que viene en los próximos 30 días.</span></p></article>
     <div class="foot"></div>
   </div>
 </div></section>
 
 <section><div class="wrap">
-  <div class="reveal"><p class="eyebrow">Built for real flats</p><h2>Small app. No loose ends.</h2></div>
+  <div class="reveal"><p class="eyebrow"><span data-i18n="eyebrowBento">Hecha para pisos de verdad</span></p><h2><span data-i18n="h2Bento">App pequeña. Sin cabos sueltos.</span></h2></div>
   <div class="bento">
-    <div class="card dark w4 reveal"><div class="k">0 accounts</div><h3>Start in ten seconds</h3><p>Open the app and you’re in. No sign-up, no email. Create an account later and your flat moves with you.</p></div>
-    <div class="card w2 reveal" style="--d:.08s"><h3>Invite by code</h3><p>Share an 8-character code. Roommates join and see the costs.</p><div class="code">K7QM-4XD9</div></div>
-    <div class="card w3 reveal"><h3>A year at a glance</h3><p>Spot the winter heating spike before it hits.</p><div class="bars" aria-hidden="true"><i style="--h:55%"></i><i style="--h:48%"></i><i style="--h:62%"></i><i style="--h:44%"></i><i style="--h:70%"></i><i style="--h:52%"></i><i style="--h:58%"></i><i style="--h:66%"></i><i style="--h:50%"></i><i style="--h:92%"></i></div></div>
-    <div class="card blue w3 reveal" style="--d:.08s"><h3>Speaks your language</h3><p>Seven languages, picked from your device.</p><div class="langs"><span>Español</span><span>English</span><span>Français</span><span>Deutsch</span><span>Português</span><span>Italiano</span><span>Català</span></div></div>
-    <div class="card w2 reveal"><h3>Invoices attached</h3><p>Photo or PDF, right on the bill.</p></div>
-    <div class="card w2 reveal" style="--d:.08s"><h3>Light &amp; dark</h3><p>Follows your phone, looks native on iOS.</p></div>
-    <div class="card w2 reveal" style="--d:.16s"><h3>CSV export</h3><p>Take your numbers anywhere.</p></div>
+    <div class="card dark w4 reveal"><div class="k"><span data-i18n="k0">0 cuentas</span></div><h3><span data-i18n="b1h">Empieza en diez segundos</span></h3><p><span data-i18n="b1p">Abre la app y ya estás dentro. Sin registro ni email. Crea una cuenta más tarde y tu piso se viene contigo.</span></p></div>
+    <div class="card w2 reveal" style="--d:.08s"><h3><span data-i18n="b2h">Invita con un código</span></h3><p><span data-i18n="b2p">Comparte un código de 8 caracteres. Tus compañeros entran y ven los gastos.</span></p><div class="code">K7QM-4XD9</div></div>
+    <div class="card w3 reveal"><h3><span data-i18n="b3h">Un año de un vistazo</span></h3><p><span data-i18n="b3p">Detecta el pico de calefacción del invierno antes de que llegue.</span></p><div class="bars" aria-hidden="true"><i style="--h:55%"></i><i style="--h:48%"></i><i style="--h:62%"></i><i style="--h:44%"></i><i style="--h:70%"></i><i style="--h:52%"></i><i style="--h:58%"></i><i style="--h:66%"></i><i style="--h:50%"></i><i style="--h:92%"></i></div></div>
+    <div class="card blue w3 reveal" style="--d:.08s"><h3><span data-i18n="b4h">Habla tu idioma</span></h3><p><span data-i18n="b4p">Siete idiomas, elegidos según tu dispositivo.</span></p><div class="langs"><span>Español</span><span>English</span><span>Français</span><span>Deutsch</span><span>Português</span><span>Italiano</span><span>Català</span></div></div>
+    <div class="card w2 reveal"><h3><span data-i18n="b5h">Facturas adjuntas</span></h3><p><span data-i18n="b5p">Foto o PDF, justo en la factura.</span></p></div>
+    <div class="card w2 reveal" style="--d:.08s"><h3><span data-i18n="b6h">Claro y oscuro</span></h3><p><span data-i18n="b6p">Sigue a tu móvil y se ve nativa en iOS.</span></p></div>
+    <div class="card w2 reveal" style="--d:.16s"><h3><span data-i18n="b7h">Exporta a CSV</span></h3><p><span data-i18n="b7p">Llévate tus números donde quieras.</span></p></div>
   </div>
 </div></section>
 
 <section class="privacy"><div class="wrap grid">
-  <div class="reveal"><p class="eyebrow">Your data</p><h2>Yours means yours.</h2>
-    <ul class="ticks"><li>Local mode keeps everything on your device, nothing leaves it.</li><li>Export a full backup any time, and restore it on a new phone.</li><li>Prefer to share? Sign in and the whole flat stays in sync.</li></ul></div>
-  <div class="phone reveal" style="--d:.15s;margin-inline:auto"><div class="scr"><img src="img/flat.webp" alt="The flat screen listing roommates and management shortcuts" width="390" height="844" loading="lazy"></div></div>
+  <div class="reveal"><p class="eyebrow"><span data-i18n="eyebrowData">Tus datos</span></p><h2><span data-i18n="h2Data">Tuyos de verdad.</span></h2>
+    <ul class="ticks"><li><span data-i18n="l1">El modo local lo guarda todo en tu dispositivo; nada sale de él.</span></li><li><span data-i18n="l2">Exporta una copia completa cuando quieras y restáurala en un móvil nuevo.</span></li><li><span data-i18n="l3">¿Prefieres compartir? Inicia sesión y todo el piso queda sincronizado.</span></li></ul></div>
+  <div class="phone reveal" style="--d:.15s;margin-inline:auto"><div class="scr"><img src="img/es/flat.webp" data-img="flat" alt="Pantalla del piso con los compañeros y los accesos de gestión" data-alt="flat" width="390" height="844" loading="lazy"></div></div>
 </div></section>
 
 <section class="final" id="get"><div class="wrap reveal">
-  <img class="icon" src="img/icon.png" alt="Cuota app icon" width="96" height="96">
-  <h2>Your next bill is already due.</h2>
-  <div class="cta"><a class="btn" href="#">Download on the App Store</a><a class="btn ghost" href="#">Open the web app</a></div>
-  <p class="note">Free to start · iPhone, Android and web</p>
+  <img class="icon" src="img/icon.png" alt="Icono de la app Cuota" data-alt="icon" width="96" height="96">
+  <h2><span data-i18n="h2Final">Tu próxima factura ya vence.</span></h2>
+  <div class="cta"><a class="btn" href="#"><span data-i18n="dl">Descargar en la App Store</span></a><a class="btn ghost" href="#"><span data-i18n="web">Abrir la web app</span></a></div>
+  <p class="note"><span data-i18n="note">Gratis para empezar · iPhone, Android y web</span></p>
 </div></section>
 </main>
 
-<footer><div class="wrap"><span>© 2026 Cuota</span><span>Made for flats that share more than a fridge.</span></div></footer>
+<footer><div class="wrap"><span>© 2026 Cuota</span><span><span data-i18n="foot">Hecha para pisos que comparten más que la nevera.</span></span></div></footer>
 
 <script>
 (()=>{
 const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
-// ticker
-const names=['Alquiler','Luz','Internet','Teléfono','Gas','Limpieza','Agua','Netflix'];
-const row=document.getElementById('row');
-row.innerHTML=[...names,...names,...names,...names].map(n=>`<span>${n}</span>`).join('');
+const EN={"cta": "Get the app", "eyebrowHero": "For flatmates", "h1a": "Split the bills.", "h1b": "Keep the", "h1c": "friends.", "lede": "Rent, electricity, internet. Add each bill once and see exactly what everyone owes, this month and across the whole year.", "see": "See how it works", "chipA": "Electricity<small>8 Nov · €86.40</small>", "chipB": "Your share<small>€331.57</small>", "chipC": "Internet<small>12 Nov · €39.90</small>", "eyebrowSplit": "The point of it all", "h2Split": "One number per person.", "cap": "€1,326.30 of November bills, split between four. Switch to a fixed monthly contribution when your flat works that way.", "eyebrowHow": "How it works", "h2How": "From a pile of invoices to a calm month.", "s1h": "Set up the flat", "s1p": "Name it, add your flatmates (with or without accounts), pick suggested categories like rent, electricity and internet.", "s2h": "Log every bill", "s2p": "Pick a category, type the amount, attach the invoice. Filter by month, category or notes whenever you need to find one.", "s3h": "Watch the year take shape", "s3p": "Monthly stacks by category, seasonality, forecasts and a CSV export for the accountant in the flat.", "s4h": "Know who owes what", "s4p": "The overview always shows the month total, your share, and what’s coming in the next 30 days.", "eyebrowBento": "Built for real flats", "h2Bento": "Small app. No loose ends.", "k0": "0 accounts", "b1h": "Start in ten seconds", "b1p": "Open the app and you’re in. No sign-up, no email. Create an account later and your flat moves with you.", "b2h": "Invite by code", "b2p": "Share an 8-character code. Roommates join and see the costs.", "b3h": "A year at a glance", "b3p": "Spot the winter heating spike before it hits.", "b4h": "Speaks your language", "b4p": "Seven languages, picked from your device.", "b5h": "Invoices attached", "b5p": "Photo or PDF, right on the bill.", "b6h": "Light &amp; dark", "b6p": "Follows your phone, looks native on iOS.", "b7h": "CSV export", "b7p": "Take your numbers anywhere.", "eyebrowData": "Your data", "h2Data": "Yours means yours.", "l1": "Local mode keeps everything on your device, nothing leaves it.", "l2": "Export a full backup any time, and restore it on a new phone.", "l3": "Prefer to share? Sign in and the whole flat stays in sync.", "h2Final": "Your next bill is already due.", "dl": "Download on the App Store", "web": "Open the web app", "note": "Free to start · iPhone, Android and web", "foot": "Made for flats that share more than a fridge.", "overviewHero": "Cuota overview showing the month total of €1,326.30 and each person’s share", "overview2": "Per-person split and a donut chart of costs by category", "flat": "The flat screen listing roommates and management shortcuts", "icon": "Cuota app icon", "bigAria": "€331.57 per person", "title": "Cuota — shared flat costs, without the drama", "desc": "Bills, who owes what, and a year of reports for your flat. Works offline on one phone or shared with the whole flat."};
+const CATS={es:['Alquiler','Luz','Internet','Teléfono','Gas','Limpieza','Agua','Netflix'],en:['Rent','Electricity','Internet','Phone','Gas','Cleaning','Water','Netflix']};
+const row=document.getElementById('row'),c=document.getElementById('count'),big=c.parentElement,btn=document.getElementById('lang');
+const tx=[...document.querySelectorAll('[data-i18n]')],alts=[...document.querySelectorAll('[data-alt]')],pics=[...document.querySelectorAll('img[data-img]')];
+const ES={bigAria:big.getAttribute('aria-label'),title:document.title,desc:document.querySelector('meta[name=description]').content};
+tx.forEach(e=>e.dataset.es=e.innerHTML);alts.forEach(e=>e.dataset.es=e.alt);
+const to=+c.dataset.to;let lang='es',counted=false;
+const fmt=n=>n.toLocaleString(lang==='en'?'en-GB':'es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+function setLang(l,save){
+ lang=l;document.documentElement.lang=l;
+ tx.forEach(e=>{e.innerHTML=l==='en'?EN[e.dataset.i18n]:e.dataset.es});
+ alts.forEach(e=>{e.alt=l==='en'?EN[e.dataset.alt]:e.dataset.es});
+ pics.forEach(i=>{i.src='img/'+l+'/'+i.dataset.img+'.webp'});
+ const T=l==='en'?EN:ES;
+ big.setAttribute('aria-label',T.bigAria);document.title=T.title;document.querySelector('meta[name=description]').content=T.desc;
+ const names=CATS[l];row.innerHTML=[...names,...names,...names,...names].map(n=>`<span>${n}</span>`).join('');
+ btn.textContent=l==='en'?'ES':'EN';btn.setAttribute('aria-label',l==='en'?'Cambiar a español':'Switch to English');
+ if(counted||rm)c.textContent=fmt(to);
+ if(save){try{localStorage.setItem('lang',l)}catch{}}
+}
+btn.addEventListener('click',()=>setLang(lang==='es'?'en':'es',true));
+let saved=null;try{saved=localStorage.getItem('lang')}catch{}
+const first=saved||(/^es/i.test(navigator.language||'')?'es':'en');
+setLang(first);
 // nav
 const nav=document.getElementById('nav');
 addEventListener('scroll',()=>nav.classList.toggle('stuck',scrollY>30),{passive:true});
@@ -257,10 +285,9 @@ addEventListener('scroll',()=>nav.classList.toggle('stuck',scrollY>30),{passive:
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.2});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 // count-up
-const c=document.getElementById('count');
-if(!rm){const to=+c.dataset.to;c.textContent='0.00';
+if(!rm){c.textContent=fmt(0);
  new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){o.disconnect();const t0=performance.now();
-  (function f(t){const p=Math.min(1,(t-t0)/1600),e=1-Math.pow(1-p,4);c.textContent=(to*e).toFixed(2);if(p<1)requestAnimationFrame(f)})(t0)}},{threshold:.6}).observe(c)}
+  (function f(t){const p=Math.min(1,(t-t0)/1600),e=1-Math.pow(1-p,4);c.textContent=fmt(to*e);if(p<1)requestAnimationFrame(f);else counted=true})(t0)}},{threshold:.6}).observe(c)}
 // hero parallax
 const hp=document.getElementById('heroPhone');
 if(!rm)addEventListener('scroll',()=>{if(scrollY<900)hp.style.translate=`0 ${scrollY*-.08}px`},{passive:true});
