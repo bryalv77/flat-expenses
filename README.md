@@ -32,7 +32,7 @@ Security-rules tests (starts Firestore + Storage emulators, JDK 21+ required): `
 ```bash
 firebase login
 firebase deploy --only firestore,storage      # creates the (default) Firestore database in eur3 on first deploy + rules + indexes
-pnpm deploy:web                            # export web + deploy to Cloudflare Pages (costos-piso.pages.dev; checks the CSP hash in public/_headers first; needs `wrangler login`)
+pnpm deploy:web                            # export web (always against https://api-cuota.devalv.com) + deploy to the Cloudflare Worker `costos-piso` = app-cuota.devalv.com; checks the CSP hash in public/_headers first; needs `wrangler login`
 pnpm deploy:mobile ["message"] [--production]   # EAS Update (OTA): preview channel by default
 ```
 
@@ -83,7 +83,7 @@ Authorization is enforced **only by the security rules** — the client code is 
 - **Houses:** only ACTIVE members read; only ACTIVE ADMIN members update, delete and write categories, bills, payments and invites. Membership is `houses/{h}/members/{uid}` (one document read per check).
 - **Joining** is only possible through a valid invite, in one batch that creates the member document (role ROOMMATE) and increments `invites/{code}.usedCount` by exactly 1 (status ACTIVE, not expired, `usedCount < maxUses`). Roles are immutable, admins can never be removed, roommates can only leave themselves.
 - **Storage** rules check membership through Firestore: bills are readable by active members and writable by active admins only (PDF/image, < 10 MB, path must live under the house); avatars owner-write (< 2 MB); identity documents owner-only. Everything else is denied.
-- **Hosting** sends a strict CSP, `X-Frame-Options: DENY`, `nosniff`, HSTS, Referrer-Policy and Permissions-Policy (`public/_headers`, served by Cloudflare Pages).
+- **Hosting** sends a strict CSP, `X-Frame-Options: DENY`, `nosniff`, HSTS, Referrer-Policy and Permissions-Policy (`public/_headers`, served by the `costos-piso` Cloudflare Worker's static assets).
 - The Firebase web config in the repo is public by design. Restrict the API key in Google Cloud Console (HTTP referrers `costos-piso.web.app`, `costos-piso.firebaseapp.com`, `localhost`; limit to Identity Toolkit, Firestore, Storage APIs).
 - Account deletion removes identity documents, makes the user leave roommate memberships and anonymises their member copies. Houses where the user is the ADMIN are left untouched (delete or hand over the house first).
 
