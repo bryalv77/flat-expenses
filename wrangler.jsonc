@@ -1,6 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "costos-piso",
+  "workers_dev": true, // https://costos-piso.bryalv77.workers.dev; keeps working after app-cuota.devalv.com is attached
+  "preview_urls": false,
   "compatibility_date": "2026-11-18",
   "observability": {
     "enabled": true

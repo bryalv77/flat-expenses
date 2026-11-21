@@ -449,12 +449,12 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
   });
 
   describe('CORS for the hosted web app', () => {
-    const WEB = 'https://costos-piso.web.app';
+    const WEB = 'https://app-cuota.devalv.com';
     const preflight = (path: string, origin: string, method = 'POST') =>
       app.request(path, { method: 'OPTIONS', headers: { origin, 'access-control-request-method': method, 'access-control-request-headers': 'authorization,content-type' } }, env);
 
     it('answers the preflight for the web origins, with the headers the app sends', async () => {
-      for (const origin of [WEB, 'https://costos-piso.firebaseapp.com']) {
+      for (const origin of [WEB, 'https://costos-piso.web.app', 'https://costos-piso.firebaseapp.com']) {
         const r = await preflight('/api/houses', origin, 'PATCH');
         expect([r.status, r.headers.get('access-control-allow-origin')]).toEqual([204, origin]);
         expect(r.headers.get('access-control-allow-headers')?.toLowerCase()).toContain('authorization');
@@ -463,7 +463,7 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
     });
 
     it('gives other origins no CORS headers (the browser then blocks them)', async () => {
-      for (const origin of ['https://evil.example', 'https://costos-piso.web.app.evil.example']) {
+      for (const origin of ['https://evil.example', 'https://app-cuota.devalv.com.evil.example']) {
         expect((await preflight('/api/houses', origin)).headers.get('access-control-allow-origin')).toBeNull();
       }
       const prod = { ...env, BETTER_AUTH_URL: 'https://costos-piso-api.bryalv77.workers.dev' };

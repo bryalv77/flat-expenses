@@ -3,7 +3,7 @@
 export const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, '') ?? '';
 export const USE_API = API_URL !== '';
 /** Where the hosted web app lives: password-reset emails send people to `${WEB_URL}/reset-password`. */
-export const WEB_URL = (process.env.EXPO_PUBLIC_WEB_URL ?? 'https://costos-piso.web.app').replace(/\/+$/, '');
+export const WEB_URL = (process.env.EXPO_PUBLIC_WEB_URL ?? 'https://app-cuota.devalv.com').replace(/\/+$/, '');
 
 type TokenProvider = () => Promise<string | null>;
 // Until Better Auth replaces Firebase Auth in the app (next step), a Better Auth session token can be
