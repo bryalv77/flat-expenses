@@ -11,6 +11,7 @@
 //   --apply                  write to Postgres and copy files
 //   --skip-files             do not copy files        --files-only   only copy files
 //   --verify                 after --apply: compare counts with the source, and sample-check copied files
+//   --compare                read-only: diff every row the plan would write against what is in Postgres (use DATABASE_URL, not --database-url: pnpm echoes arguments)
 //
 // Real project: needs Application Default Credentials with read access to Auth, Firestore and Storage
 // (`gcloud auth application-default login`, or GOOGLE_APPLICATION_CREDENTIALS=<service account json>).
@@ -34,7 +35,7 @@ const { values: o } = parseArgs({
   options: {
     project: { type: 'string', default: 'costos-piso' }, emulator: { type: 'boolean', default: false }, bucket: { type: 'string' },
     'database-url': { type: 'string' }, r2: { type: 'string', default: 'local' }, 'r2-bucket': { type: 'string', default: 'costos-piso-files' },
-    apply: { type: 'boolean', default: false }, 'skip-files': { type: 'boolean', default: false }, 'files-only': { type: 'boolean', default: false }, verify: { type: 'boolean', default: false },
+    apply: { type: 'boolean', default: false }, 'skip-files': { type: 'boolean', default: false }, 'files-only': { type: 'boolean', default: false }, verify: { type: 'boolean', default: false }, compare: { type: 'boolean', default: false },
   },
 });
 const databaseUrl = o['database-url'] ?? process.env.DATABASE_URL;
@@ -210,6 +211,65 @@ async function verify(plan: Plan, files: Plan['files']) {
   return problems;
 }
 
+// ---------------------------------------------------------------- compare (read-only): is Postgres an exact copy of what the plan would write?
+const TABLE_KEYS: Record<string, string[]> = { user: ['id'], account: ['id'], user_documents: ['id'], houses: ['id'], members: ['house_id', 'user_id'], categories: ['id'], bills: ['id'], payments: ['id'], invites: ['code'] };
+const SECRET = new Set(['password']); // never printed
+const SHOWN = new Set(['amount_cents', 'charge_date', 'period_start_date', 'period_end_date', 'category_id', 'house_id', 'member_id', 'month', 'status', 'role', 'is_active', 'sort_order', 'expected_amount_cents', 'interval_unit', 'interval_count', 'anchor_date', 'max_uses', 'used_count', 'amount_type', 'split_mode', 'fixed_contribution_cents', 'individual_contribution_cents']); // text columns may hold names and emails: only their name is printed
+const canon = (v: unknown): string => {
+  if (v == null) return 'null';
+  // Timestamps compare as instants, whatever the textual form. Better Auth's `timestamp` columns have no zone and hold UTC,
+  // so a bare '2026-11-14T10:00:00' means UTC (Date.parse alone would read it in this machine's zone).
+  if (typeof v === 'string') return /^\d{4}-\d{2}-\d{2}T/.test(v) ? String(Date.parse(/(Z|[+-]\d{2}:?\d{2})$/.test(v) ? v : `${v}Z`)) : v;
+  if (typeof v === 'object') return JSON.stringify(v, Object.keys(v as object).sort());
+  return String(v);
+};
+async function compare(plan: Plan): Promise<number> {
+  const c = new pg.Client({ connectionString: databaseUrl });
+  await c.connect();
+  await c.query('begin read only'); // the database itself refuses any write in here
+  let diffs = 0;
+  try {
+    console.log('\nCOMPARE (Firebase plan vs Postgres, read-only):');
+    for (const [t, keys] of Object.entries(TABLE_KEYS)) {
+      const rows = plan[t as keyof Plan] as Record<string, unknown>[];
+      const keyOf = (r: Record<string, unknown>) => keys.map((k) => String(r[k])).join('|');
+      const db = new Map((await c.query(`select row_to_json(x) as r from "${t}" x`)).rows.map((r) => [keyOf(r.r), r.r as Record<string, unknown>]));
+      const seen = new Set<string>();
+      let same = 0, missing = 0, hashChanged = 0;
+      const examples: string[] = [];
+      for (const row of rows) {
+        const k = keyOf(row), got = db.get(k);
+        seen.add(k);
+        if (!got) { missing++; if (examples.length < 8) examples.push(`${t} ${k.slice(0, 40)}: missing in Postgres`); continue; }
+        const cols = Object.keys(row).filter((col) => col !== 'files' && canon(row[col]) !== canon(got[col]));
+        const real = cols.filter((col) => !SECRET.has(col));
+        if (cols.some((col) => SECRET.has(col))) hashChanged++;
+        if (!real.length) { same++; continue; }
+        if (examples.length < 8) examples.push(`${t} ${k.slice(0, 40)}: ` + real.map((col) => (SHOWN.has(col) ? `${col} firebase=${canon(row[col])} postgres=${canon(got[col])}` : `${col} differs`)).join('; '));
+      }
+      const different = rows.length - same - missing;
+      const extra = [...db.keys()].filter((k) => !seen.has(k)).length;
+      diffs += missing + different;
+      console.log(`  ${t.padEnd(15)} planned ${String(rows.length).padStart(4)}  identical ${String(same).padStart(4)}  differing ${String(different).padStart(3)}  missing ${String(missing).padStart(3)}  only-in-postgres ${extra}` + (hashChanged ? `  (password hash changed on ${hashChanged}: expected once someone signs in on the new backend)` : ''));
+      for (const e of examples) console.log(`      ${e}`);
+    }
+    // attachments: compare the set of files of each bill
+    let fileDiff = 0, fileSame = 0;
+    for (const b of plan.bills) {
+      const want = b.files.map(({ id: _i, bill_id: _b, ...f }) => JSON.stringify(f, Object.keys(f).sort())).sort();
+      const got = (await c.query('select row_to_json(x) as r from bill_files x where bill_id = $1', [b.id])).rows.map((r) => { const { id: _i, bill_id: _b, ...f } = r.r as Record<string, unknown>; return JSON.stringify(Object.fromEntries(Object.keys(b.files[0] ?? {}).filter((k) => k !== 'id' && k !== 'bill_id').map((k) => [k, f[k]])), Object.keys(f).sort()); }).sort();
+      if (want.length === got.length && want.every((w, i) => w === got[i])) fileSame++; else fileDiff++;
+    }
+    diffs += fileDiff;
+    console.log(`  ${'bill_files'.padEnd(15)} bills with identical attachment lists ${fileSame}, differing ${fileDiff}`);
+  } finally {
+    await c.query('rollback');
+    await c.end();
+  }
+  console.log(diffs ? `\nCOMPARE: ${diffs} difference(s)` : '\nCOMPARE: Postgres matches the Firebase data row for row');
+  return diffs;
+}
+
 // ---------------------------------------------------------------- main
 const t0 = Date.now();
 console.log(`source: ${o.emulator ? 'Firebase EMULATORS' : 'Firebase project ' + o.project} (bucket ${bucketName})   target: ${o.apply ? 'Postgres + R2 ' + o.r2 : 'DRY RUN (nothing is written)'}`);
@@ -223,6 +283,13 @@ console.log(`\nissues:  ${by('skip').length} skipped rows, ${by('fix').length} r
 for (const level of ['skip', 'fix', 'warn'] as const) for (const i of by(level).slice(0, 15)) console.log(`  [${level}] ${i.where}: ${i.message}`);
 if (issues.length > 45) console.log(`  … full list in scripts/migrate/last-report.json`);
 writeFileSync(join(here, 'last-report.json'), JSON.stringify({ at: new Date().toISOString(), counts: Object.fromEntries(Object.entries(plan).map(([k, v]) => [k, (v as unknown[]).length])), issues }, null, 1)); // no rows: they contain password hashes
+
+if (o.compare) {
+  if (!databaseUrl) throw new Error('--compare needs DATABASE_URL');
+  const diffs = await compare(plan);
+  console.log(`\ndone in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+  process.exit(diffs ? 1 : 0);
+}
 
 let problems: string[] = [];
 if (o.apply) {
