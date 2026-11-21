@@ -13,14 +13,14 @@
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://costos-piso-api.bryalv77.workers.dev"
+        "EXPO_PUBLIC_API_URL": "https://api-cuota.devalv.com"
       }
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://costos-piso-api.bryalv77.workers.dev"
+        "EXPO_PUBLIC_API_URL": "https://api-cuota.devalv.com"
       }
     }
   },

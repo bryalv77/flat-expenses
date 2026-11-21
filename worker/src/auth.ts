@@ -18,7 +18,9 @@ export interface AuthEnv extends EmailEnv, FirebaseScryptEnv {
 }
 
 /** Origins of the hosted web app (Cloudflare Pages; the Firebase domains stay until the old site is retired); the native app's scheme is only a trusted origin, not a CORS one. */
-export const WEB_ORIGINS = ['https://costos-piso.pages.dev', 'https://costos-piso.web.app', 'https://costos-piso.firebaseapp.com'];
+// app-cuota.devalv.com is the production web app; the workers.dev address stays so a deploy can be checked before the domain is attached.
+// The Firebase hosts stay until the old site is retired (docs/cutover-plan.md).
+export const WEB_ORIGINS = ['https://app-cuota.devalv.com', 'https://costos-piso.bryalv77.workers.dev', 'https://costos-piso.web.app', 'https://costos-piso.firebaseapp.com'];
 /** Expo web dev server: only when the Worker itself runs locally, so a page on someone's localhost:8081 can never call production. */
 export const devWebOrigins = (env: { BETTER_AUTH_URL: string }) => (env.BETTER_AUTH_URL.startsWith('http://localhost') ? ['http://localhost:8081', 'http://localhost:19006'] : []);
 
