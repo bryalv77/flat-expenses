@@ -15,12 +15,6 @@ describe('initAnalytics', () => {
     await initAnalytics(app);
     expect(mockGetAnalytics).not.toHaveBeenCalled();
   });
-
-  // Cloud init uses a dynamic import(), which Jest's VM rejects; only the local guard is testable here.
-  it('does not throw in cloud mode', async () => {
-    (loadAppMode as jest.Mock).mockResolvedValue('cloud');
-    await expect(initAnalytics(app)).resolves.toBeUndefined();
-  });
 });
 
 describe('initAnalytics with the Worker API as backend', () => {

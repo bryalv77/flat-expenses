@@ -1,3 +1,4 @@
 export { BackupError, exportBackup, importBackup, wipeAllLocalData } from './backup';
-export { useBackupActions, LAST_EXPORT_KEY } from './useBackupActions';
+export { useBackupActions } from './useBackupActions';
+export { LAST_EXPORT_KEY } from './reminder';
 export { ExportReminderBanner } from './ExportReminderBanner';

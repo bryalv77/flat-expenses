@@ -3,9 +3,10 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { bills, categories } from './db/schema';
-import { guard, type AppEnv } from './middleware';
+import { houseId, noContentOr404, notFound, readBody, uuidParam } from './http';
+import { guardAdmin, guardMember, type AppEnv } from './middleware';
 
-// Mounted at /api/houses/:id/categories (houses.ts). Reads: any active member. Writes: admins (as in firestore.rules).
+// Reads: any active member. Writes: admins (as in firestore.rules).
 export const categoriesApp = new Hono<AppEnv>();
 
 // Same limits as validCategory() in firestore.rules.
@@ -30,41 +31,37 @@ const create = shape.extend({ id: z.uuid() }).partial({ id: true, expectedAmount
 const update = shape.partial().strict();
 
 const where = (houseId: string, id: string) => and(eq(categories.houseId, houseId), eq(categories.id, id));
-const validId = (id: string) => z.uuid().safeParse(id).success;
 
-categoriesApp.get('/', guard(false), async (c) =>
-  c.json(await c.var.db.select().from(categories).where(eq(categories.houseId, c.req.param('id') ?? ''))
+categoriesApp.get('/', guardMember, async (c) =>
+  c.json(await c.var.db.select().from(categories).where(eq(categories.houseId, houseId(c)))
     .orderBy(asc(categories.sortOrder), asc(categories.name)).limit(200)),
 );
 
-categoriesApp.post('/', guard(true), async (c) => {
-  const b = create.safeParse(await c.req.json().catch(() => null));
-  if (!b.success) return c.json({ error: 'invalid', issues: b.error.issues }, 400);
-  const [row] = await c.var.db.insert(categories).values({ ...b.data, houseId: c.req.param('id') ?? '' }).returning();
+categoriesApp.post('/', guardAdmin, async (c) => {
+  const b = await readBody(c, create);
+  if (b.res) return b.res;
+  const [row] = await c.var.db.insert(categories).values({ ...b.data, houseId: houseId(c) }).returning();
   return c.json(row, 201);
 });
 
-categoriesApp.patch('/:categoryId', guard(true), async (c) => {
+categoriesApp.patch('/:categoryId', guardAdmin, uuidParam('categoryId'), async (c) => {
   const id = c.req.param('categoryId');
-  if (!validId(id)) return c.json({ error: 'not_found' }, 404);
-  const b = update.safeParse(await c.req.json().catch(() => null));
-  if (!b.success) return c.json({ error: 'invalid', issues: b.error.issues }, 400);
-  const houseId = c.req.param('id') ?? '';
-  const [current] = await c.var.db.select().from(categories).where(where(houseId, id));
-  if (!current) return c.json({ error: 'not_found' }, 404);
+  const b = await readBody(c, update);
+  if (b.res) return b.res;
+  const hid = houseId(c);
+  const [current] = await c.var.db.select().from(categories).where(where(hid, id));
+  if (!current) return notFound(c);
   // The merged result must still be valid (e.g. switching to FIXED requires an amount).
   if (!fixedNeedsAmount({ ...current, ...b.data })) return c.json({ error: 'invalid', message: 'FIXED categories need expectedAmountCents' }, 400);
-  const [row] = await c.var.db.update(categories).set(b.data).where(where(houseId, id)).returning();
+  const [row] = await c.var.db.update(categories).set(b.data).where(where(hid, id)).returning();
   return c.json(row);
 });
 
 // Refuses (409 CATEGORY_HAS_BILLS) when bills still reference it; archive instead (PATCH isActive=false).
-categoriesApp.delete('/:categoryId', guard(true), async (c) => {
+categoriesApp.delete('/:categoryId', guardAdmin, uuidParam('categoryId'), async (c) => {
   const id = c.req.param('categoryId');
-  if (!validId(id)) return c.json({ error: 'not_found' }, 404);
-  const houseId = c.req.param('id') ?? '';
   const [used] = await c.var.db.select({ id: bills.id }).from(bills).where(eq(bills.categoryId, id)).limit(1);
   if (used) return c.json({ error: 'CATEGORY_HAS_BILLS' }, 409);
-  const rows = await c.var.db.delete(categories).where(where(houseId, id)).returning();
-  return rows.length ? c.body(null, 204) : c.json({ error: 'not_found' }, 404);
+  const rows = await c.var.db.delete(categories).where(where(houseId(c), id)).returning();
+  return noContentOr404(c, rows);
 });

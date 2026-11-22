@@ -7,7 +7,7 @@ export type MemberLike = Pick<
 >;
 
 /** Was the member part of the house at any point during the month (`YYYY-MM`)? */
-export function isMemberActiveInMonth(member: MemberLike, month: string): boolean {
+function isMemberActiveInMonth(member: MemberLike, month: string): boolean {
   const joined = member.joinedAt.slice(0, 10);
   if (joined > monthEnd(month)) return false;
   if (member.removedAt) return member.removedAt.slice(0, 10) >= monthStart(month);

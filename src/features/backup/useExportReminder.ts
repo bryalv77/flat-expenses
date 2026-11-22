@@ -6,10 +6,7 @@ import { useActiveHouse } from '@/features/houses/hooks';
 import { getAppMode } from '@/lib/appMode';
 import { addMonthsToKey, monthEnd, monthKey, monthStart, todayISO } from '@/lib/dates';
 
-import { countBillsSince, shouldRemind, snoozeUntil } from './reminder';
-import { LAST_EXPORT_KEY } from './useBackupActions';
-
-export const SNOOZE_KEY = 'backup.snoozedUntil';
+import { LAST_EXPORT_KEY, SNOOZE_KEY, countBillsSince, shouldRemind, snoozeUntil } from './reminder';
 
 export function useExportReminder(onExport: () => void | Promise<void>) {
   const { house } = useActiveHouse();

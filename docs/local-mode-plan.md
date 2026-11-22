@@ -176,7 +176,7 @@ Run T4, T5, T6, T7 in parallel. Each owns one file under `src/lib/api/local/` pl
 
 ### [ ] T14 Release prep
 - **Owns:** `app.json`, `eas.json`, `package.json` (version), `README.md`, `docs/`.
-- **Do:** exclude the local database and `files/` from OS backup: Android `android:allowBackup="false"` or a `dataExtractionRules` entry (set via the Expo config / a config plugin), iOS `isExcludedFromBackup` on the SQLite and `files/` directories (set at first run in native code through `expo-file-system`, or a config plugin if that API is missing). Verify on a device. Add `expo-sqlite`; bump `runtimeVersion` (new native module = no OTA; see the 1.1.0 prep in #7 for the pattern); add a `test:local` script; CI runs typecheck, lint, Jest (including the local contract) and the Worker e2e.
+- **Do:** exclude the local database and `files/` from OS backup: Android `android:allowBackup="false"` or a `dataExtractionRules` entry (set via the Expo config / a config plugin), iOS `isExcludedFromBackup` on the SQLite and `files/` directories (set at first run in native code through `expo-file-system`, or a config plugin if that API is missing). Verify on a device. Add `expo-sqlite`; bump `runtimeVersion` (new native module = no OTA; see the 1.1.0 prep in #7 for the pattern); CI runs typecheck, lint, Jest (including the local contract) and the Worker e2e.
 - **DoD:** `eas build` dry run succeeds for iOS and Android; the README explains the two modes.
 
 ## Wave 5

@@ -9,8 +9,7 @@ import { getLocalDb } from '@/lib/api/local/sql.expo';
 
 import { BackupError, exportBackup, importBackup, wipeAllLocalData } from './backup';
 import { appBackupFiles, pickBackup, shareBackup } from './platform';
-
-export const LAST_EXPORT_KEY = 'backup.lastExportAt';
+import { LAST_EXPORT_KEY } from './reminder';
 
 type Pending = null | { kind: 'import'; archive: Uint8Array } | { kind: 'delete' };
 

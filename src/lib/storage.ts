@@ -9,12 +9,13 @@ import {
 import { randomUUID } from 'expo-crypto';
 import * as ImageManipulator from 'expo-image-manipulator';
 
+import { ERR } from './api/errors';
 import { storage } from './firebase';
 import { API_URL, ApiError, USE_API, authHeader, request } from './http';
 
 export type FileKind = 'avatar' | 'document' | 'bill';
 
-export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/webp'] as const;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/webp'] as const;
 export const ALLOWED_MIME_TYPES = [...ALLOWED_IMAGE_TYPES, 'application/pdf'] as const;
 export const MAX_BYTES: Record<FileKind, number> = {
   avatar: 2 * 1024 * 1024,
@@ -36,7 +37,7 @@ export interface UploadedFile {
   sizeBytes: number;
 }
 
-export type FileErrorCode = 'unsupported-type' | 'too-large';
+type FileErrorCode = 'unsupported-type' | 'too-large';
 export class FileValidationError extends Error {
   constructor(
     public readonly code: FileErrorCode,
@@ -55,7 +56,6 @@ export const storagePaths = {
     `houses/${houseId}/bills/${billId}/${sanitizeFileName(fileName)}`,
 };
 
-/** Strips path separators / odd characters, keeps the extension, caps length. */
 export function sanitizeFileName(name: string): string {
   const base = name.split(/[\\/]/).pop() ?? 'file';
   const normalized = base.normalize('NFKD').replace(/[̀-ͯ]/g, '');
@@ -67,9 +67,12 @@ export function sanitizeFileName(name: string): string {
   return ext ? `${safeStem}.${ext.slice(0, 8)}` : safeStem;
 }
 
-export function isImageType(mimeType: string): boolean {
+function isImageType(mimeType: string): boolean {
   return (ALLOWED_IMAGE_TYPES as readonly string[]).includes(mimeType.toLowerCase());
 }
+
+/** Avatars have their own (image-only, smaller) rules; everything else is a document. */
+export const kindOfKey = (key: string): FileKind => (key.includes('/avatar/') ? 'avatar' : 'document');
 
 export function validateFile(file: Pick<PickedFile, 'mimeType' | 'size'>, kind: FileKind): void {
   const type = file.mimeType.toLowerCase();
@@ -121,7 +124,7 @@ export async function uploadFile(
   onProgress?: (fraction: number) => void,
 ): Promise<UploadedFile> {
   const blob = await (await fetch(file.uri)).blob();
-  validateFile({ mimeType: file.mimeType, size: blob.size }, storagePath.includes('/avatar/') ? 'avatar' : 'document');
+  validateFile({ mimeType: file.mimeType, size: blob.size }, kindOfKey(storagePath));
   if (USE_API) return uploadToApi(storagePath, file, blob, onProgress);
   const task = uploadBytesResumable(ref(storage, storagePath), blob, { contentType: file.mimeType });
   return new Promise<UploadedFile>((resolve, reject) => {
@@ -183,7 +186,7 @@ export async function deleteFile(storagePath: string): Promise<void> {
 
 /** Recursively deletes everything below a folder (used by account deletion). */
 export async function deleteFolder(path: string): Promise<void> {
-  if (USE_API) throw new Error('USE_AUTH_DELETE_USER'); // the Worker deletes users/{uid}/ itself, see ApiAuthProvider.deleteAccount
+  if (USE_API) throw new Error(ERR.USE_AUTH_DELETE_USER); // the Worker deletes users/{uid}/ itself, see ApiAuthProvider.deleteAccount
   const walk = async (folder: StorageReference): Promise<void> => {
     const { items, prefixes } = await listAll(folder);
     await Promise.all(items.map((i) => deleteObject(i).catch(() => undefined)));
@@ -192,7 +195,6 @@ export async function deleteFolder(path: string): Promise<void> {
   await walk(ref(storage, path));
 }
 
-/** Random UUID v4 for client-generated ids (so uploads and rows share the same id). */
 export function newId(): string {
   return randomUUID();
 }

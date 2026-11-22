@@ -14,10 +14,8 @@ import {
   categoryStats,
   computeDelta,
   computeSeasonality,
-  cyclesOf,
   filterBills,
   lastNMonths,
-  linearSlope,
   lookupMonth,
   monthlySeries,
   perPersonTable,
@@ -72,7 +70,7 @@ describe('totals and series', () => {
 
 describe('amortization', () => {
   it('spreads a bi-monthly bill over its two months', () => {
-    expect(amortizedMonthlyTotals([gasBills[0]], cyclesOf([GAS]))).toEqual({
+    expect(amortizedMonthlyTotals([gasBills[0]], { [GAS.id]: GAS })).toEqual({
       '2025-02': 4000,
       '2025-03': 4000,
     });
@@ -117,7 +115,6 @@ describe('categoryStats', () => {
     const s = categoryStats(bills, ELECTRICITY);
     expect(s.trend).toBe('UP');
     expect(s.trendCentsPerMonth).toBe(1000);
-    expect(linearSlope([5, 5, 5])).toBe(0);
   });
 });
 

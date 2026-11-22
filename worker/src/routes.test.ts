@@ -2,7 +2,7 @@ import { afterEach, beforeAll, describe, expect, inject, it, vi } from 'vitest';
 
 import { createDb } from './db/client';
 import { account, members } from './db/schema';
-import { FIREBASE_HASH_PREFIX, firebaseScryptHash, formatFirebaseHash } from './firebasePassword';
+import { FIREBASE_HASH_PREFIX } from './firebasePassword';
 import { app } from './index';
 import { and, eq } from 'drizzle-orm';
 
@@ -366,7 +366,6 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
       expect((await request(`nobody-${run}@test.dev`)).status).toBe(200);
       expect((await request(`forgetful-${run}@test.dev`, env, 'https://evil.example/steal')).status).toBe(403);
       expect((await call('POST', '/api/auth/reset-password', undefined, { newPassword: 'whatever-pass-1', token: 'not-a-token' })).status).toBe(400);
-      await new Promise((r) => setTimeout(r, 300));
       expect(log).not.toHaveBeenCalled();
     });
 
@@ -411,10 +410,15 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
       app.request('/api/auth/sign-in/email', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'http://localhost' }, body: JSON.stringify({ email, password }) }, e);
 
     // An account exactly as the migration script writes it: a Firebase hash instead of a Better Auth one.
+    // Fixed vectors (node:crypto scrypt + AES-256-CTR with the FB parameters and this salt), not computed by the code under test.
+    const HASHES: Record<string, string> = {
+      'firebase-pass-1': 'ug9a7C4JXS3udeyFlxD43KMBguWT9SDyq11mmQVGI3gyjGyVzW6YgzKL49AfcPXUYDXIPUxTz40wyzNWiZhXIw==',
+      'firebase-pass-2': 'y38Ppa0omQMlWgmPShUgN1eLclANu14qMbGiuXUQS8P+NBhPMmtNqLQTfS6XGY0LKLTPRlfxJ5NXdwHVYD2cnA==',
+      'firebase-pass-3': 'IQHTK8RjeRFFbaHUuveaLMsznF0MzBIZE8C9/uJgP7dHmXJF4XefrqhNhkgtmgEaaWkroD1oe1D/EKgy8IXLDw==',
+    };
     const migrated = async (name: string, password: string) => {
       const u = await signUp(name);
-      const salt = '42xEC+ixf3L2lw==';
-      const stored = formatFirebaseHash(await firebaseScryptHash(password, salt, { signerKey: FB.FIREBASE_SCRYPT_SIGNER_KEY, saltSeparator: FB.FIREBASE_SCRYPT_SALT_SEPARATOR, rounds: 8, memCost: 14 }), salt);
+      const stored = `${FIREBASE_HASH_PREFIX}${HASHES[password]}$42xEC+ixf3L2lw==`;
       await createDb(dbUrl!).update(account).set({ password: stored }).where(eq(account.userId, u.id));
       return { ...u, email: `${name}-${run}@test.dev`, stored };
     };
@@ -459,6 +463,7 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
         expect([r.status, r.headers.get('access-control-allow-origin')]).toEqual([204, origin]);
         expect(r.headers.get('access-control-allow-headers')?.toLowerCase()).toContain('authorization');
         expect(r.headers.get('access-control-allow-methods')).toContain('PATCH');
+        expect(r.headers.get('access-control-allow-credentials')).toBe('true'); // Better Auth's browser client fetches with credentials: 'include'
       }
     });
 

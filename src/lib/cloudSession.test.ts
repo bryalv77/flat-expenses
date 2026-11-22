@@ -7,8 +7,10 @@ import { hasCloudSession } from './cloudSession';
 
 describe('hasCloudSession', () => {
   it('resolves false quickly when SecureStore hangs, so startup can proceed in local mode', async () => {
-    const started = Date.now();
-    await expect(hasCloudSession()).resolves.toBe(false);
-    expect(Date.now() - started).toBeLessThan(4000);
+    jest.useFakeTimers();
+    const result = hasCloudSession();
+    await jest.advanceTimersByTimeAsync(2000);
+    await expect(result).resolves.toBe(false);
+    jest.useRealTimers();
   });
 });

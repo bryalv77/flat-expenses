@@ -1,6 +1,8 @@
+import { DAY_MS } from '@/lib/dates';
 import type { AppMode } from '@/lib/appMode';
 
-export const DAY_MS = 86_400_000;
+export const LAST_EXPORT_KEY = 'backup.lastExportAt';
+export const SNOOZE_KEY = 'backup.snoozedUntil';
 export const REMIND_AFTER_DAYS = 30;
 export const REMIND_AFTER_BILLS = 20;
 export const SNOOZE_DAYS = 7;

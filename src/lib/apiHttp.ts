@@ -2,11 +2,10 @@
 import { DEFAULT_LOCALE, isLocale } from '@/i18n/locales';
 import type { Bill, BillFile, ExpenseCategory, House, HouseInvite, HouseMember, HouseRole, MemberPayment, User, UserDocument } from '@/types/domain';
 
-import type { firestoreApi } from './db';
+import { ERR } from './api/errors';
+import type { Api } from './api/types';
 import { ApiError, qs, request } from './http';
 import { normalizeIconName } from './iconAliases';
-
-type Api = typeof firestoreApi;
 
 // ---- wire shapes (what the Worker returns) -> app domain types ----
 const fileOut = (f: { objectKey: string; fileName: string; mimeType: string; sizeBytes: number }): BillFile => ({
@@ -74,7 +73,7 @@ export const httpApi: Api = {
   listMemberDocuments: async () => [],
   // Account deletion is one Better Auth call that also cleans up on the Worker (ApiAuthProvider.deleteAccount), so nothing calls this.
   deleteMyAccountData: async () => {
-    throw new Error('USE_AUTH_DELETE_USER');
+    throw new Error(ERR.USE_AUTH_DELETE_USER);
   },
 
   // Houses

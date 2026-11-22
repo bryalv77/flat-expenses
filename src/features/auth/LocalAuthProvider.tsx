@@ -1,6 +1,8 @@
 // Local mode (issue #8): no account, no network. A fixed user; the user row itself is created by localApi.
 import type { ReactNode } from 'react';
 
+import { LOCAL_USER_ID } from '@/lib/api/local/ctx';
+
 import { AuthContext, type AuthContextValue } from './AuthContext';
 
 const unavailable = async (): Promise<never> => {
@@ -8,7 +10,7 @@ const unavailable = async (): Promise<never> => {
 };
 
 export const localAuthValue: AuthContextValue = {
-  authUser: { uid: 'local', email: null, displayName: null },
+  authUser: { uid: LOCAL_USER_ID, email: null, displayName: null },
   initializing: false,
   profileReady: true,
   features: { google: false, apple: false },

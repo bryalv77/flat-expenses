@@ -55,16 +55,6 @@ export function getOccurrences(schedule: ScheduleFields, from: string, to: strin
   return out;
 }
 
-/** First occurrence on or after `today`. */
-export function getNextOccurrence(schedule: ScheduleFields, today: string): string | null {
-  let n = startIndex(schedule, today);
-  for (let i = 0; i < MAX_ITERATIONS; i++, n++) {
-    const date = occurrenceAt(schedule, n);
-    if (date >= today) return date;
-  }
-  return null;
-}
-
 export interface UpcomingCharge {
   category: ExpenseCategory;
   date: string;
@@ -105,14 +95,6 @@ export function cycleLengthInMonths(
     case 'YEAR':
       return count * 12;
   }
-}
-
-/** Amortized monthly cost of one bill: a bi-monthly 80 € gas bill -> 40 €/month. */
-export function amortizedMonthlyCents(
-  schedule: Pick<ScheduleFields, 'intervalUnit' | 'intervalCount'>,
-  amountCents: number,
-): number {
-  return Math.round(amountCents / cycleLengthInMonths(schedule));
 }
 
 const UNIT_KEYS: Record<IntervalUnit, PluralKey> = {

@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 
-/** Offline-friendly defaults: cached data is reused, failures retry with backoff, mutations never retry blindly. */
+/** Offline-friendly defaults: cached data is reused, failures retry with backoff. */
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -14,6 +14,5 @@ export const queryClient = new QueryClient({
       refetchOnReconnect: true,
       networkMode: 'offlineFirst',
     },
-    mutations: { retry: 0 },
   },
 });

@@ -1,6 +1,6 @@
 import { BlurView } from 'expo-blur';
 import { Tabs } from 'expo-router';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Icon, useIsWide, type IconName } from '@/components/ui';
 import { useT, type TranslationKey } from '@/i18n';
@@ -23,7 +23,7 @@ const TABS: TabDef[] = [
 export default function TabsLayout() {
   const { colors } = useTheme();
   const { t } = useT();
-  const wide = useIsWide() && Platform.OS === 'web';
+  const wide = useIsWide();
 
   return (
     <Tabs

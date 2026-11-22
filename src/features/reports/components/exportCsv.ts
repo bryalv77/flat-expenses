@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 
 import type { Bill, ExpenseCategory } from '@/types/domain';
 
-import { buildBillsCsv } from '..';
+import { buildBillsCsv } from '../calculations';
 
 /** Builds the CSV (with Excel BOM) and hands it to the share sheet on native or downloads it on web. */
 export async function exportBillsCsv(bills: Bill[], categories: ExpenseCategory[], fileName: string): Promise<void> {

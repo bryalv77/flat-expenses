@@ -2,7 +2,9 @@ import { and, eq, gt, lt, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
+import { REDEEM_CODE } from './config';
 import { invites, members, user } from './db/schema';
+import { parseJson } from './http';
 import { session, type AppEnv } from './middleware';
 
 export const invitesApp = new Hono<AppEnv>();
@@ -10,7 +12,7 @@ invitesApp.use('*', session);
 
 // Joins the invite's house as ROOMMATE (a removed member who redeems again is reactivated).
 invitesApp.post('/redeem', async (c) => {
-  const b = z.object({ code: z.string().regex(/^[A-Z2-9]{8}$/) }).safeParse(await c.req.json().catch(() => null));
+  const b = await parseJson(c, z.object({ code: z.string().regex(REDEEM_CODE) }));
   if (!b.success) return c.json({ error: 'invalid_code' }, 400);
   const { db, uid } = c.var;
   const { code } = b.data;

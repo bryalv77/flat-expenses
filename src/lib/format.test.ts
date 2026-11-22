@@ -4,7 +4,6 @@ import {
   formatMoney,
   formatMonth,
   formatPercent,
-  formatSignedMoney,
   parseMoneyToCents,
 } from './format';
 
@@ -18,10 +17,8 @@ describe('formatMoney', () => {
   it('formats en', () => {
     expect(plain(formatMoney(120000, 'en'))).toBe('€1,200.00');
   });
-  it('supports compact (no decimals) and signed output', () => {
+  it('supports compact (no decimals) output', () => {
     expect(plain(formatMoney(120000, 'es', { compact: true }))).toBe('1.200 €');
-    expect(plain(formatSignedMoney(3840, 'es'))).toBe('+38,40 €');
-    expect(plain(formatSignedMoney(-12000, 'es'))).toBe('-120,00 €');
   });
 });
 

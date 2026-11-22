@@ -1,5 +1,4 @@
-import type { Bill, HouseMember } from '@/types/domain';
-import { getEffectiveMonth } from './effectiveDate';
+import { getEffectiveMonth, type BillCore } from './effectiveDate';
 import { activeMembersInMonth, type MemberLike } from './members';
 
 export interface Share {
@@ -41,7 +40,7 @@ export interface MonthShares {
 
 /** Mode A: equal split of a month's bills among the members active in that month. */
 export function computeMonthShares(
-  bills: Pick<Bill, 'amountCents' | 'categoryId' | 'chargeDate' | 'periodEndDate' | 'createdAt'>[],
+  bills: BillCore[],
   members: MemberLike[],
   month: string,
 ): MonthShares {
@@ -69,5 +68,3 @@ export function computeMonthShares(
     perCategory,
   };
 }
-
-export type { HouseMember };

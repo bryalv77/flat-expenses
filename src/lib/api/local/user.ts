@@ -13,7 +13,6 @@ const profile = z.object({
   accountRole: z.enum(['ADMIN', 'ROOMMATE']).optional(),
 });
 
-/** Creates the user row if missing (createHouse and profile edits can run before any upsertUser). */
 export async function ensureUser(db: SqlDb, id: string, now: string): Promise<void> {
   await db.run(
     `insert or ignore into users (id, email, display_name, account_role, created_at, updated_at) values (?, '', 'Roommie', 'ADMIN', ?, ?)`,

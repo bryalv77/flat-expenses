@@ -1,4 +1,4 @@
-import { sanitizeFileName, validateFile, type PickedFile, type UploadedFile } from './storage';
+import { kindOfKey, sanitizeFileName, validateFile, type PickedFile, type UploadedFile } from './storage';
 
 /** Rejects empty, absolute, backslash and `.`/`..`/empty-segment keys. A trailing slash is allowed for folders. */
 export function assertSafeKey(key: string, { folder = false } = {}): string {
@@ -13,7 +13,7 @@ export function assertSafeKey(key: string, { folder = false } = {}): string {
 export async function readPicked(key: string, file: PickedFile): Promise<{ bytes: Uint8Array; result: UploadedFile }> {
   assertSafeKey(key);
   const blob = await (await fetch(file.uri)).blob();
-  validateFile({ mimeType: file.mimeType, size: blob.size }, key.includes('/avatar/') ? 'avatar' : 'document');
+  validateFile({ mimeType: file.mimeType, size: blob.size }, kindOfKey(key));
   return {
     bytes: new Uint8Array(await blob.arrayBuffer()),
     result: { storagePath: key, fileName: sanitizeFileName(file.name), mimeType: file.mimeType, sizeBytes: blob.size },

@@ -7,7 +7,7 @@ import { qk } from '@/lib/queryKeys';
 import { newId } from '@/lib/storage';
 import type { MemberPayment } from '@/types/domain';
 
-/** Payments whose `month` (first day of month, ISO) is within [from, to]. Members can read; only admins write. */
+/** Payments whose `month` (first day of month, ISO) is within [from, to]. */
 export function usePayments(houseId: string | null | undefined, range: { from: string; to: string }) {
   // `month` is always a first-of-month date and the backends (Worker, local) reject any other value, so callers may pass a month end.
   const q = { from: monthStart(monthKey(range.from)), to: monthStart(monthKey(range.to)) };
