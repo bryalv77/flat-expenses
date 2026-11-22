@@ -12,7 +12,6 @@ All money is **integer cents**. Dates are `YYYY-MM-DD`, months are `YYYY-MM`; ev
 
 ## `@/lib/format` (locale: `'es' | 'en'`, default `'es'`)
 - `formatMoney(cents, locale?, {currency?, compact?}): string` → `1.200,00 €` (`compact` drops decimals)
-- `formatSignedMoney(cents, locale?, currency?)` → `+38,40 €` / `-120,00 €`
 - `parseMoneyToCents(input, locale?): number | null` (accepts `1.200,50`, `1200,5`, `1,200.50`, `€ 15`)
 - `centsToInputString(cents, locale?)` → `1200,50`
 - `formatDate(iso, locale?, 'short'|'medium'|'long')` · `formatMonth(key, locale?, 'long'|'short')`
@@ -28,10 +27,8 @@ All money is **integer cents**. Dates are `YYYY-MM-DD`, months are `YYYY-MM`; ev
 ## `@/features/schedule/occurrences`
 - `occurrenceAt(schedule, n): string` — n-th occurrence from the anchor (n ≥ 0)
 - `getOccurrences(schedule, from, to): string[]` — inclusive; anchor is the first occurrence
-- `getNextOccurrence(schedule, today): string | null` — on/after today
 - `getUpcomingCharges(categories, today, days = 30): UpcomingCharge[]` — `{category, date, expectedAmountCents}`
 - `cycleLengthInMonths(schedule): number`
-- `amortizedMonthlyCents(schedule, amountCents): number` — bi-monthly 80 € → 40 €
 - `describeSchedule(category, locale?): {interval, amount, full}` — `Cada 4 semanas · 15,00 €`, `Cada 2 meses · variable`
 - `schedule` = `{intervalUnit, intervalCount, anchorDate}` (an `ExpenseCategory` works)
 

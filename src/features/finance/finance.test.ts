@@ -1,12 +1,10 @@
 import { makeBill, makeMember } from '@/test/fixtures';
 import {
   activeMembersInMonth,
-  balanceStatus,
   computeBalanceSeries,
   computeMonthBalance,
   computeMonthShares,
   computePaymentStatus,
-  contributionForMember,
   dueForMember,
   getEffectiveDate,
   recommendContribution,
@@ -105,7 +103,6 @@ describe('Mode B balance', () => {
       balanceCents: -10000,
       status: 'INSUFFICIENT',
     });
-    expect(balanceStatus(0)).toBe('SUFFICIENT');
   });
   it('uses per-member overrides and also exposes the equal-split share', () => {
     const withOverride = [
@@ -113,7 +110,6 @@ describe('Mode B balance', () => {
       members[1],
       { ...members[2], individualContributionCents: 20000 },
     ];
-    expect(contributionForMember(house, withOverride[2])).toBe(20000);
     const b = computeMonthBalance(house, withOverride, '2025-02', 60000);
     expect(b.expectedIncomeCents).toBe(50000);
     expect(b.equalShares.map((s) => s.cents)).toEqual([20000, 20000, 20000]);

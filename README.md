@@ -1,6 +1,6 @@
 # Cuota
 
-Shared household costs for roommates. One Expo (React Native) codebase for iOS, Android and Web, backed by Firebase Auth, **Cloud Firestore** and Cloud Storage.
+Shared household costs for roommates. One Expo (React Native) codebase for iOS, Android and Web, backed by the Cloudflare Worker API (Neon Postgres + R2; production at api-cuota.devalv.com). Firebase (Auth, Firestore, Storage) is the legacy backend, being retired.
 
 Roles: **admin** (creates the flat, categories, bills, invites, payments) and **roommie** (joins by code, read-only). Currency EUR, stored as integer cents. UI in Spanish (default), English, French, German, Portuguese, Italian and Catalan (see Internationalisation).
 
@@ -9,7 +9,7 @@ Roles: **admin** (creates the flat, categories, bills, invites, payments) and **
 - `app/` — Expo Router routes: `(auth)`, `onboarding`, `(app)/(tabs)` (home, expenses, reports, house, profile), bills, categories, members, payments, profile, settings.
 - `src/components/ui`, `src/components/charts` — iOS-style design system and SVG charts; `src/theme` — tokens and `useTheme()`.
 - `src/features/*` — feature hooks (TanStack Query) plus pure, unit-tested logic: `schedule`, `finance`, `reports`.
-- `src/lib` — Firebase init (`firebase.ts`), Firestore data layer (`db.ts`, the `api` object), storage helpers, formatting, UI store (Zustand).
+- `src/lib` — API client and data layer (Worker API; legacy Firebase init and Firestore layer remain until cutover), storage helpers, formatting, UI store (Zustand).
 - `firestore.rules`, `storage.rules`, `firestore.indexes.json`, `firebase.json` — backend config. `docs/firestore-model.md` documents the collections; `docs/*-api.md` list module APIs.
 - `scripts/seed-demo.mjs` — demo data (users, houses, 12 months of bills with PDF invoices, payments).
 - `tests/rules/` — security-rules tests (run in the emulators).
@@ -25,7 +25,7 @@ pnpm typecheck && pnpm lint && pnpm test
 
 Emulators (`EXPO_PUBLIC_USE_EMULATORS=true` in `.env`; needs JDK 21+): `firebase emulators:start`.
 
-Security-rules tests (starts Firestore + Storage emulators, JDK 21+ required): `ppnpm test:rules`.
+Security-rules tests (starts Firestore + Storage emulators, JDK 21+ required): `pnpm test:rules`.
 
 ## Deploy
 
@@ -51,7 +51,7 @@ Demo data: `node scripts/seed-demo.mjs` (add `--emulator` for local emulators). 
 - **Startup is local-first**: a fresh install opens straight into local mode (no login prompt), and a returning cloud account is restored only when a session token is already present. "Log in / Create account" lives in the Profile tab; when a user logs in after using local mode, a sync screen uploads their local houses to the account (additive, per house) or discards the local copy in favour of the cloud data.
 - **Backup**: local data is deliberately excluded from OS backup, so the in-app backup export (and CSV export) is the only safety net. iOS: `Documents/SQLite` and `Documents/files` are marked `isExcludedFromBackup` at launch by `plugins/withExcludeLocalDataFromBackup.js`. Android: `android.allowBackup=false` in `app.json` (all-or-nothing: it also drops Android Auto Backup for other app data; SecureStore is not backed up anyway). On web, browser storage can be evicted; export regularly.
 - Adding `expo-sqlite` is a native change: it ships in a new store build (version 1.2.0, `runtimeVersion` follows `appVersion`), never via OTA.
-- Dev: `pnpm test` (unit, cloud contract skipped), `pnpm test:local` (contract suite against local SQLite via `better-sqlite3`; install with `--ignore-scripts` is fine, prebuilt binaries load), `pnpm typecheck`, `pnpm lint`. CI (`.github/workflows/ci.yml`) runs all four.
+- Dev: `pnpm test` (unit plus the contract suite against local SQLite via `better-sqlite3`; install with `--ignore-scripts` is fine, prebuilt binaries load), `pnpm typecheck`, `pnpm lint`. CI (`.github/workflows/ci.yml`) runs typecheck, lint and test.
 
 ## Internationalisation
 

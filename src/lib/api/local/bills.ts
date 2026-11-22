@@ -3,11 +3,10 @@ import { z } from 'zod';
 import type { Bill, BillFile } from '@/types/domain';
 
 import type { Api } from '../types';
+import { MAX_AMOUNT_CENTS, MAX_LIST, MAX_NOTES } from '../../limits';
 import type { LocalCtx } from './ctx';
 import type { SqlParam } from './sql';
 
-// Same limits as worker/src/bills.ts and firestore.rules.
-const MAX_LIST = 2000;
 const fileRef = z.object({
   storagePath: z.string().min(1).max(300),
   fileName: z.string().min(1).max(150),
@@ -17,11 +16,11 @@ const fileRef = z.object({
 const shape = z.object({
   files: z.array(fileRef).max(5),
   categoryId: z.string().min(1),
-  amountCents: z.number().int().min(1).max(9_999_999),
+  amountCents: z.number().int().min(1).max(MAX_AMOUNT_CENTS),
   chargeDate: z.iso.date().nullable(),
   periodStartDate: z.iso.date().nullable(),
   periodEndDate: z.iso.date().nullable(),
-  notes: z.string().max(1000).nullable(),
+  notes: z.string().max(MAX_NOTES).nullable(),
 });
 const createSchema = shape.partial({ files: true, chargeDate: true, periodStartDate: true, periodEndDate: true, notes: true });
 const updateSchema = shape.partial();
@@ -155,7 +154,7 @@ export function makeBillsApi(ctx: LocalCtx): Partial<Api> {
  * Call at startup. Returns the deleted paths.
  * shortcut: an uploaded file whose bill is not saved yet looks orphaned, so run it only before the UI is usable.
  */
-export async function sweepOrphanFiles(ctx: LocalCtx, listFiles: () => Promise<string[]>): Promise<string[]> {
+export async function sweepOrphanFiles(ctx: Pick<LocalCtx, 'db' | 'deleteFiles'>, listFiles: () => Promise<string[]>): Promise<string[]> {
   const referenced = new Set((await ctx.db.all<{ path: string }>('select path from bill_files')).map((r) => r.path));
   const orphans = (await listFiles()).filter((p) => !referenced.has(p));
   if (orphans.length) await ctx.deleteFiles(orphans);

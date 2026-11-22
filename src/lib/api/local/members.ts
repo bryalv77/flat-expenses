@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import type { HouseMember } from '@/types/domain';
 
+import { MAX_CONFIG_CENTS, MAX_MEMBERS_LIST } from '../../limits';
 import type { Api } from '../types';
 import type { LocalCtx } from './ctx';
 
@@ -24,7 +25,7 @@ export const mapMember = (m: MemberRow): HouseMember => ({
 });
 
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
-const cents = z.number().int().min(0).max(10_000_000).nullable();
+const cents = z.number().int().min(0).max(MAX_CONFIG_CENTS).nullable();
 const guestSchema = z.object({
   houseId: z.string(),
   id: z.string().regex(/^guest_[A-Za-z0-9]{12,40}$/),
@@ -61,6 +62,6 @@ export function makeMembersApi(ctx: LocalCtx): Partial<Api> {
       await db.run('update members set individual_contribution_cents = ? where house_id = ? and user_id = ?', [c, v.houseId, v.memberId]);
     },
     listMembers: async ({ houseId }) =>
-      (await db.all<MemberRow>('select * from members where house_id = ? order by joined_at limit 100', [houseId])).map(mapMember),
+      (await db.all<MemberRow>(`select * from members where house_id = ? order by joined_at limit ${MAX_MEMBERS_LIST}`, [houseId])).map(mapMember),
   };
 }

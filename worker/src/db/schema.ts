@@ -3,6 +3,7 @@
 import { sql } from 'drizzle-orm';
 import { boolean, check, date, index, integer, jsonb, pgTable, primaryKey, smallint, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
+import { MAX_CENTS, MAX_FILE_BYTES } from '../config';
 import { user } from './auth-schema';
 
 export * from './auth-schema';
@@ -104,7 +105,7 @@ export const bills = pgTable(
   },
   (t) => [
     index('bills_house_effective_idx').on(t.houseId, t.effectiveDate.desc()),
-    check('bills_amount', sql`${t.amountCents} between 1 and 9999999`),
+    check('bills_amount', sql`${t.amountCents} between 1 and ${sql.raw(String(MAX_CENTS))}`),
     check('bills_notes', sql`char_length(${t.notes}) <= 1000`),
   ],
 );
@@ -121,7 +122,7 @@ export const billFiles = pgTable(
     sizeBytes: integer('size_bytes').notNull(),
     position: smallint('position').notNull().default(0),
   },
-  (t) => [index('bill_files_bill_idx').on(t.billId), check('bill_files_size', sql`${t.sizeBytes} <= 10485760`)],
+  (t) => [index('bill_files_bill_idx').on(t.billId), check('bill_files_size', sql`${t.sizeBytes} <= ${sql.raw(String(MAX_FILE_BYTES))}`)],
 );
 
 export const payments = pgTable(

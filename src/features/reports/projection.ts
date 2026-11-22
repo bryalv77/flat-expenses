@@ -1,11 +1,12 @@
 import type { ExpenseCategory, House } from '@/types/domain';
 import { addMonthsToKey, monthEnd, monthRange, monthStart } from '@/lib/dates';
-import { getEffectiveDate, getEffectiveMonth } from '@/features/finance/effectiveDate';
+import { getEffectiveDate, getEffectiveMonth, type BillCore } from '@/features/finance/effectiveDate';
 import { computeMonthBalance, type MonthBalance } from '@/features/finance/contributions';
 import { activeMembersInMonth, type MemberLike } from '@/features/finance/members';
+import { coefficientOfVariation, weightedRecentAverage } from '@/features/finance/stats';
 import { splitEqual, type Share } from '@/features/finance/split';
 import { getOccurrences } from '@/features/schedule/occurrences';
-import { computeSeasonality, type BillCore } from './calculations';
+import { computeSeasonality } from './calculations';
 
 export type ProjectionBasis = 'SCHEDULE' | 'LAST_YEAR' | 'TRAILING_AVERAGE' | 'NONE';
 export type ProjectionConfidence = 'HIGH' | 'MEDIUM' | 'LOW';
@@ -48,26 +49,6 @@ type ProjectionBill = BillCore;
 
 function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
-}
-
-/** Recency-weighted mean: the i-th oldest of n values has weight i+1. */
-export function weightedRecentAverage(values: number[]): number | null {
-  if (values.length === 0) return null;
-  let num = 0;
-  let den = 0;
-  values.forEach((v, i) => {
-    num += v * (i + 1);
-    den += i + 1;
-  });
-  return num / den;
-}
-
-function coefficientOfVariation(values: number[]): number | null {
-  if (values.length < 2) return null;
-  const mean = values.reduce((s, v) => s + v, 0) / values.length;
-  if (mean === 0) return null;
-  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / (values.length - 1);
-  return Math.sqrt(variance) / mean;
 }
 
 function monthsOfData(bills: ProjectionBill[]): number {

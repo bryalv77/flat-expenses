@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 
-import { WEB_ORIGINS, createAuth, devWebOrigins } from './auth';
+import { createAuth } from './auth';
+import { WEB_ORIGINS, devWebOrigins } from './config';
 import { createDb } from './db/client';
 import { filesApp } from './files';
 import { housesApp } from './houses';
@@ -34,7 +35,8 @@ app.onError((e, c) => {
   return c.json({ error: 'internal' }, 500);
 });
 
-// The hosted web app calls the Worker from another origin. Bearer tokens (no cookies), so no credentials mode, and the browser
+// The hosted web app calls the Worker from another origin. Auth is by bearer token, but Better Auth's browser client always
+// fetches with credentials: 'include', and the browser then blocks any response lacking Allow-Credentials: true (origins are allowlisted). The browser
 // can only read `set-auth-token` (how sign-in hands over the session token) when it is exposed explicitly.
 app.use('/api/*', (c, next) =>
   cors({
@@ -42,6 +44,7 @@ app.use('/api/*', (c, next) =>
     allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowHeaders: ['authorization', 'content-type'],
     exposeHeaders: ['set-auth-token'],
+    credentials: true,
     maxAge: 86_400,
   })(c, next),
 );

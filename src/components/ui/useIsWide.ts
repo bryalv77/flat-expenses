@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { useWindowDimensions } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
 
 import { WIDE_BREAKPOINT } from '@/theme/tokens';
 
@@ -17,5 +17,5 @@ function useIsClient(): boolean {
 export function useIsWide(): boolean {
   const { width } = useWindowDimensions();
   const isClient = useIsClient();
-  return isClient && width >= WIDE_BREAKPOINT;
+  return Platform.OS === 'web' && isClient && width >= WIDE_BREAKPOINT;
 }

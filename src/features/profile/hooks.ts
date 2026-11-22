@@ -22,7 +22,6 @@ export function useUpdateProfile() {
   });
 }
 
-/** Compresses (512 px JPEG), uploads to users/{uid}/avatar/, saves the path and removes the previous avatar. */
 export function useUploadAvatar() {
   const qc = useQueryClient();
   const { authUser } = useAuth();
@@ -44,7 +43,6 @@ export function useMyDocuments({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({ queryKey: qk.myDocuments, queryFn: api.listMyDocuments, enabled });
 }
 
-/** Identity document (passport / national id) as image or PDF. Replace = add new + delete old. */
 export function useAddDocument() {
   const qc = useQueryClient();
   const { authUser } = useAuth();

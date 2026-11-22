@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { user, userDocuments, members } from './db/schema';
 import { DOC_MIME, MAX_BYTES, deleteObjects, parseKey } from './files';
+import { notFound, readBody, rowOr404, uuidParam } from './http';
 import { session, type AppEnv } from './middleware';
 
 export const meApp = new Hono<AppEnv>();
@@ -11,7 +12,7 @@ meApp.use('*', session);
 
 meApp.get('/', async (c) => {
   const [u] = await c.var.db.select().from(user).where(eq(user.id, c.var.uid));
-  return u ? c.json(u) : c.json({ error: 'not_found' }, 404);
+  return rowOr404(c, u);
 });
 
 const profile = z.object({
@@ -22,8 +23,8 @@ const profile = z.object({
 }).partial().strict();
 
 meApp.patch('/', async (c) => {
-  const b = profile.safeParse(await c.req.json().catch(() => null));
-  if (!b.success) return c.json({ error: 'invalid', issues: b.error.issues }, 400);
+  const b = await readBody(c, profile);
+  if (b.res) return b.res;
   const { displayName, photoKey, locale, accountRole } = b.data;
   const { db, uid } = c.var;
   if (photoKey) {
@@ -53,8 +54,8 @@ const doc = z.object({
 });
 
 meApp.post('/documents', async (c) => {
-  const b = doc.safeParse(await c.req.json().catch(() => null));
-  if (!b.success) return c.json({ error: 'invalid', issues: b.error.issues }, 400);
+  const b = await readBody(c, doc);
+  if (b.res) return b.res;
   const p = parseKey(b.data.objectKey);
   if (p?.kind !== 'document' || p.owner !== c.var.uid) return c.json({ error: 'invalid_object_key' }, 400); // only your own documents folder
   if ((await c.env.BUCKET.head(b.data.objectKey))?.size !== b.data.sizeBytes) return c.json({ error: 'invalid_object' }, 400); // upload first
@@ -62,10 +63,9 @@ meApp.post('/documents', async (c) => {
   return c.json(d, 201);
 });
 
-meApp.delete('/documents/:id', async (c) => {
-  if (!z.uuid().safeParse(c.req.param('id')).success) return c.json({ error: 'not_found' }, 404);
+meApp.delete('/documents/:id', uuidParam('id'), async (c) => {
   const rows = await c.var.db.delete(userDocuments).where(and(eq(userDocuments.id, c.req.param('id')), eq(userDocuments.userId, c.var.uid))).returning();
-  if (!rows.length) return c.json({ error: 'not_found' }, 404);
+  if (!rows.length) return notFound(c);
   await deleteObjects(c.env.BUCKET, [rows[0]!.objectKey]);
   return c.body(null, 204);
 });

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { DAY_MS } from '@/lib/dates';
 import { api } from '@/lib/db';
 import { newId } from '@/lib/storage';
 import { optimisticOptions } from '@/lib/optimistic';
@@ -17,7 +18,6 @@ export function useMembers(houseId: string | null | undefined) {
   });
 }
 
-/** Admin only (server enforced); returns [] for roommates. */
 export function useInvites(houseId: string | null | undefined, enabled = true) {
   return useQuery({
     queryKey: qk.invites(houseId ?? ''),
@@ -38,7 +38,7 @@ export function useCreateInvite(houseId: string) {
   return useMutation({
     mutationFn: async ({ expiresInDays = 7, maxUses = 1 }: CreateInviteInput = {}) => {
       const code = generateInviteCode();
-      const expiresAt = new Date(Date.now() + expiresInDays * 86_400_000).toISOString();
+      const expiresAt = new Date(Date.now() + expiresInDays * DAY_MS).toISOString();
       await api.createInvite({ houseId, code, expiresAt, maxUses });
       return code;
     },
@@ -137,7 +137,6 @@ export function useCreateGuestMember(houseId: string) {
   });
 }
 
-/** Roommates only. */
 export function useLeaveHouse() {
   const qc = useQueryClient();
   const setActive = useUiStore((s) => s.setActiveHouseId);

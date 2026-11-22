@@ -25,14 +25,16 @@ export function daysInMonth(y: number, m: number): number {
   return [31, isLeapYear(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
 }
 
+export const DAY_MS = 86_400_000;
+
 /** Days since 1970-01-01 for a civil date (UTC-free, DST-free). */
 export function toDayNumber(iso: string): number {
   const { y, m, d } = parseISODate(iso);
-  return Math.floor(Date.UTC(y, m - 1, d) / 86_400_000);
+  return Math.floor(Date.UTC(y, m - 1, d) / DAY_MS);
 }
 
 export function fromDayNumber(n: number): string {
-  const dt = new Date(n * 86_400_000);
+  const dt = new Date(n * DAY_MS);
   return toISODate({ y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate() });
 }
 

@@ -20,12 +20,11 @@ export interface BarChartProps {
   selectedKey?: string | null;
   onSelect?: (key: string) => void;
   accessibilityLabel?: string;
-  formatValue?: (cents: number) => string;
 }
 
 const PAD = { top: 10, bottom: 24, left: 34, right: 4 };
 
-export function BarChart({ data, height = 200, selectedKey, onSelect, accessibilityLabel, formatValue }: BarChartProps) {
+export function BarChart({ data, height = 200, selectedKey, onSelect, accessibilityLabel }: BarChartProps) {
   const { colors } = useTheme();
   const { width, onLayout } = useChartWidth();
   const max = niceMax(Math.max(0, ...data.map((d) => d.value)));
@@ -38,7 +37,7 @@ export function BarChart({ data, height = 200, selectedKey, onSelect, accessibil
 
   return (
     <ChartFrame onLayout={onLayout}>
-      <View accessible accessibilityRole="image" accessibilityLabel={accessibilityLabel ?? data.map((d) => `${d.label}: ${(formatValue ?? compactLabel)(d.value)}`).join(', ')}>
+      <View accessible accessibilityRole="image" accessibilityLabel={accessibilityLabel ?? data.map((d) => `${d.label}: ${compactLabel(d.value)}`).join(', ')}>
         <Svg width={width} height={height}>
           {Array.from({ length: GRID_LINES + 1 }, (_, i) => {
             const v = (max / GRID_LINES) * i;
@@ -73,7 +72,7 @@ export function BarChart({ data, height = 200, selectedKey, onSelect, accessibil
               <Pressable
                 key={d.key}
                 accessibilityRole="button"
-                accessibilityLabel={`${d.label}: ${(formatValue ?? compactLabel)(d.value)}`}
+                accessibilityLabel={`${d.label}: ${compactLabel(d.value)}`}
                 style={{ flex: 1 }}
                 onPress={() => {
                   haptics.selection();

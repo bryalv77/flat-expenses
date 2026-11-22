@@ -9,7 +9,7 @@ export type PaymentState = 'PAID' | 'PARTIAL' | 'PENDING' | 'OVERPAID';
 type ContributionHouse = Pick<House, 'fixedContributionCents'>;
 
 /** Per-member override wins over the house-wide fixed contribution. */
-export function contributionForMember(house: ContributionHouse, member: MemberLike): number {
+function contributionForMember(house: ContributionHouse, member: MemberLike): number {
   return member.individualContributionCents ?? house.fixedContributionCents ?? 0;
 }
 
@@ -27,7 +27,7 @@ export function dueForMember(house: ContributionHouse, member: MemberLike, month
   return Math.round((full * Math.max(0, to - from)) / dim);
 }
 
-export function balanceStatus(balanceCents: number): BalanceStatus {
+function balanceStatus(balanceCents: number): BalanceStatus {
   if (balanceCents < 0) return 'INSUFFICIENT';
   if (balanceCents === 0) return 'SUFFICIENT';
   return 'SURPLUS';

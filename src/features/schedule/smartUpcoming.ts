@@ -1,6 +1,7 @@
 import type { ExpenseCategory } from '@/types/domain';
-import { addMonthsToKey, daysInMonth, monthKey, monthRange } from '@/lib/dates';
-import { getEffectiveMonth } from '@/features/finance/effectiveDate';
+import { addMonthsToKey, monthKey, monthRange } from '@/lib/dates';
+import { getEffectiveMonth, type BillCore } from '@/features/finance/effectiveDate';
+import { coefficientOfVariation, mean, weightedRecentAverage } from '@/features/finance/stats';
 import { getUpcomingCharges } from './occurrences';
 
 /**
@@ -26,37 +27,13 @@ export interface SmartCharge {
   basis: SmartBasis;
 }
 
-interface BillLike {
-  categoryId: string;
-  amountCents: number;
-  chargeDate: string | null;
-  periodEndDate: string | null;
-  createdAt: string;
-}
-
 const CYCLES = [1, 2, 3, 4, 6, 12];
 const WINDOW_MONTHS = 24;
 const MIN_HISTORY = 3;
 
 const idx = (key: string) => Number(key.slice(0, 4)) * 12 + Number(key.slice(5, 7)) - 1;
 
-function mean(v: number[]): number {
-  return v.reduce((a, b) => a + b, 0) / v.length;
-}
-function cv(v: number[]): number {
-  if (v.length < 2) return 0;
-  const m = mean(v);
-  return m === 0 ? 0 : Math.sqrt(v.reduce((s, x) => s + (x - m) ** 2, 0) / (v.length - 1)) / m;
-}
-function weightedRecent(v: number[]): number {
-  let num = 0;
-  let den = 0;
-  v.forEach((x, i) => {
-    num += x * (i + 1);
-    den += i + 1;
-  });
-  return num / den;
-}
+const cv = (v: number[]) => coefficientOfVariation(v) ?? 0;
 
 /** Smallest cycle (in months) and residue such that billed months line up with `idx % cycle === residue`. */
 export function detectCycle(billed: Set<string>, firstMonth: string, lastMonth: string): { every: number; residue: number } | null {
@@ -96,13 +73,13 @@ function estimate(totals: Map<string, number>, target: string): { cents: number;
       .slice(-3)
       .map((k) => [totals.get(k) as number, totals.get(addMonthsToKey(k, -12))] as const)
       .filter((p): p is readonly [number, number] => p[1] != null && p[1] > 0);
-    const ratio = pairs.length >= 2 ? Math.min(1.6, Math.max(0.7, mean(pairs.map((p) => p[0])) / mean(pairs.map((p) => p[1])))) : 1;
+    const ratio = pairs.length >= 2 ? Math.min(1.6, Math.max(0.7, (mean(pairs.map((p) => p[0])) ?? 0) / (mean(pairs.map((p) => p[1])) ?? 0))) : 1;
     const c = lastYear * ratio;
     const spread = Math.min(0.5, Math.max(0.1, cv(recent)));
     return { cents: Math.round(c), low: Math.round(c * (1 - spread)), high: Math.round(c * (1 + spread)), basis: 'SEASONAL' };
   }
 
-  const c = weightedRecent(recent);
+  const c = weightedRecentAverage(recent) ?? 0;
   const spread = Math.min(0.5, Math.max(0.1, cv(recent)));
   return { cents: Math.round(c), low: Math.round(c * (1 - spread)), high: Math.round(c * (1 + spread)), basis: 'RECENT' };
 }
@@ -110,7 +87,7 @@ function estimate(totals: Map<string, number>, target: string): { cents: number;
 /** Charges expected in the current month (if not billed yet) and the next `monthsAhead` months. */
 export function getSmartUpcoming(
   categories: ExpenseCategory[],
-  bills: BillLike[],
+  bills: BillCore[],
   today: string,
   monthsAhead = 1,
 ): SmartCharge[] {
@@ -149,9 +126,4 @@ export function getSmartUpcoming(
     }
   }
   return out.sort((a, b) => a.month.localeCompare(b.month) || a.category.sortOrder - b.category.sortOrder);
-}
-
-/** Last day of the predicted month (used to sort/label month-only predictions). */
-export function smartChargeSortDate(c: SmartCharge): string {
-  return c.date ?? `${c.month}-${String(daysInMonth(Number(c.month.slice(0, 4)), Number(c.month.slice(5, 7)))).padStart(2, '0')}`;
 }

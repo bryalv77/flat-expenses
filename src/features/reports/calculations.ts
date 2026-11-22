@@ -1,20 +1,15 @@
 import type { Bill, ExpenseCategory, HouseMember, MemberPayment } from '@/types/domain';
 import { addMonthsToKey, monthOfYear, monthRange, parseISODate } from '@/lib/dates';
-import { getEffectiveDate, getEffectiveMonth } from '@/features/finance/effectiveDate';
+import { getEffectiveDate, getEffectiveMonth, type BillCore } from '@/features/finance/effectiveDate';
 import { activeMembersInMonth, type MemberLike } from '@/features/finance/members';
+import { mean } from '@/features/finance/stats';
 import { splitEqual, type Share } from '@/features/finance/split';
 import { cycleLengthInMonths } from '@/features/schedule/occurrences';
 
-/** Minimum bill shape needed by the aggregations. */
-export type BillCore = Pick<
-  Bill,
-  'categoryId' | 'amountCents' | 'chargeDate' | 'periodEndDate' | 'createdAt'
->;
-
 type CycleFields = Pick<ExpenseCategory, 'intervalUnit' | 'intervalCount'>;
 
-export const SUMMER_MONTHS = [6, 7, 8, 9] as const;
-export const WINTER_MONTHS = [12, 1, 2] as const;
+const SUMMER_MONTHS = [6, 7, 8, 9] as const;
+const WINTER_MONTHS = [12, 1, 2] as const;
 
 // ---------------------------------------------------------------- filtering & totals
 
@@ -159,7 +154,7 @@ export interface CategoryStats {
 }
 
 /** Least-squares slope of y over x = 0..n-1. */
-export function linearSlope(values: number[]): number {
+function linearSlope(values: number[]): number {
   const n = values.length;
   if (n < 2) return 0;
   const xMean = (n - 1) / 2;
@@ -239,10 +234,6 @@ export interface Seasonality {
   winterFactor: number | null;
   /** One entry per calendar year: 12 amortized monthly values (null = outside data range). */
   yearOverYear: { year: number; months: (number | null)[] }[];
-}
-
-function mean(values: number[]): number | null {
-  return values.length ? values.reduce((s, v) => s + v, 0) / values.length : null;
 }
 
 /**

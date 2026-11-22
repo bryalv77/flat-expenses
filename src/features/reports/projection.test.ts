@@ -1,5 +1,6 @@
 import { ELECTRICITY, GAS, NETFLIX, RENT, makeBill, makeMember } from '@/test/fixtures';
-import { projectMonth, projectionConfidence, weightedRecentAverage } from './projection';
+import { weightedRecentAverage } from '@/features/finance/stats';
+import { projectMonth, projectionConfidence } from './projection';
 
 const house = { fixedContributionCents: 50000 };
 const members = [

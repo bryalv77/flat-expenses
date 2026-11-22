@@ -9,10 +9,7 @@ import { LocalAuthProvider } from './LocalAuthProvider';
 
 const CloudAuthProvider = USE_API ? ApiAuthProvider : FirebaseAuthProvider;
 
-/**
- * Local (SQLite, no account) when the saved mode is local, else Better Auth (Worker) when EXPO_PUBLIC_API_URL is set,
- * else Firebase Auth (issues #7, #8). The mode is loaded before the first render; switching remounts the tree.
- */
+// The mode is loaded before the first render; switching remounts the tree (see appModeSwitch).
 export function AuthProvider({ children }: { children: ReactNode }) {
   const Provider = getAppMode() === 'local' ? LocalAuthProvider : CloudAuthProvider;
   return <Provider>{children}</Provider>;

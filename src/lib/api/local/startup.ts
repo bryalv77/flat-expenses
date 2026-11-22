@@ -1,6 +1,5 @@
 import { getFileStore } from '../../fileStore';
 import { sweepOrphanFiles } from './bills';
-import { LOCAL_USER_ID } from './ctx';
 import type { SqlDb } from './sql';
 
 interface Deps {
@@ -21,13 +20,7 @@ export async function sweepLocalOrphans(deps: Deps = defaults): Promise<void> {
   try {
     const db = await deps.getDb();
     await sweepOrphanFiles(
-      {
-        db,
-        userId: LOCAL_USER_ID,
-        now: () => new Date().toISOString(),
-        deleteFiles: async (paths) => void (await Promise.all(paths.map(deps.remove))),
-        deleteFolder: async () => undefined,
-      },
+      { db, deleteFiles: async (paths) => void (await Promise.all(paths.map(deps.remove))) },
       deps.list,
     );
   } catch {

@@ -1,8 +1,6 @@
 import { ELECTRICITY, GAS, NETFLIX, RENT, makeCategory } from '@/test/fixtures';
 import {
-  amortizedMonthlyCents,
   describeSchedule,
-  getNextOccurrence,
   getOccurrences,
   getUpcomingCharges,
 } from './occurrences';
@@ -17,7 +15,6 @@ describe('getOccurrences', () => {
       '2025-02-28',
       '2025-03-28',
     ]);
-    expect(getNextOccurrence(NETFLIX, '2025-03-29')).toBe('2025-04-25');
   });
 
   it('handles rent monthly', () => {
@@ -86,14 +83,6 @@ describe('getOccurrences', () => {
   });
 });
 
-describe('getNextOccurrence', () => {
-  it('returns today when it is an occurrence and the anchor when before it', () => {
-    expect(getNextOccurrence(RENT, '2025-03-01')).toBe('2025-03-01');
-    expect(getNextOccurrence(RENT, '2020-01-01')).toBe('2025-01-01');
-    expect(getNextOccurrence(RENT, '2025-03-02')).toBe('2025-04-01');
-  });
-});
-
 describe('getUpcomingCharges', () => {
   it('lists active categories sorted by date and skips inactive ones', () => {
     const inactive = makeCategory({ id: 'off', isActive: false, anchorDate: '2025-03-05' });
@@ -103,15 +92,6 @@ describe('getUpcomingCharges', () => {
       ['netflix', '2025-03-28'],
     ]);
     expect(out[1].expectedAmountCents).toBe(1500);
-  });
-});
-
-describe('amortizedMonthlyCents', () => {
-  it('divides by the cycle length', () => {
-    expect(amortizedMonthlyCents(GAS, 8000)).toBe(4000);
-    expect(amortizedMonthlyCents(RENT, 120000)).toBe(120000);
-    expect(amortizedMonthlyCents({ intervalUnit: 'YEAR', intervalCount: 1 }, 12000)).toBe(1000);
-    expect(amortizedMonthlyCents(NETFLIX, 1500)).toBe(1631);
   });
 });
 

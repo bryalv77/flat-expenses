@@ -3,13 +3,13 @@
  * `Locale` is derived from it, so adding an entry here widens the type everywhere.
  */
 export const LOCALES = [
-  { code: 'es', label: 'Español', intlLocale: 'es-ES', dir: 'ltr' },
-  { code: 'en', label: 'English', intlLocale: 'en-GB', dir: 'ltr' },
-  { code: 'fr', label: 'Français', intlLocale: 'fr-FR', dir: 'ltr' },
-  { code: 'de', label: 'Deutsch', intlLocale: 'de-DE', dir: 'ltr' },
-  { code: 'pt', label: 'Português', intlLocale: 'pt-PT', dir: 'ltr' },
-  { code: 'it', label: 'Italiano', intlLocale: 'it-IT', dir: 'ltr' },
-  { code: 'ca', label: 'Català', intlLocale: 'ca-ES', dir: 'ltr' },
+  { code: 'es', label: 'Español', intlLocale: 'es-ES' },
+  { code: 'en', label: 'English', intlLocale: 'en-GB' },
+  { code: 'fr', label: 'Français', intlLocale: 'fr-FR' },
+  { code: 'de', label: 'Deutsch', intlLocale: 'de-DE' },
+  { code: 'pt', label: 'Português', intlLocale: 'pt-PT' },
+  { code: 'it', label: 'Italiano', intlLocale: 'it-IT' },
+  { code: 'ca', label: 'Català', intlLocale: 'ca-ES' },
 ] as const;
 
 export type Locale = (typeof LOCALES)[number]['code'];

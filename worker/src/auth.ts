@@ -5,26 +5,19 @@ import { bearer } from 'better-auth/plugins';
 import { eq } from 'drizzle-orm';
 
 import { deleteAccountData } from './account';
+import { WEB_ORIGINS, devWebOrigins } from './config';
 import type { Db } from './db/client';
 import { account } from './db/schema';
 import { resetPasswordEmail, sendEmail, type EmailEnv } from './email';
 import { FIREBASE_HASH_PREFIX, firebaseParamsFromEnv, verifyFirebasePassword, type FirebaseScryptEnv } from './firebasePassword';
 import * as schema from './db/schema';
 
-export interface AuthEnv extends EmailEnv, FirebaseScryptEnv {
+interface AuthEnv extends EmailEnv, FirebaseScryptEnv {
   BUCKET: R2Bucket;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
 }
 
-/** Origins of the hosted web app (Cloudflare Pages; the Firebase domains stay until the old site is retired); the native app's scheme is only a trusted origin, not a CORS one. */
-// app-cuota.devalv.com is the production web app; the workers.dev address stays so a deploy can be checked before the domain is attached.
-// The Firebase hosts stay until the old site is retired (docs/cutover-plan.md).
-export const WEB_ORIGINS = ['https://app-cuota.devalv.com', 'https://costos-piso.bryalv77.workers.dev', 'https://costos-piso.web.app', 'https://costos-piso.firebaseapp.com'];
-/** Expo web dev server: only when the Worker itself runs locally, so a page on someone's localhost:8081 can never call production. */
-export const devWebOrigins = (env: { BETTER_AUTH_URL: string }) => (env.BETTER_AUTH_URL.startsWith('http://localhost') ? ['http://localhost:8081', 'http://localhost:19006'] : []);
-
-/** Better Auth instance (issue #7 §4b). Email + password first; Google/Apple and email sending come next. */
 /** `waitUntil` keeps the Worker alive for background work (sending the reset email) after the response is sent. */
 export const createAuth = (db: Db, env: AuthEnv, waitUntil?: (p: Promise<unknown>) => void) =>
   betterAuth({
@@ -69,4 +62,3 @@ export const createAuth = (db: Db, env: AuthEnv, waitUntil?: (p: Promise<unknown
     plugins: [bearer()], // the Expo client sends the session token as a Bearer header
     trustedOrigins: ['costospiso://', ...WEB_ORIGINS, ...devWebOrigins(env)],
   });
-export type Auth = ReturnType<typeof createAuth>;

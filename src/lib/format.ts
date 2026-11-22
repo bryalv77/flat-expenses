@@ -1,5 +1,5 @@
 import { DEFAULT_LOCALE, intlLocaleOf, type Locale } from '@/i18n/locales';
-import { parseISODate, toISODate } from './dates';
+import { parseISODate } from './dates';
 
 const separatorCache = new Map<Locale, { decimal: string; group: string }>();
 
@@ -59,14 +59,6 @@ export function formatMoney(
   const { currency = 'EUR', compact = false } = options;
   const value = Math.round(cents) / 100;
   return moneyFormatter(locale, currency, !compact).format(value);
-}
-
-/** Formats a signed delta, always with +/- sign (zero without sign). */
-export function formatSignedMoney(cents: number, locale: Locale = DEFAULT_LOCALE, currency = 'EUR'): string {
-  const base = formatMoney(Math.abs(cents), locale, { currency });
-  if (cents > 0) return `+${base}`;
-  if (cents < 0) return `-${base}`;
-  return base;
 }
 
 /**
@@ -181,5 +173,3 @@ export function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
-
-export { toISODate };

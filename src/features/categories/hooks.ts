@@ -8,7 +8,9 @@ import { qk } from '@/lib/queryKeys';
 import { newId } from '@/lib/storage';
 import type { ExpenseCategory } from '@/types/domain';
 
-import { SUGGESTED_CATEGORIES, categoryDisplayName } from './suggested';
+import { seedSuggestedCategories } from '@/features/houses/seed';
+
+import { categoryDisplayName } from './suggested';
 
 export function useCategories(houseId: string | null | undefined) {
   const { t, locale } = useT();
@@ -81,15 +83,5 @@ export function useReorderCategories(houseId: string) {
 export function useSeedSuggestedCategories(houseId: string) {
   const qc = useQueryClient();
   const { t } = useT();
-  return useMutation({
-    mutationFn: async () => {
-      const anchorDate = new Date().toISOString().slice(0, 10);
-      await Promise.all(
-        SUGGESTED_CATEGORIES.map(({ nameKey, ...c }, sortOrder) =>
-          api.createCategory({ ...c, name: t(nameKey), anchorDate, sortOrder, houseId, id: newId() }).catch(() => undefined),
-        ),
-      );
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.categories(houseId) }),
-  });
+  return useMutation({ mutationFn: () => seedSuggestedCategories(qc, houseId, t) });
 }

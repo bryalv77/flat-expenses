@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import type { House, HouseMember, HouseRole } from '@/types/domain';
 
+import { MAX_CONFIG_CENTS, MAX_MEMBERS_LIST } from '../../limits';
 import type { Api } from '../types';
 import type { LocalCtx } from './ctx';
 import { mapMember, type MemberRow } from './members';
@@ -11,7 +12,7 @@ const fields = {
   name: z.string().trim().min(1).max(100),
   address: z.string().trim().max(200).nullish(),
   splitMode: z.enum(['EQUAL', 'FIXED_CONTRIBUTION']).optional(),
-  fixedContributionCents: z.number().int().min(0).max(10_000_000).nullish(),
+  fixedContributionCents: z.number().int().min(0).max(MAX_CONFIG_CENTS).nullish(),
   contributionDayOfMonth: z.number().int().min(1).max(31).nullish(),
   showBalanceToRoommates: z.boolean().optional(),
 };
@@ -79,7 +80,7 @@ export function makeHousesApi(ctx: LocalCtx): Partial<Api> {
     getHouse: async ({ houseId }): Promise<{ house: House; members: HouseMember[] } | null> => {
       const h = await db.get<HouseRow>('select * from houses where id = ?', [houseId]);
       if (!h) return null;
-      const members = await db.all<MemberRow>('select * from members where house_id = ? order by joined_at limit 100', [houseId]);
+      const members = await db.all<MemberRow>(`select * from members where house_id = ? order by joined_at limit ${MAX_MEMBERS_LIST}`, [houseId]);
       return { house: mapHouse(h), members: members.map(mapMember) };
     },
     deleteHouse: async ({ houseId }) => {

@@ -1,7 +1,8 @@
-import { DAY_MS, REMIND_AFTER_BILLS, REMIND_AFTER_DAYS, SNOOZE_DAYS, countBillsSince, shouldRemind, snoozeUntil } from './reminder';
+import { countBillsSince, shouldRemind, snoozeUntil } from './reminder';
 
 const now = new Date('2026-06-01T12:00:00Z').getTime();
-const ago = (days: number) => new Date(now - days * DAY_MS).toISOString();
+const DAY = 86_400_000;
+const ago = (days: number) => new Date(now - days * DAY).toISOString();
 const base = { mode: 'local' as const, lastExportAt: ago(1), billsSinceExport: 0, snoozedUntil: null, now };
 
 describe('shouldRemind', () => {
@@ -14,12 +15,12 @@ describe('shouldRemind', () => {
     expect(shouldRemind({ ...base, lastExportAt: null, billsSinceExport: 1 })).toBe(true);
   });
   it('day threshold edge', () => {
-    expect(shouldRemind({ ...base, lastExportAt: ago(REMIND_AFTER_DAYS - 0.01) })).toBe(false);
-    expect(shouldRemind({ ...base, lastExportAt: ago(REMIND_AFTER_DAYS) })).toBe(true);
+    expect(shouldRemind({ ...base, lastExportAt: ago(29.99) })).toBe(false);
+    expect(shouldRemind({ ...base, lastExportAt: ago(30) })).toBe(true);
   });
   it('bill threshold edge', () => {
-    expect(shouldRemind({ ...base, billsSinceExport: REMIND_AFTER_BILLS - 1 })).toBe(false);
-    expect(shouldRemind({ ...base, billsSinceExport: REMIND_AFTER_BILLS })).toBe(true);
+    expect(shouldRemind({ ...base, billsSinceExport: 19 })).toBe(false);
+    expect(shouldRemind({ ...base, billsSinceExport: 20 })).toBe(true);
   });
   it('snooze edge: active while snoozedUntil > now', () => {
     const due = { ...base, lastExportAt: ago(60) };
@@ -33,7 +34,7 @@ describe('shouldRemind', () => {
 });
 
 describe('helpers', () => {
-  it('snoozeUntil is now + 7 days', () => expect(snoozeUntil(now)).toBe(now + SNOOZE_DAYS * DAY_MS));
+  it('snoozeUntil is now + 7 days', () => expect(snoozeUntil(now)).toBe(now + 7 * DAY));
   it('countBillsSince counts createdAt strictly after lastExportAt; all when never exported', () => {
     const bills = [{ createdAt: ago(5) }, { createdAt: ago(1) }, { createdAt: ago(2) }];
     expect(countBillsSince(bills, null)).toBe(3);

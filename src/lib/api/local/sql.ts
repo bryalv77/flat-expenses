@@ -7,6 +7,5 @@ export interface SqlDb {
   run(sql: string, params?: SqlParam[]): Promise<{ changes: number }>;
   /** Runs one or more statements without parameters. */
   exec(sql: string): Promise<void>;
-  /** Commits when `fn` resolves, rolls back and rethrows when it throws. */
   transaction<T>(fn: () => Promise<T>): Promise<T>;
 }

@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import type { ExpenseCategory } from '@/types/domain';
 import { normalizeIconName } from '../../iconAliases';
+import { MAX_CATEGORIES_LIST, MAX_CONFIG_CENTS } from '../../limits';
+import { ERR } from '../errors';
 import type { Api } from '../types';
 import type { LocalCtx } from './ctx';
 
@@ -11,7 +13,7 @@ const shape = z.object({
   icon: z.string().min(1).max(40),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   amountType: z.enum(['FIXED', 'VARIABLE']),
-  expectedAmountCents: z.number().int().min(0).max(10_000_000).nullable(),
+  expectedAmountCents: z.number().int().min(0).max(MAX_CONFIG_CENTS).nullable(),
   intervalUnit: z.enum(['DAY', 'WEEK', 'MONTH', 'YEAR']),
   intervalCount: z.number().int().min(1).max(1000),
   anchorDate: z.iso.date(),
@@ -85,11 +87,11 @@ export function makeCategoriesApi({ db, now }: LocalCtx): Partial<Api> {
     },
     archiveCategory: ({ houseId, id, isActive }) => patch(houseId, id, { isActive }),
     deleteCategory: async ({ houseId, id }) => {
-      if (await db.get('select 1 from bills where category_id = ? limit 1', [id])) throw new Error('CATEGORY_HAS_BILLS');
+      if (await db.get('select 1 from bills where category_id = ? limit 1', [id])) throw new Error(ERR.CATEGORY_HAS_BILLS);
       await db.run('delete from categories where house_id = ? and id = ?', [houseId, id]);
     },
     listCategories: async ({ houseId }) =>
-      (await db.all<Row>('select * from categories where house_id = ? order by sort_order, name limit 200', [houseId])).map(toCategory),
+      (await db.all<Row>(`select * from categories where house_id = ? order by sort_order, name limit ${MAX_CATEGORIES_LIST}`, [houseId])).map(toCategory),
     setCategorySortOrder: async ({ houseId, id, sortOrder }) =>
       patch(houseId, id, { sortOrder: shape.shape.sortOrder.parse(sortOrder) }),
   };

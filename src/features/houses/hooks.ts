@@ -70,7 +70,6 @@ export function useUpdateHouse() {
   });
 }
 
-/** Admin only; the UI must ask for explicit confirmation first. */
 export function useDeleteHouse() {
   const qc = useQueryClient();
   const setActive = useUiStore((s) => s.setActiveHouseId);

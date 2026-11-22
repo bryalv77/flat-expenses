@@ -1,4 +1,4 @@
-import { useAuth } from '@/features/auth';
+import { useAuth } from '@/features/auth/AuthContext';
 import { useHouse } from '@/features/houses/hooks';
 import type { HouseMember } from '@/types/domain';
 

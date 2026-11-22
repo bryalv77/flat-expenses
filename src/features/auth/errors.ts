@@ -1,8 +1,11 @@
 import type { TranslationKey } from '@/i18n';
 
+const errorCode = (error: unknown): string =>
+  typeof error === 'object' && error !== null && 'code' in error ? String((error as { code: unknown }).code) : '';
+
 /** Maps a Firebase/unknown error to a translation key. */
 export function authErrorKey(error: unknown): TranslationKey {
-  const code = typeof error === 'object' && error !== null && 'code' in error ? String((error as { code: unknown }).code) : '';
+  const code = errorCode(error);
   switch (code) {
     case 'auth/invalid-credential':
     case 'auth/wrong-password':
@@ -25,7 +28,7 @@ export function authErrorKey(error: unknown): TranslationKey {
 
 /** Wrong current password while re-authenticating (change password / delete account). */
 export function reauthErrorKey(error: unknown): TranslationKey {
-  const code = typeof error === 'object' && error !== null && 'code' in error ? String((error as { code: unknown }).code) : '';
+  const code = errorCode(error);
   if (code === 'auth/invalid-credential' || code === 'auth/wrong-password') return 'account.wrongPassword';
   return authErrorKey(error);
 }
