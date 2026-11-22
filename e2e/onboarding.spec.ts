@@ -10,7 +10,8 @@ test.describe('local onboarding', () => {
 
   test('the language picker is visible on first run and names the suggested categories in that language', async ({ page }) => {
     await page.goto('/');
-    await button(page, 'Español').click();
+    await page.getByRole('button', { name: 'Language' }).click();
+    await page.getByRole('menuitem', { name: 'Español' }).click();
     await expect(page.getByText('Crear piso').first()).toBeVisible();
     await page.getByLabel('Nombre del piso').fill('Casa ES');
     await button(page, 'Crear piso').click();
@@ -21,7 +22,8 @@ test.describe('local onboarding', () => {
 
   test('categories saved in Spanish follow the UI language when it changes', async ({ page }) => {
     await page.goto('/');
-    await button(page, 'Español').click();
+    await page.getByRole('button', { name: 'Language' }).click();
+    await page.getByRole('menuitem', { name: 'Español' }).click();
     await page.getByLabel('Nombre del piso').fill('Casa ES');
     await button(page, 'Crear piso').click();
     await page.getByRole('tab', { name: 'Perfil' }).click();

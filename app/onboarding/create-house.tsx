@@ -6,11 +6,14 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 
-import { LanguageChips } from '@/components/LanguageChips';
+import { LanguagePicker } from '@/components/LanguagePicker';
 import { Button, ListRow, MoneyInput, Screen, SegmentedControl, Section, Switch, Text, TextField, useToast } from '@/components/ui';
+import { leaveLocalMode } from '@/features/auth/appModeSwitch';
 import { useCreateHouse } from '@/features/houses/hooks';
 import { seedSuggestedCategories } from '@/features/houses/seed';
+import { markPendingSync } from '@/features/sync/pending';
 import { useT } from '@/i18n';
+import { getAppMode } from '@/lib/appMode';
 import { haptics } from '@/lib/haptics';
 import { spacing } from '@/theme';
 import type { SplitMode } from '@/types/domain';
@@ -81,7 +84,7 @@ export default function CreateHouseScreen() {
   return (
     <Screen>
       <View style={styles.form}>
-        <LanguageChips />
+        <LanguagePicker />
         <Text variant="largeTitle">{t('onboarding.createHouse')}</Text>
         <Controller
           control={control}
@@ -169,6 +172,9 @@ export default function CreateHouseScreen() {
           onPress={onSubmit}
           loading={formState.isSubmitting}
         />
+        {getAppMode() === 'local' ? (
+          <Button title={t('localMode.logIn')} variant="plain" onPress={() => void markPendingSync().then(() => leaveLocalMode())} />
+        ) : null}
       </View>
     </Screen>
   );

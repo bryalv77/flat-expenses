@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { LanguageChips } from '@/components/LanguageChips';
+import { LanguagePicker } from '@/components/LanguagePicker';
 import { ActionSheet, Button, Icon, Screen, Text } from '@/components/ui';
 import { enterLocalMode } from '@/features/auth/appModeSwitch';
 import { SocialButtons } from '@/features/auth/SocialButtons';
@@ -42,7 +42,7 @@ export default function WelcomeScreen() {
           {t('auth.welcomeSubtitle')}
         </Text>
       </View>
-      <LanguageChips />
+      <LanguagePicker />
       <View style={styles.actions}>
         <Button title={t('auth.signUp')} onPress={() => router.push('/(auth)/sign-up')} />
         <Button title={t('auth.signIn')} variant="tinted" onPress={() => router.push('/(auth)/sign-in')} />

@@ -18,6 +18,7 @@ export const iconMap = {
   close: ['xmark', 'close'],
   check: ['checkmark', 'checkmark'],
   checkCircle: ['checkmark.circle.fill', 'checkmark-circle'],
+  globe: ['globe', 'globe-outline'],
   trash: ['trash', 'trash'],
   edit: ['pencil', 'pencil'],
   archive: ['archivebox', 'archive'],
