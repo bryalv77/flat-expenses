@@ -18,6 +18,7 @@ import { getAppMode, loadAppMode } from '@/lib/appMode';
 import { hasCloudSession } from '@/lib/cloudSession';
 import { sweepLocalOrphans } from '@/lib/api/local/startup';
 import { queryClient } from '@/lib/queryClient';
+import { orTimeout } from '@/lib/timeout';
 import { ThemeProvider, spacing, useTheme } from '@/theme';
 
 void SplashScreen.preventAutoHideAsync();
@@ -113,7 +114,7 @@ function ModeGate({ children }: { children: ReactNode }) {
         const mode = await loadAppMode(hasCloudSession);
         if (mode === 'local') {
           // Best effort: cap the orphan sweep so a stuck SQLite open cannot brick startup.
-          await Promise.race([sweepLocalOrphans(), new Promise<void>((resolve) => setTimeout(resolve, 2500))]);
+          await orTimeout(sweepLocalOrphans(), 2500, undefined);
         }
         await loadPendingSync();
       } catch {

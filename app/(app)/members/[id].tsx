@@ -8,6 +8,7 @@ import { useActiveHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
 import { isGuestMember, useReactivateMember, useRemoveMember, useSetMemberContribution } from '@/features/members/hooks';
 import { MemberAvatar } from '@/features/members/MemberAvatar';
+import { RoleBadge } from '@/features/members/RoleBadge';
 import { useT } from '@/i18n';
 import { dayOf, todayISO } from '@/lib/dates';
 import { formatDate, formatMoney } from '@/lib/format';
@@ -43,7 +44,7 @@ export default function MemberDetailScreen() {
           <Text variant="title2">{member.displayName}</Text>
           <Text color="secondaryLabel">{guest ? t('hub.noAccount') : member.email}</Text>
           <View style={{ flexDirection: 'row', gap: spacing.xs }}>
-            <Badge label={member.role === 'ADMIN' ? t('house.admin') : t('house.roommate')} tone={member.role === 'ADMIN' ? 'blue' : 'neutral'} />
+            <RoleBadge role={member.role} />
             {member.status === 'REMOVED' ? <Badge label={t('house.removed')} tone="red" /> : null}
           </View>
           <Text variant="footnote" color="secondaryLabel">{`${t('hub.joined')} ${formatDate(member.joinedAt, locale, 'medium')}`}</Text>

@@ -8,6 +8,7 @@ import { orNetworkError, toAuthError } from '@/lib/authErrors';
 import { api } from '@/lib/db';
 import { WEB_URL } from '@/lib/http';
 import { qk } from '@/lib/queryKeys';
+import { withTimeout } from '@/lib/timeout';
 import { useUiStore } from '@/lib/uiStore';
 
 import { AuthContext, type AuthContextValue, type AuthUser, type SignUpInput } from './AuthContext';
@@ -15,20 +16,6 @@ import { startInLocalMode } from './appModeSwitch';
 
 /** Startup session restore must not hang forever on a slow/unreachable Worker: cap it, then fall back to local. */
 const SESSION_TIMEOUT_MS = 8000;
-const withTimeout = <T,>(p: Promise<T>, ms: number): Promise<T> =>
-  new Promise<T>((resolve, reject) => {
-    const id = setTimeout(() => reject(new Error('timeout')), ms);
-    p.then(
-      (v) => {
-        clearTimeout(id);
-        resolve(v);
-      },
-      (e) => {
-        clearTimeout(id);
-        reject(e);
-      },
-    );
-  });
 
 export function ApiAuthProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();

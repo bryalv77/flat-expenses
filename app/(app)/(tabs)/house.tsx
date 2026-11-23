@@ -12,6 +12,7 @@ import { useActiveHouse, useDeleteHouse, useUpdateHouse } from '@/features/house
 import { useMyMember } from '@/features/houses/useMyMember';
 import { isGuestMember, useLeaveHouse } from '@/features/members/hooks';
 import { MemberAvatar } from '@/features/members/MemberAvatar';
+import { RoleBadge } from '@/features/members/RoleBadge';
 import { useT } from '@/i18n';
 import { getAppMode } from '@/lib/appMode';
 import { formatDate } from '@/lib/format';
@@ -115,7 +116,7 @@ export default function HouseScreen() {
               subtitle={`${t('hub.joined')} ${formatDate(m.joinedAt, locale, 'medium')}${m.removedAt ? ` → ${formatDate(m.removedAt, locale, 'medium')}` : ''}`}
               meta={
                 <>
-                  <Badge small label={m.role === 'ADMIN' ? t('house.admin') : t('house.roommate')} tone={m.role === 'ADMIN' ? 'blue' : 'neutral'} />
+                  <RoleBadge small role={m.role} />
                   {isGuestMember(m) ? <Badge small label={t('hub.noAccount')} tone="neutral" /> : null}
                   {m.status === 'REMOVED' ? <Badge small label={t('house.removed')} tone="red" /> : null}
                 </>

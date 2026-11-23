@@ -1,4 +1,5 @@
 import { API_URL } from './http';
+import { orTimeout } from './timeout';
 import { tokenStorage } from './tokenStorage';
 
 /**
@@ -8,14 +9,6 @@ import { tokenStorage } from './tokenStorage';
  */
 export async function hasCloudSession(): Promise<boolean> {
   if (!API_URL) return false;
-  try {
-    // SecureStore (Keychain) can stall on iOS; treat a slow read as "no session" so startup proceeds in local mode.
-    const token = await Promise.race([
-      tokenStorage.get(),
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000)),
-    ]);
-    return token != null;
-  } catch {
-    return false;
-  }
+  // SecureStore (Keychain) can stall on iOS; a slow or failed read counts as "no session" so startup proceeds in local mode.
+  return (await orTimeout(tokenStorage.get(), 2000, null)) != null;
 }
