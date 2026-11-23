@@ -57,7 +57,7 @@ export default function CategoryDetailScreen() {
           <Button
             title={category.isActive ? t('categories.archive') : t('hub.unarchive')}
             variant="tinted"
-            onPress={() => archive.mutate({ id: category.id, isActive: !category.isActive }, { onSuccess: () => router.back() })}
+            onPress={() => archive.mutate({ id: category.id, isActive: !category.isActive }, { onSuccess: () => router.back(), onError: toast.fail })}
           />
           <Button title={t('categories.delete')} variant="tinted" destructive onPress={() => setConfirmDelete(true)} />
         </View>

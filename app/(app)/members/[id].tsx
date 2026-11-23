@@ -78,7 +78,7 @@ export default function MemberDetailScreen() {
               <Button title={t('house.remove')} variant="tinted" destructive disabled={!leftOn || leftOn < dayOf(member.joinedAt)} onPress={() => setConfirmRemove(true)} />
             </>
           ) : (
-            <Button title={t('house.reactivate')} variant="tinted" loading={reactivate.isPending} onPress={() => reactivate.mutate(member.id)} />
+            <Button title={t('house.reactivate')} variant="tinted" loading={reactivate.isPending} onPress={() => reactivate.mutate(member.id, { onError: toast.fail })} />
           )
         ) : null}
       </View>

@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
-import { Button, EmptyState, Icon, ListRow, Screen, Section, Skeleton } from '@/components/ui';
+import { Button, EmptyState, Icon, ListRow, Screen, Section, Skeleton, useToast } from '@/components/ui';
 import { useArchiveCategory, useCategories, useReorderCategories, useSeedSuggestedCategories } from '@/features/categories/hooks';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { describeSchedule } from '@/features/schedule/occurrences';
@@ -18,6 +18,7 @@ export default function CategoriesScreen() {
   const { data: categories = [], isLoading } = useCategories(house?.id);
   const archive = useArchiveCategory(houseId);
   const reorder = useReorderCategories(houseId);
+  const toast = useToast();
   const seed = useSeedSuggestedCategories(houseId);
 
   const active = categories.filter((c) => c.isActive);
@@ -29,7 +30,7 @@ export default function CategoriesScreen() {
     if (target < 0 || target >= ids.length) return;
     [ids[index], ids[target]] = [ids[target]!, ids[index]!];
     haptics.selection();
-    reorder.mutate(ids);
+    reorder.mutate(ids, { onError: toast.fail });
   };
 
   return (
@@ -52,7 +53,7 @@ export default function CategoriesScreen() {
             icon="folder"
             title={t('categories.empty')}
             actionLabel={isAdmin ? t('categories.seedSuggested') : undefined}
-            onAction={isAdmin ? () => seed.mutate() : undefined}
+            onAction={isAdmin ? () => seed.mutate(undefined, { onError: toast.fail }) : undefined}
           />
         ) : null}
         {active.length > 0 ? (
@@ -66,7 +67,7 @@ export default function CategoriesScreen() {
                 subtitle={describeSchedule(c, locale).full}
                 chevron
                 onPress={() => router.push({ pathname: '/categories/[id]', params: { id: c.id } })}
-                swipeActions={isAdmin ? [{ label: t('categories.archive'), onPress: () => archive.mutate({ id: c.id, isActive: false }), destructive: true }] : undefined}
+                swipeActions={isAdmin ? [{ label: t('categories.archive'), onPress: () => archive.mutate({ id: c.id, isActive: false }, { onError: toast.fail }), destructive: true }] : undefined}
                 trailing={
                   isAdmin ? (
                     <View style={{ flexDirection: 'row' }}>
@@ -91,7 +92,7 @@ export default function CategoriesScreen() {
                 icon="archive"
                 title={c.name}
                 subtitle={describeSchedule(c, locale).full}
-                trailing={isAdmin ? <Button title={t('hub.unarchive')} variant="plain" fullWidth={false} onPress={() => archive.mutate({ id: c.id, isActive: true })} /> : undefined}
+                trailing={isAdmin ? <Button title={t('hub.unarchive')} variant="plain" fullWidth={false} onPress={() => archive.mutate({ id: c.id, isActive: true }, { onError: toast.fail })} /> : undefined}
               />
             ))}
           </Section>

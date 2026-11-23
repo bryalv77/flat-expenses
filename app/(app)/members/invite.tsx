@@ -108,7 +108,7 @@ export default function InviteScreen() {
               subtitle={`${t('house.expiry')} ${formatDate(i.expiresAt, locale, 'medium')}`}
               trailing={<Badge label={`${i.usedCount}/${i.maxUses}`} tone="blue" />}
               onPress={() => void copy(i.code)}
-              swipeActions={[{ label: t('house.revoke'), destructive: true, onPress: () => revoke.mutate(i.id) }]}
+              swipeActions={[{ label: t('house.revoke'), destructive: true, onPress: () => revoke.mutate(i.id, { onError: toast.fail }) }]}
             />
           ))}
         </Section>

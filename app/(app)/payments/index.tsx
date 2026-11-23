@@ -109,7 +109,7 @@ export default function PaymentsScreen() {
               title={byId.get(p.memberId)?.displayName ?? '—'}
               subtitle={`${formatDate(p.paidAt, locale, 'medium')}${p.note ? ` · ${p.note}` : ''}`}
               value={formatMoney(p.amountCents, locale)}
-              swipeActions={[{ label: t('common.delete'), destructive: true, onPress: () => del.mutate(p.id) }]}
+              swipeActions={[{ label: t('common.delete'), destructive: true, onPress: () => del.mutate(p.id, { onError: toast.fail }) }]}
             />
           ))}
         </Section>

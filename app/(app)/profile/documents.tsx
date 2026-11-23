@@ -146,7 +146,7 @@ export default function DocumentsScreen() {
             label: t('common.delete'),
             destructive: true,
             onPress: () => {
-              if (toDelete) deleteDocument.mutate(toDelete);
+              if (toDelete) deleteDocument.mutate(toDelete, { onError: toast.fail });
               setToDelete(null);
             },
           },
