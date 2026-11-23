@@ -1,4 +1,4 @@
-import { addBill, button, confirm, expect, save, startFlat, tab, test, vtext } from './fixtures';
+import { addBill, button, confirm, expect, save, startFlat, tab, test, thisMonthLabel, vtext } from './fixtures';
 
 test.describe('bills', () => {
   test.beforeEach(async ({ page }) => startFlat(page));
@@ -8,7 +8,7 @@ test.describe('bills', () => {
     await expect(page.getByText('€50.25').first()).toBeVisible();
     await tab(page, 'Expenses');
     await expect(page.getByRole('button', { name: /^Electricity/ })).toContainText('nota uno');
-    await expect(page.getByText(/NOVEMBER 2026 · €50\.25/i)).toBeVisible();
+    await expect(page.getByText(new RegExp(`${thisMonthLabel()} · €50\\.25`, 'i'))).toBeVisible();
   });
 
   test('empty state before any bill, with a shortcut to create one', async ({ page }) => {

@@ -1,4 +1,4 @@
-import { button, expect, startFlat, addBill, tab, test } from './fixtures';
+import { button, expect, startFlat, addBill, tab, test, thisMonthLabel } from './fixtures';
 
 test.describe('reports', () => {
   test('shows "no data" before any bill', async ({ page }) => {
@@ -14,7 +14,7 @@ test.describe('reports', () => {
     await tab(page, 'Reports');
 
     await expect(page.getByText(/Total spent/)).toBeVisible();
-    await expect(page.getByRole('heading', { name: /NOVEMBER 2026 · €100\.00/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: new RegExp(`${thisMonthLabel()} · €100\\.00`, 'i') })).toBeVisible();
 
     await button(page, 'You vs roommates').click();
     await expect(button(page, 'All time')).toBeVisible();

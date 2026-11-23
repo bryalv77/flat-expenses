@@ -23,6 +23,9 @@ export const today = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
+/** Current month as the app's English section header shows it, e.g. `NOVEMBER 2026`. */
+export const thisMonthLabel = () => new Date().toLocaleString('en', { month: 'long', year: 'numeric' }).toUpperCase();
+
 /** Expo Router keeps previous screens mounted but hidden: only role queries ignore those, so prefer them. */
 export const button = (page: Page, name: string | RegExp, exact = true): Locator => page.getByRole('button', { name, exact });
 
