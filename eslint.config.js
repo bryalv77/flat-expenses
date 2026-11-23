@@ -5,7 +5,7 @@ const prettier = require('eslint-config-prettier/flat');
 module.exports = defineConfig([
   expo,
   prettier,
-  globalIgnores(['dist/*', '.expo/*', 'worker/*']),
+  globalIgnores(['dist/*', '.expo/*', 'worker/*', 'src/lib/api/generated/*']),
   // jest.mock must precede the imports it affects, and mocks use require().
   {
     files: ['**/*.test.{ts,tsx}'],

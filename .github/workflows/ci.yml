@@ -18,6 +18,8 @@ jobs:
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - name: better-sqlite3 must load (needed by pnpm test)
         run: node -e "require('better-sqlite3')" || (echo "::error::better-sqlite3 failed to load; the local contract tests cannot run" && exit 1)
+      - name: generated API code matches openapi.yaml
+        run: pnpm gen:api && git diff --exit-code -- src/lib/api/generated worker/src/generated
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test

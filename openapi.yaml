@@ -1,0 +1,729 @@
+openapi: 3.1.0
+info:
+  title: Cuota API
+  version: 1.0.0
+  description: |
+    The Worker API. This file is the single source of truth for the HTTP contract: `pnpm gen:api` generates
+    the zod schemas, TypeScript types and client used by the app (src/lib/api/generated) and the zod schemas and
+    types used by the Worker (worker/src/generated). Edit this file, never the generated output.
+
+    Authentication (`/api/auth/*`, Better Auth) is not described here.
+    Limits that are also needed outside the API (SQL checks, UI) live in src/lib/limits.ts; a test keeps them equal to this file.
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      operationId: health
+      security: []
+      responses:
+        '200':
+          description: Liveness probe.
+          content:
+            application/json:
+              schema: { type: object, required: [ok], properties: { ok: { type: boolean } } }
+
+  /api/me:
+    get:
+      operationId: getMe
+      responses:
+        '200': { description: The signed-in account., content: { application/json: { schema: { $ref: '#/components/schemas/Account' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateMe
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/AccountUpdate' } } }
+      responses:
+        '200': { description: The updated account., content: { application/json: { schema: { $ref: '#/components/schemas/Account' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+
+  /api/me/documents:
+    get:
+      operationId: listMyDocuments
+      responses:
+        '200': { description: Identity documents (owner only)., content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/UserDocument' } } } } }
+    post:
+      operationId: addMyDocument
+      description: The file must already be uploaded to the caller's own documents folder with the declared size.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UserDocumentCreate' } } }
+      responses:
+        '201': { description: Created., content: { application/json: { schema: { $ref: '#/components/schemas/UserDocument' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+
+  /api/me/documents/{id}:
+    delete:
+      operationId: deleteMyDocument
+      parameters: [{ $ref: '#/components/parameters/id' }]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/houses:
+    get:
+      operationId: listMyHouses
+      responses:
+        '200': { description: Houses the caller is an active member of., content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/HouseWithRole' } } } } }
+    post:
+      operationId: createHouse
+      description: The caller becomes its admin.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/HouseCreate' } } }
+      responses:
+        '201': { description: Created., content: { application/json: { schema: { $ref: '#/components/schemas/House' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+
+  /api/houses/{houseId}:
+    parameters: [{ $ref: '#/components/parameters/houseId' }]
+    get:
+      operationId: getHouse
+      responses:
+        '200': { description: The house with its members., content: { application/json: { schema: { $ref: '#/components/schemas/HouseDetail' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateHouse
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/HouseUpdate' } } }
+      responses:
+        '200': { description: The updated house., content: { application/json: { schema: { $ref: '#/components/schemas/House' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+    delete:
+      operationId: deleteHouse
+      description: Members, categories, bills and payments cascade; the house's stored files are deleted too.
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+
+  /api/houses/{houseId}/leave:
+    parameters: [{ $ref: '#/components/parameters/houseId' }]
+    post:
+      operationId: leaveHouse
+      description: The last admin cannot leave (409 `last_admin`).
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /api/houses/{houseId}/members:
+    parameters: [{ $ref: '#/components/parameters/houseId' }]
+    get:
+      operationId: listMembers
+      responses:
+        '200': { description: Members ordered by join date., content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Member' } } } } }
+
+  /api/houses/{houseId}/members/guests:
+    parameters: [{ $ref: '#/components/parameters/houseId' }]
+    post:
+      operationId: createGuestMember
+      description: An admin registers a roommate without an account; dates may be historical.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/GuestMemberCreate' } } }
+      responses:
+        '201': { description: Created., content: { application/json: { schema: { $ref: '#/components/schemas/Member' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+
+  /api/houses/{houseId}/members/{memberId}:
+    parameters: [{ $ref: '#/components/parameters/houseId' }, { $ref: '#/components/parameters/memberId' }]
+    patch:
+      operationId: setMemberContribution
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/MemberContributionUpdate' } } }
+      responses:
+        '200': { description: The updated member., content: { application/json: { schema: { $ref: '#/components/schemas/Member' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/houses/{houseId}/members/{memberId}/remove:
+    parameters: [{ $ref: '#/components/parameters/houseId' }, { $ref: '#/components/parameters/memberId' }]
+    post:
+      operationId: removeMember
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/MemberRemove' } } }
+      responses:
+        '200': { description: The removed member., content: { application/json: { schema: { $ref: '#/components/schemas/Member' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/houses/{houseId}/members/{memberId}/reactivate:
+    parameters: [{ $ref: '#/components/parameters/houseId' }, { $ref: '#/components/parameters/memberId' }]
+    post:
+      operationId: reactivateMember
+      responses:
+        '200': { description: The reactivated member., content: { application/json: { schema: { $ref: '#/components/schemas/Member' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/houses/{houseId}/invites:
+    parameters: [{ $ref: '#/components/parameters/houseId' }]
+    get:
+      operationId: listInvites
+      description: Admins only.
+      responses:
+        '200': { description: Newest first; expired invites report status EXPIRED., content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Invite' } } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createInvite
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/InviteCreate' } } }
+      responses:
+        '201': { description: Created., content: { application/json: { schema: { $ref: '#/components/schemas/Invite' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /api/houses/{houseId}/invites/{code}/revoke:
+    parameters: [{ $ref: '#/components/parameters/houseId' }, { name: code, in: path, required: true, schema: { type: string } }]
+    post:
+      operationId: revokeInvite
+      responses:
+        '200': { description: The revoked invite., content: { application/json: { schema: { $ref: '#/components/schemas/Invite' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/invites/redeem:
+    post:
+      operationId: redeemInvite
+      description: Joins the invite's house as ROOMMATE (a removed member who redeems again is reactivated).
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/InviteRedeem' } } }
+      responses:
+        '200': { description: The joined house., content: { application/json: { schema: { type: object, required: [houseId], properties: { houseId: { type: string, format: uuid } } } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '410': { description: The invite is revoked, expired or used up., content: { application/json: { schema: { $ref: '#/components/schemas/ErrorBody' } } } }
+
+  /api/houses/{houseId}/categories:
+    parameters: [{ $ref: '#/components/parameters/houseId' }]
+    get:
+      operationId: listCategories
+      responses:
+        '200': { description: Ordered by sortOrder, then name., content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Category' } } } } }
+    post:
+      operationId: createCategory
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CategoryCreate' } } }
+      responses:
+        '201': { description: Created., content: { application/json: { schema: { $ref: '#/components/schemas/Category' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+
+  /api/houses/{houseId}/categories/{categoryId}:
+    parameters: [{ $ref: '#/components/parameters/houseId' }, { $ref: '#/components/parameters/categoryId' }]
+    patch:
+      operationId: updateCategory
+      description: The merged result must still be valid (a FIXED category needs expectedAmountCents).
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CategoryUpdate' } } }
+      responses:
+        '200': { description: The updated category., content: { application/json: { schema: { $ref: '#/components/schemas/Category' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteCategory
+      description: Refused with 409 `CATEGORY_HAS_BILLS` while bills reference it; archive it instead.
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /api/houses/{houseId}/bills:
+    parameters: [{ $ref: '#/components/parameters/houseId' }]
+    get:
+      operationId: listBills
+      description: Bills whose effective date (charge date, else period end, else creation day) is in [from, to], newest first.
+      parameters:
+        - { name: from, in: query, required: true, schema: { $ref: '#/components/schemas/Date' } }
+        - { name: to, in: query, required: true, schema: { $ref: '#/components/schemas/Date' } }
+        - { name: categoryId, in: query, required: false, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Bills with their files., content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Bill' } } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+    post:
+      operationId: createBill
+      description: Attachments are uploaded first with PUT /api/files/{key}; `files` references them.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/BillCreate' } } }
+      responses:
+        '201': { description: Created., content: { application/json: { schema: { $ref: '#/components/schemas/Bill' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+
+  /api/houses/{houseId}/bills/{billId}:
+    parameters: [{ $ref: '#/components/parameters/houseId' }, { $ref: '#/components/parameters/billId' }]
+    get:
+      operationId: getBill
+      responses:
+        '200': { description: The bill., content: { application/json: { schema: { $ref: '#/components/schemas/Bill' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateBill
+      description: Sending `files` replaces the whole set; objects no longer referenced are deleted.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/BillUpdate' } } }
+      responses:
+        '200': { description: The updated bill., content: { application/json: { schema: { $ref: '#/components/schemas/Bill' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteBill
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/houses/{houseId}/payments:
+    parameters: [{ $ref: '#/components/parameters/houseId' }]
+    get:
+      operationId: listPayments
+      parameters:
+        - { name: from, in: query, required: true, schema: { $ref: '#/components/schemas/Month' } }
+        - { name: to, in: query, required: true, schema: { $ref: '#/components/schemas/Month' } }
+      responses:
+        '200': { description: Newest month first., content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Payment' } } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+    post:
+      operationId: recordPayment
+      description: The payer must be a member of the house, active or removed (back payments are valid). Payments are immutable.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/PaymentRecord' } } }
+      responses:
+        '201': { description: Created., content: { application/json: { schema: { $ref: '#/components/schemas/Payment' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+
+  /api/houses/{houseId}/payments/{paymentId}:
+    parameters: [{ $ref: '#/components/parameters/houseId' }, { name: paymentId, in: path, required: true, schema: { type: string, format: uuid } }]
+    delete:
+      operationId: deletePayment
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/files/sign:
+    post:
+      operationId: signFileUrl
+      description: A short-lived signed read link, for places that cannot send an Authorization header (<Image>, Linking).
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/FileSignRequest' } } }
+      responses:
+        '200': { description: The signed URL., content: { application/json: { schema: { $ref: '#/components/schemas/FileSigned' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/files/{key}:
+    parameters:
+      - { name: key, in: path, required: true, allowReserved: true, schema: { type: string }, description: 'Everything after /api/files/ (it contains slashes). Layouts: users/{uid}/avatar/{file}, users/{uid}/documents/{docId}/{file}, houses/{houseId}/bills/{folder}/{file}.' }
+    put:
+      operationId: uploadFile
+      description: Uploads the object. Avatars are images up to 2 MB; documents and bill files are images or PDF up to 10 MB.
+      requestBody:
+        required: true
+        content:
+          image/jpeg: { schema: { type: string, format: binary } }
+          image/png: { schema: { type: string, format: binary } }
+          image/heic: { schema: { type: string, format: binary } }
+          image/webp: { schema: { type: string, format: binary } }
+          application/pdf: { schema: { type: string, format: binary } }
+      responses:
+        '201': { description: Stored., content: { application/json: { schema: { $ref: '#/components/schemas/FileStored' } } } }
+        '400': { $ref: '#/components/responses/Invalid' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413': { description: Too large., content: { application/json: { schema: { $ref: '#/components/schemas/ErrorBody' } } } }
+        '415': { description: Unsupported type., content: { application/json: { schema: { $ref: '#/components/schemas/ErrorBody' } } } }
+    get:
+      operationId: getFile
+      description: Needs a session, or the `exp` and `sig` of a signed link.
+      parameters:
+        - { name: exp, in: query, required: false, schema: { type: integer } }
+        - { name: sig, in: query, required: false, schema: { type: string, pattern: '^[0-9a-f]{64}$' } }
+      responses:
+        '200': { description: The object., content: { '*/*': { schema: { type: string, format: binary } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteFile
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }
+
+  parameters:
+    id: { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    houseId: { name: houseId, in: path, required: true, schema: { type: string, format: uuid } }
+    memberId: { name: memberId, in: path, required: true, schema: { type: string, minLength: 1, maxLength: 128 }, description: An account id or `guest_` + 32 hex characters. }
+    categoryId: { name: categoryId, in: path, required: true, schema: { type: string, format: uuid } }
+    billId: { name: billId, in: path, required: true, schema: { type: string, format: uuid } }
+
+  responses:
+    NoContent: { description: Done. }
+    Invalid: { description: Invalid request., content: { application/json: { schema: { $ref: '#/components/schemas/ErrorBody' } } } }
+    NotFound: { description: Not found (also for houses the caller is not a member of)., content: { application/json: { schema: { $ref: '#/components/schemas/ErrorBody' } } } }
+    Forbidden: { description: The caller's role does not allow this., content: { application/json: { schema: { $ref: '#/components/schemas/ErrorBody' } } } }
+    Conflict: { description: 'Conflicts with current state; `error` is the code (CATEGORY_HAS_BILLS, last_admin, already_member, code_taken).', content: { application/json: { schema: { $ref: '#/components/schemas/ErrorBody' } } } }
+
+  schemas:
+    ErrorBody:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string, description: A stable error code. }
+        message: { type: string }
+        issues: { type: array, items: { type: object, additionalProperties: true } }
+
+    Date: { type: string, format: date }
+    Timestamp: { type: string, format: date-time }
+    Month: { type: string, format: date, pattern: '^20\d\d-(0[1-9]|1[0-2])-01$', description: The first day of a month. }
+    Cents: { type: integer, minimum: 0, maximum: 10000000, description: Money in integer cents (configuration amounts). }
+    AmountCents: { type: integer, minimum: 1, maximum: 9999999, description: Money in integer cents (bills and payments). }
+    GuestId: { type: string, pattern: '^guest_[0-9a-f]{32}$' }
+    ObjectKey: { type: string, minLength: 1, maxLength: 500 }
+
+    SplitMode: { type: string, enum: [EQUAL, FIXED_CONTRIBUTION] }
+    HouseRole: { type: string, enum: [ADMIN, ROOMMATE] }
+    MemberStatus: { type: string, enum: [ACTIVE, REMOVED] }
+    AmountType: { type: string, enum: [FIXED, VARIABLE] }
+    IntervalUnit: { type: string, enum: [DAY, WEEK, MONTH, YEAR] }
+    DocumentType: { type: string, enum: [PASSPORT, NATIONAL_ID] }
+    InviteStatus: { type: string, enum: [ACTIVE, REVOKED, EXPIRED] }
+    OcrStatus: { type: string, enum: [NONE, PENDING, DONE, FAILED] }
+    FileMimeType: { type: string, enum: [image/jpeg, image/png, image/heic, image/webp, application/pdf] }
+
+    Account:
+      type: object
+      required: [id, name, email, locale, accountRole, photoKey]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        locale: { type: [string, 'null'] }
+        accountRole: { type: [string, 'null'], description: 'ADMIN, ROOMMATE, or USER for accounts that have not chosen yet.' }
+        photoKey: { type: [string, 'null'] }
+    AccountUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        displayName: { type: string, minLength: 1, maxLength: 100, pattern: '\S' }
+        photoKey: { type: [string, 'null'], maxLength: 500, description: Must be the caller's own avatar object. }
+        locale: { type: string, maxLength: 10 }
+        accountRole: { $ref: '#/components/schemas/HouseRole' }
+
+    UserDocument:
+      type: object
+      required: [id, type, objectKey, fileName, mimeType, sizeBytes, uploadedAt]
+      properties:
+        id: { type: string, format: uuid }
+        type: { $ref: '#/components/schemas/DocumentType' }
+        objectKey: { type: string }
+        fileName: { type: string }
+        mimeType: { type: string }
+        sizeBytes: { type: integer }
+        uploadedAt: { $ref: '#/components/schemas/Timestamp' }
+    UserDocumentCreate:
+      type: object
+      required: [type, objectKey, fileName, mimeType, sizeBytes]
+      properties:
+        id: { type: string, format: uuid }
+        type: { $ref: '#/components/schemas/DocumentType' }
+        objectKey: { $ref: '#/components/schemas/ObjectKey' }
+        fileName: { type: string, minLength: 1, maxLength: 255 }
+        mimeType: { $ref: '#/components/schemas/FileMimeType' }
+        sizeBytes: { type: integer, minimum: 0, maximum: 10485760 }
+
+    HouseCreate:
+      type: object
+      required: [name]
+      properties:
+        id: { type: string, format: uuid, description: Client-generated, for optimistic updates. }
+        name: { type: string, minLength: 1, maxLength: 100, pattern: '\S' }
+        address: { type: [string, 'null'], maxLength: 200 }
+        splitMode: { $ref: '#/components/schemas/SplitMode' }
+        fixedContributionCents: { type: [integer, 'null'], minimum: 0, maximum: 10000000 }
+        contributionDayOfMonth: { type: [integer, 'null'], minimum: 1, maximum: 31 }
+        showBalanceToRoommates: { type: boolean }
+    HouseUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100, pattern: '\S' }
+        address: { type: [string, 'null'], maxLength: 200 }
+        splitMode: { $ref: '#/components/schemas/SplitMode' }
+        fixedContributionCents: { type: [integer, 'null'], minimum: 0, maximum: 10000000 }
+        contributionDayOfMonth: { type: [integer, 'null'], minimum: 1, maximum: 31 }
+        showBalanceToRoommates: { type: boolean }
+    House:
+      type: object
+      required: [id, name, address, currency, splitMode, fixedContributionCents, contributionDayOfMonth, showBalanceToRoommates, createdBy, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        address: { type: [string, 'null'] }
+        currency: { type: string }
+        splitMode: { $ref: '#/components/schemas/SplitMode' }
+        fixedContributionCents: { type: [integer, 'null'] }
+        contributionDayOfMonth: { type: [integer, 'null'] }
+        showBalanceToRoommates: { type: boolean }
+        createdBy: { type: [string, 'null'] }
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+    HouseWithRole:
+      type: object
+      required: [id, name, address, currency, splitMode, fixedContributionCents, contributionDayOfMonth, showBalanceToRoommates, createdBy, createdAt, updatedAt, role]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        address: { type: [string, 'null'] }
+        currency: { type: string }
+        splitMode: { $ref: '#/components/schemas/SplitMode' }
+        fixedContributionCents: { type: [integer, 'null'] }
+        contributionDayOfMonth: { type: [integer, 'null'] }
+        showBalanceToRoommates: { type: boolean }
+        createdBy: { type: [string, 'null'] }
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+        role: { $ref: '#/components/schemas/HouseRole' }
+    HouseDetail:
+      type: object
+      required: [house, members]
+      properties:
+        house: { $ref: '#/components/schemas/House' }
+        members: { type: array, items: { $ref: '#/components/schemas/Member' } }
+
+    Member:
+      type: object
+      required: [houseId, userId, role, status, joinedAt, removedAt, individualContributionCents, displayName, email, photoKey, inviteCode]
+      properties:
+        houseId: { type: string, format: uuid }
+        userId: { type: string, description: An account id or a `guest_` id. }
+        role: { $ref: '#/components/schemas/HouseRole' }
+        status: { $ref: '#/components/schemas/MemberStatus' }
+        joinedAt: { $ref: '#/components/schemas/Timestamp' }
+        removedAt: { oneOf: [{ $ref: '#/components/schemas/Timestamp' }, { type: 'null' }] }
+        individualContributionCents: { type: [integer, 'null'] }
+        displayName: { type: [string, 'null'] }
+        email: { type: [string, 'null'] }
+        photoKey: { type: [string, 'null'] }
+        inviteCode: { type: [string, 'null'] }
+    GuestMemberCreate:
+      type: object
+      required: [displayName, joinedAt, removedAt, individualContributionCents]
+      properties:
+        id: { $ref: '#/components/schemas/GuestId' }
+        displayName: { type: string, minLength: 1, maxLength: 100, pattern: '\S' }
+        joinedAt: { $ref: '#/components/schemas/Date' }
+        removedAt: { type: [string, 'null'], format: date }
+        individualContributionCents: { type: [integer, 'null'], minimum: 0 }
+    MemberContributionUpdate:
+      type: object
+      required: [individualContributionCents]
+      properties:
+        individualContributionCents: { type: [integer, 'null'], minimum: 0 }
+    MemberRemove:
+      type: object
+      properties:
+        removedAt: { $ref: '#/components/schemas/Date' }
+
+    Invite:
+      type: object
+      required: [code, houseId, status, expiresAt, maxUses, usedCount, createdBy, createdAt]
+      properties:
+        code: { type: string }
+        houseId: { type: string, format: uuid }
+        status: { $ref: '#/components/schemas/InviteStatus' }
+        expiresAt: { $ref: '#/components/schemas/Timestamp' }
+        maxUses: { type: integer }
+        usedCount: { type: integer }
+        createdBy: { type: string }
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+    InviteCreate:
+      type: object
+      required: [expiresAt, maxUses]
+      properties:
+        code: { type: string, pattern: '^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{8}$', description: Chosen by the client, or generated. }
+        expiresAt: { $ref: '#/components/schemas/Timestamp' }
+        maxUses: { type: integer, minimum: 1, maximum: 100 }
+    InviteRedeem:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, pattern: '^[A-Z2-9]{8}$', description: Looser than a generated code (accepts I, L, O) so a mistyped code answers 404 instead of 400. }
+
+    Category:
+      type: object
+      required: [id, houseId, name, icon, color, amountType, expectedAmountCents, intervalUnit, intervalCount, anchorDate, isActive, sortOrder, notes, names, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        houseId: { type: string, format: uuid }
+        name: { type: string }
+        icon: { type: [string, 'null'] }
+        color: { type: [string, 'null'] }
+        amountType: { $ref: '#/components/schemas/AmountType' }
+        expectedAmountCents: { type: [integer, 'null'] }
+        intervalUnit: { type: [string, 'null'] }
+        intervalCount: { type: [integer, 'null'] }
+        anchorDate: { type: [string, 'null'], format: date }
+        isActive: { type: boolean }
+        sortOrder: { type: integer }
+        notes: { type: [string, 'null'] }
+        names: { oneOf: [{ $ref: '#/components/schemas/CategoryNames' }, { type: 'null' }] }
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+    CategoryNames:
+      type: object
+      description: Optional per-language names, language -> name.
+      maxProperties: 12
+      propertyNames: { pattern: '^[a-z]{2,3}$' }
+      additionalProperties: { type: string, minLength: 1, maxLength: 60, pattern: '\S' }
+    CategoryCreate:
+      description: A FIXED category also needs expectedAmountCents (checked by the server, see src/lib/api/rules.ts).
+      type: object
+      required: [name, icon, color, amountType, intervalUnit, intervalCount, anchorDate]
+      additionalProperties: false
+      properties:
+        id: { type: string, format: uuid }
+        name: &catName { type: string, minLength: 1, maxLength: 60, pattern: '\S' }
+        icon: &catIcon { type: string, minLength: 1, maxLength: 40 }
+        color: &catColor { type: string, pattern: '^#[0-9A-Fa-f]{6}$' }
+        amountType: &catAmountType { $ref: '#/components/schemas/AmountType' }
+        expectedAmountCents: &catExpected { type: [integer, 'null'], minimum: 0, maximum: 10000000 }
+        intervalUnit: &catUnit { $ref: '#/components/schemas/IntervalUnit' }
+        intervalCount: &catCount { type: integer, minimum: 1, maximum: 1000 }
+        anchorDate: &catAnchor { $ref: '#/components/schemas/Date' }
+        isActive: &catActive { type: boolean }
+        sortOrder: &catSort { type: integer, minimum: 0, maximum: 10000 }
+        notes: &catNotes { type: [string, 'null'], maxLength: 500 }
+        names: &catNames { oneOf: [{ $ref: '#/components/schemas/CategoryNames' }, { type: 'null' }] }
+    CategoryUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        name: *catName
+        icon: *catIcon
+        color: *catColor
+        amountType: *catAmountType
+        expectedAmountCents: *catExpected
+        intervalUnit: *catUnit
+        intervalCount: *catCount
+        anchorDate: *catAnchor
+        isActive: *catActive
+        sortOrder: *catSort
+        notes: *catNotes
+        names: *catNames
+
+    BillFileRef:
+      type: object
+      description: A file already uploaded under this house's bills prefix; the Worker checks it exists with this size.
+      required: [objectKey, fileName, mimeType, sizeBytes]
+      additionalProperties: false
+      properties:
+        objectKey: { type: string, maxLength: 300 }
+        fileName: { type: string, minLength: 1, maxLength: 150 }
+        mimeType: { $ref: '#/components/schemas/FileMimeType' }
+        sizeBytes: { type: integer, minimum: 0, maximum: 10485760 }
+    BillFile:
+      type: object
+      required: [id, billId, objectKey, fileName, mimeType, sizeBytes, position]
+      properties:
+        id: { type: string, format: uuid }
+        billId: { type: string, format: uuid }
+        objectKey: { type: string }
+        fileName: { type: string }
+        mimeType: { type: string }
+        sizeBytes: { type: integer }
+        position: { type: integer }
+    BillCreate:
+      type: object
+      required: [categoryId, amountCents]
+      additionalProperties: false
+      properties:
+        id: { type: string, format: uuid }
+        files: &billFiles { type: array, maxItems: 5, items: { $ref: '#/components/schemas/BillFileRef' } }
+        categoryId: &billCategory { type: string, format: uuid }
+        amountCents: &billAmount { $ref: '#/components/schemas/AmountCents' }
+        chargeDate: &billCharge { type: [string, 'null'], format: date }
+        periodStartDate: &billStart { type: [string, 'null'], format: date }
+        periodEndDate: &billEnd { type: [string, 'null'], format: date }
+        notes: &billNotes { type: [string, 'null'], maxLength: 1000 }
+    BillUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        files: *billFiles
+        categoryId: *billCategory
+        amountCents: *billAmount
+        chargeDate: *billCharge
+        periodStartDate: *billStart
+        periodEndDate: *billEnd
+        notes: *billNotes
+    Bill:
+      type: object
+      required: [id, houseId, categoryId, amountCents, chargeDate, periodStartDate, periodEndDate, notes, ocrStatus, ocrData, createdBy, createdAt, updatedAt, effectiveDate, files]
+      properties:
+        id: { type: string, format: uuid }
+        houseId: { type: string, format: uuid }
+        categoryId: { type: string, format: uuid }
+        amountCents: { type: integer }
+        chargeDate: { type: [string, 'null'], format: date }
+        periodStartDate: { type: [string, 'null'], format: date }
+        periodEndDate: { type: [string, 'null'], format: date }
+        notes: { type: [string, 'null'] }
+        ocrStatus: { $ref: '#/components/schemas/OcrStatus' }
+        ocrData: {}
+        createdBy: { type: [string, 'null'] }
+        createdAt: { $ref: '#/components/schemas/Timestamp' }
+        updatedAt: { $ref: '#/components/schemas/Timestamp' }
+        effectiveDate: { type: string, format: date }
+        files: { type: array, items: { $ref: '#/components/schemas/BillFile' } }
+
+    Payment:
+      type: object
+      required: [id, houseId, memberId, month, amountCents, note, paidAt, recordedBy]
+      properties:
+        id: { type: string, format: uuid }
+        houseId: { type: string, format: uuid }
+        memberId: { type: string }
+        month: { type: string, format: date }
+        amountCents: { type: integer }
+        note: { type: [string, 'null'] }
+        paidAt: { $ref: '#/components/schemas/Timestamp' }
+        recordedBy: { type: string }
+    PaymentRecord:
+      type: object
+      required: [memberId, month, amountCents]
+      additionalProperties: false
+      properties:
+        id: { type: string, format: uuid }
+        memberId: { type: string, minLength: 1, maxLength: 128 }
+        month: { $ref: '#/components/schemas/Month' }
+        amountCents: { $ref: '#/components/schemas/AmountCents' }
+        note: { type: [string, 'null'], maxLength: 200 }
+
+    FileSignRequest:
+      type: object
+      required: [key]
+      properties:
+        key: { type: string, maxLength: 400 }
+    FileSigned:
+      type: object
+      required: [url, expiresAt]
+      properties:
+        url: { type: string }
+        expiresAt: { type: integer, description: Epoch milliseconds. }
+    FileStored:
+      type: object
+      required: [key, mimeType, sizeBytes]
+      properties:
+        key: { type: string }
+        mimeType: { type: string }
+        sizeBytes: { type: integer }
