@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { HeaderControls } from '@/components/HeaderControls';
 import { Button, ListRow, MoneyInput, Screen, SegmentedControl, Section, Switch, Text, TextField, useToast } from '@/components/ui';
 import { leaveLocalMode } from '@/features/auth/appModeSwitch';
+import { houseSchema, parseDayInput } from '@/features/houses/houseFields';
 import { useCreateHouse } from '@/features/houses/hooks';
 import { seedSuggestedCategories } from '@/features/houses/seed';
 import { markPendingSync } from '@/features/sync/pending';
@@ -27,19 +28,7 @@ export default function CreateHouseScreen() {
 
   const schema = useMemo(
     () =>
-      z
-        .object({
-          name: z.string().trim().min(1, t('account.houseNameRequired')).max(80),
-          address: z.string().trim().max(160),
-          splitMode: z.enum(['EQUAL', 'FIXED_CONTRIBUTION']),
-          fixedContributionCents: z.number().int().positive().nullable(),
-          contributionDayOfMonth: z.number().int().min(1).max(28).nullable(),
-          seedCategories: z.boolean(),
-        })
-        .refine((v) => v.splitMode !== 'FIXED_CONTRIBUTION' || v.fixedContributionCents !== null, {
-          path: ['fixedContributionCents'],
-          message: t('account.fixedRequired'),
-        }),
+      houseSchema(t, { seedCategories: z.boolean() }),
     [t],
   );
   type Values = z.infer<typeof schema>;
@@ -141,10 +130,7 @@ export default function CreateHouseScreen() {
                 <TextField
                   label={`${t('account.contributionDay')} (${t('common.optional')})`}
                   value={field.value === null ? '' : String(field.value)}
-                  onChangeText={(text) => {
-                    const n = parseInt(text.replace(/\D/g, ''), 10);
-                    field.onChange(Number.isNaN(n) ? null : n);
-                  }}
+                  onChangeText={(text) => field.onChange(parseDayInput(text))}
                   onBlur={field.onBlur}
                   error={fieldState.error ? t('common.required') : undefined}
                   keyboardType="number-pad"

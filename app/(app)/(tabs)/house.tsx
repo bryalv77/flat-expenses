@@ -1,12 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { z } from 'zod';
 
 import { Badge, Button, ConfirmSheet, EmptyState, ListRow, MoneyInput, Screen, Section, SegmentedControl, Switch, TextField, useToast } from '@/components/ui';
 import { useAuth } from '@/features/auth';
+import { houseSchema, parseDayInput } from '@/features/houses/houseFields';
 import { useActiveHouse, useDeleteHouse, useUpdateHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
 import { isGuestMember, useLeaveHouse } from '@/features/members/hooks';
@@ -18,15 +19,8 @@ import { formatDate } from '@/lib/format';
 import { spacing } from '@/theme';
 import type { SplitMode } from '@/types/domain';
 
-const schema = z.object({
-  name: z.string().trim().min(1),
-  address: z.string().trim().optional(),
-  splitMode: z.enum(['EQUAL', 'FIXED_CONTRIBUTION']),
-  fixedContributionCents: z.number().int().min(0).nullable(),
-  contributionDayOfMonth: z.number().int().min(1).max(28).nullable(),
-  showBalanceToRoommates: z.boolean(),
-});
-type FormValues = z.infer<typeof schema>;
+const makeSchema = (t: ReturnType<typeof useT>['t']) => houseSchema(t, { showBalanceToRoommates: z.boolean() });
+type FormValues = z.infer<ReturnType<typeof makeSchema>>;
 
 export default function HouseScreen() {
   const { t, locale } = useT();
@@ -40,6 +34,7 @@ export default function HouseScreen() {
   const deleteHouse = useDeleteHouse();
   const leave = useLeaveHouse();
   const [confirm, setConfirm] = useState<'delete' | 'leave' | null>(null);
+  const schema = useMemo(() => makeSchema(t), [t]);
 
   const { control, handleSubmit, reset, watch, formState } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -155,7 +150,7 @@ export default function HouseScreen() {
             />
             {splitMode === 'FIXED_CONTRIBUTION' ? (
               <Section>
-                <Controller control={control} name="fixedContributionCents" render={({ field }) => <MoneyInput inline label={t('onboarding.fixedAmount')} value={field.value} onChange={field.onChange} />} />
+                <Controller control={control} name="fixedContributionCents" render={({ field, fieldState }) => <MoneyInput inline label={t('onboarding.fixedAmount')} value={field.value} onChange={field.onChange} error={fieldState.error?.message} />} />
                 <Controller
                   control={control}
                   name="contributionDayOfMonth"
@@ -165,7 +160,7 @@ export default function HouseScreen() {
                       label={t('hub.contributionDay')}
                       keyboardType="number-pad"
                       value={field.value === null ? '' : String(field.value)}
-                      onChangeText={(s) => field.onChange(s === '' ? null : Number(s.replace(/\D/g, '')))}
+                      onChangeText={(s) => field.onChange(parseDayInput(s))}
                     />
                   )}
                 />
