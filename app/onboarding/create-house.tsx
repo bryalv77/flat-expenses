@@ -71,7 +71,6 @@ export default function CreateHouseScreen() {
       haptics.success();
       router.replace('/(app)/(tabs)' as Href);
     } catch (e) {
-      haptics.error();
       toast.fail(e);
     }
   });

@@ -10,7 +10,6 @@ import { getEffectiveDate } from '@/features/finance';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useT } from '@/i18n';
 import { formatDate, formatMoney } from '@/lib/format';
-import { haptics } from '@/lib/haptics';
 import { spacing } from '@/theme';
 
 export default function BillDetailScreen() {
@@ -43,7 +42,6 @@ export default function BillDetailScreen() {
   const doDelete = () => {
     remove.mutate(b, {
       onSuccess: () => {
-        haptics.success();
         toast.success(t('billsUi.deleted'));
         router.back();
       },

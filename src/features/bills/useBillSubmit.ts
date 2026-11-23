@@ -21,7 +21,6 @@ export function useBillSubmit() {
     setProgress(hasNewFiles ? 0 : null);
     start(setProgress, {
       onSuccess: () => {
-        haptics.success();
         toast.success(t('billsUi.saved'));
         router.back();
       },

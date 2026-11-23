@@ -51,7 +51,6 @@ export default function InviteScreen() {
 
   const copy = async (c: string) => {
     await Clipboard.setStringAsync(formatInviteCode(c));
-    haptics.success();
     toast.success(t('common.copied'));
   };
 

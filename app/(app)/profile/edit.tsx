@@ -37,11 +37,9 @@ function AvatarEditor() {
       { file, previousPath: me?.photoPath, onProgress: setProgress },
       {
         onSuccess: () => {
-          haptics.success();
           toast.success(t('account.photoUpdated'));
         },
         onError: (e) => {
-          haptics.error();
           toast.error(t(uploadErrorKey(e)));
         },
         onSettled: () => {
@@ -89,7 +87,6 @@ function PasswordSection() {
     setFormError(null);
     try {
       await changePassword(current, next);
-      haptics.success();
       toast.success(t('account.passwordChanged'));
       reset();
     } catch (e) {
@@ -162,10 +159,8 @@ export default function EditProfileScreen() {
   const onSubmit = handleSubmit(async ({ displayName }) => {
     try {
       await update.mutateAsync({ displayName });
-      haptics.success();
       toast.success(t('account.profileSaved'));
     } catch (e) {
-      haptics.error();
       toast.fail(e);
     }
   });

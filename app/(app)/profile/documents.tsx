@@ -63,7 +63,6 @@ export default function DocumentsScreen() {
     try {
       await addDocument.mutateAsync({ type, file, onProgress: setProgress });
       if (replacing) await deleteDocument.mutateAsync(replacing);
-      haptics.success();
       toast.success(t('account.uploaded'));
       setFormOpen(false);
     } catch (e) {

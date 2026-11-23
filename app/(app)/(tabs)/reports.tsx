@@ -4,7 +4,6 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Chip, EmptyState, ErrorState, Icon, Screen, Skeleton, Text, useToast } from '@/components/ui';
 import { addMonthsToKey, monthEnd, monthStart } from '@/lib/dates';
 import { useT } from '@/i18n';
-import { haptics } from '@/lib/haptics';
 import { spacing, useTheme } from '@/theme';
 import { CategorySection } from '@/features/reports/components/CategorySection';
 import { exportBillsCsv } from '@/features/reports/components/exportCsv';
@@ -45,10 +44,8 @@ export default function ReportsScreen() {
       const to = monthEnd(data.currentMonth);
       const rows = filterBills(data.bills, from, to);
       await exportBillsCsv(rows, data.categories, `costos-piso-${from}_${to}.csv`);
-      haptics.success();
       toast.success(t('reportsUi.exportDone'));
     } catch {
-      haptics.error();
       toast.error(t('reportsUi.exportError'));
     } finally {
       setExporting(false);

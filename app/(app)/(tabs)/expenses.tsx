@@ -25,7 +25,6 @@ import { sumCents } from '@/features/reports';
 import { useT } from '@/i18n';
 import { addMonthsToKey, monthEnd, monthKey, monthStart, todayISO } from '@/lib/dates';
 import { formatDate, formatMoney, formatMonth } from '@/lib/format';
-import { haptics } from '@/lib/haptics';
 import { spacing, useTheme } from '@/theme';
 import type { Bill } from '@/types/domain';
 
@@ -127,7 +126,6 @@ export default function ExpensesScreen() {
     if (!toDelete) return;
     remove.mutate(toDelete, {
       onSuccess: () => {
-        haptics.success();
         toast.success(t('billsUi.deleted'));
       },
       onError: toast.fail,
