@@ -11,8 +11,6 @@ type CycleFields = Pick<ExpenseCategory, 'intervalUnit' | 'intervalCount'>;
 const SUMMER_MONTHS = [6, 7, 8, 9] as const;
 const WINTER_MONTHS = [12, 1, 2] as const;
 
-// ---------------------------------------------------------------- filtering & totals
-
 /** Bills whose effective date is within [from, to] (inclusive), optionally for one category. */
 export function filterBills<T extends BillCore>(
   bills: T[],
@@ -102,8 +100,6 @@ export function computeDelta(currentCents: number, previousCents: number): Delta
   };
 }
 
-// ---------------------------------------------------------------- amortization
-
 /**
  * Spreads each bill evenly over the months its billing cycle covers, ending at the bill's effective
  * month (a bi-monthly 80 € gas bill in March -> 40 € in Feb and 40 € in Mar). Returns `YYYY-MM` -> cents.
@@ -133,8 +129,6 @@ export function amortizedMonthlyTotals(
 function cyclesOf(categories: ExpenseCategory[]): Record<string, CycleFields> {
   return Object.fromEntries(categories.map((c) => [c.id, c]));
 }
-
-// ---------------------------------------------------------------- per category
 
 export interface CategoryStats {
   billCount: number;
@@ -219,8 +213,6 @@ export function categoryStats(
   };
 }
 
-// ---------------------------------------------------------------- seasonality
-
 export interface Seasonality {
   /** Index 0..11 = January..December. `averageCents` is null with no samples. */
   byMonthOfYear: { month: number; averageCents: number | null; samples: number }[];
@@ -303,8 +295,6 @@ export function computeSeasonality(
   };
 }
 
-// ---------------------------------------------------------------- lookup
-
 export interface MonthLookup<T extends BillCore> {
   month: string;
   categoryId: string | null;
@@ -330,8 +320,6 @@ export function lookupMonth<T extends BillCore>(
     bills: matching,
   };
 }
-
-// ---------------------------------------------------------------- per person (Mode A)
 
 export interface PerPersonRow {
   month: string;
@@ -364,8 +352,6 @@ export function perPersonTable(
   });
   return { rows, cumulativeByMember };
 }
-
-// ---------------------------------------------------------------- admin vs roommates
 
 export interface WhoPaysRow {
   month: string;
@@ -416,8 +402,6 @@ export function whoPays(
     averageMonthlyCents: active.length ? Math.round(totalCents / active.length) : 0,
   };
 }
-
-// ---------------------------------------------------------------- CSV export
 
 function csvCell(value: string | number | null | undefined, delimiter: string): string {
   const s = value === null || value === undefined ? '' : String(value);

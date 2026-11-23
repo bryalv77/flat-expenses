@@ -1,4 +1,3 @@
-// Worker-backed implementation of the `api` object in db.ts: same signatures, so hooks and screens don't change.
 import { DEFAULT_LOCALE, isLocale } from '@/i18n/locales';
 import type { Bill, BillFile, ExpenseCategory, House, HouseInvite, HouseMember, HouseRole, MemberPayment, User, UserDocument } from '@/types/domain';
 
@@ -6,7 +5,6 @@ import type { Api } from './api/types';
 import { ApiError, qs, request } from './http';
 import { normalizeIconName } from './iconAliases';
 
-// ---- wire shapes (what the Worker returns) -> app domain types ----
 const fileOut = (f: { objectKey: string; fileName: string; mimeType: string; sizeBytes: number }): BillFile => ({
   storagePath: f.objectKey, fileName: f.fileName, mimeType: f.mimeType, sizeBytes: f.sizeBytes,
 });

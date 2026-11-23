@@ -4,7 +4,6 @@ import { spacing, useTheme } from '@/theme';
 
 import { Screen } from './Screen';
 
-/** A screen that is just a loading indicator. */
 export function ScreenSpinner() {
   const { colors } = useTheme();
   return (

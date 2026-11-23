@@ -7,7 +7,6 @@ import { formatMonth } from '@/lib/format';
 import { MIN_TOUCH, spacing, useTheme } from '@/theme';
 import type { ExpenseCategory } from '@/types/domain';
 
-/** ‹ March 2026 › stepper, bounded by optional min/max month keys. */
 export function MonthStepper({
   month,
   onChange,
@@ -52,7 +51,6 @@ export function MonthStepper({
   );
 }
 
-/** Horizontal category chips; `allowAll` adds an "all categories" chip (value null). */
 export function CategoryChips({
   categories,
   value,
@@ -104,7 +102,6 @@ const styles = StyleSheet.create({
 
 export type RangeKey = '3' | '6' | '12' | 'all';
 
-/** Time-range filter chips (3 / 6 / 12 months / all time). */
 export function RangeChips({ value, onChange }: { value: RangeKey; onChange: (r: RangeKey) => void }) {
   const { t } = useT();
   const options: [RangeKey, string][] = [

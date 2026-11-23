@@ -7,7 +7,6 @@ interface Props {
   onDeleteAll: () => void;
 }
 
-/** Export / import / delete-all rows for local mode. */
 export function LocalDataSection({ onExport, onImport, onDeleteAll }: Props) {
   const { t } = useT();
   return (
