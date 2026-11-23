@@ -6,7 +6,6 @@ import { LocalDataSection } from '@/components/LocalDataSection';
 import { useAuth } from '@/features/auth';
 import { startCloudLogin } from '@/features/auth/appModeSwitch';
 import { ExportReminderBanner, useBackupActions } from '@/features/backup';
-import { profileItems } from '@/features/profile/localMode';
 import { getAppMode } from '@/lib/appMode';
 import { useMe, useMyDocuments } from '@/features/profile/hooks';
 import { useT } from '@/i18n';
@@ -19,9 +18,9 @@ export default function ProfileScreen() {
   const { authUser } = useAuth();
   const { data: user } = useMe();
   const { data: avatarUrl } = useFileUrl(user?.photoPath);
-  const items = profileItems(getAppMode());
+  const isCloud = getAppMode() === 'cloud';
   const backup = useBackupActions();
-  const { data: docs } = useMyDocuments({ enabled: items.documents });
+  const { data: docs } = useMyDocuments({ enabled: isCloud });
   const name = user?.displayName ?? authUser?.displayName ?? '';
 
   return (
@@ -34,7 +33,7 @@ export default function ProfileScreen() {
         </View>
         <Section>
           <ListRow icon="person" title={t('profile.edit')} chevron onPress={() => router.push('/profile/edit')} />
-          {items.documents ? (
+          {isCloud ? (
             <ListRow
               icon="document"
               title={t('profile.documents')}
@@ -44,12 +43,12 @@ export default function ProfileScreen() {
             />
           ) : null}
         </Section>
-        {items.localData ? <ExportReminderBanner onExport={backup.onExport} /> : null}
-        {items.localData ? (
+        {!isCloud ? <ExportReminderBanner onExport={backup.onExport} /> : null}
+        {!isCloud ? (
           <LocalDataSection onExport={backup.onExport} onImport={backup.onImport} onDeleteAll={backup.onDeleteAll} />
         ) : null}
         {backup.sheet}
-        {items.dataLossNotice ? (
+        {!isCloud ? (
           <Section footer={t('localMode.dataLossNotice')}>
             <ListRow
               icon="person"
