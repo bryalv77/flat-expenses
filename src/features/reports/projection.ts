@@ -2,9 +2,8 @@ import type { ExpenseCategory, House } from '@/types/domain';
 import { addMonthsToKey, monthEnd, monthNumber, monthRange, monthStart } from '@/lib/dates';
 import { getEffectiveDate, getEffectiveMonth, type BillCore } from '@/features/finance/effectiveDate';
 import { computeMonthBalance, type MonthBalance } from '@/features/finance/contributions';
-import { activeMembersInMonth, type MemberLike } from '@/features/finance/members';
+import { type MemberLike } from '@/features/finance/members';
 import { clamp, coefficientOfVariation, weightedRecentAverage } from '@/features/finance/stats';
-import { splitEqual, type Share } from '@/features/finance/split';
 import { getOccurrences } from '@/features/schedule/occurrences';
 import { computeSeasonality } from './calculations';
 
@@ -29,31 +28,24 @@ export interface MonthProjection {
   confidence: ProjectionConfidence;
   /** Distinct months between the first and last bill, inclusive. */
   monthsOfData: number;
-  /** Mode A: equal share per active member. */
-  perPerson: Share[];
-  /** Mode B: expected contributions vs projected spend (also for low/high). */
+  /** Expected contributions vs projected spend; `balance.equalShares` is the equal split per active member. */
   balance: MonthBalance;
   balanceLowSpendCents: number;
   balanceHighSpendCents: number;
 }
 
-export interface ProjectionOptions {
-  /** How many of the latest bills feed the weighted average. */
-  trailingBills?: number;
-  /** Seasonal factor bounds. */
-  minSeasonalFactor?: number;
-  maxSeasonalFactor?: number;
-}
+/** How many of the latest bills feed the weighted average. */
+const TRAILING_BILLS = 6;
+const MIN_SEASONAL_FACTOR = 0.5;
+const MAX_SEASONAL_FACTOR = 2;
 
-type ProjectionBill = BillCore;
-
-function monthsOfData(bills: ProjectionBill[]): number {
+function monthsOfData(bills: BillCore[]): number {
   if (bills.length === 0) return 0;
   const months = bills.map(getEffectiveMonth).sort();
   return monthRange(months[0], months[months.length - 1]).length;
 }
 
-export function projectionConfidence(months: number): ProjectionConfidence {
+function projectionConfidence(months: number): ProjectionConfidence {
   if (months >= 12) return 'HIGH';
   if (months >= 6) return 'MEDIUM';
   return 'LOW';
@@ -61,12 +53,10 @@ export function projectionConfidence(months: number): ProjectionConfidence {
 
 function projectCategory(
   category: ExpenseCategory,
-  bills: ProjectionBill[],
+  bills: BillCore[],
   allCategories: ExpenseCategory[],
-  allBills: ProjectionBill[],
   targetMonth: string,
   hasYearOfData: boolean,
-  options: Required<ProjectionOptions>,
 ): CategoryProjection {
   const occurrences = getOccurrences(
     category,
@@ -92,7 +82,7 @@ function projectCategory(
     const unit =
       category.expectedAmountCents ??
       Math.round(
-        weightedRecentAverage(own.slice(-options.trailingBills).map((b) => b.amountCents)) ?? 0,
+        weightedRecentAverage(own.slice(-TRAILING_BILLS).map((b) => b.amountCents)) ?? 0,
       );
     const total = unit * occurrences;
     return { ...none, basis: 'SCHEDULE', estimateCents: total, lowCents: total, highCents: total };
@@ -101,7 +91,7 @@ function projectCategory(
   // VARIABLE: (a) same month last year, else (b) weighted trailing average with seasonal adjustment.
   const lastYearMonth = addMonthsToKey(targetMonth, -12);
   const lastYear = own.filter((b) => getEffectiveMonth(b) === lastYearMonth);
-  const recent = own.slice(-options.trailingBills);
+  const recent = own.slice(-TRAILING_BILLS);
   const cv = coefficientOfVariation(recent.map((b) => b.amountCents));
   const hasEstimateFallback = category.expectedAmountCents != null;
   const spread = clamp(cv ?? (hasEstimateFallback ? 0.3 : 0.5), 0.05, 0.5);
@@ -120,7 +110,7 @@ function projectCategory(
     } else {
       let factor = 1;
       if (hasYearOfData) {
-        const season = computeSeasonality(allBills, allCategories, category.id);
+        const season = computeSeasonality(bills, allCategories, category.id);
         const yearly = season.yearlyAverageCents;
         const factorOf = (moy: number): number | null => {
           const a = season.byMonthOfYear[moy - 1].averageCents;
@@ -134,11 +124,7 @@ function projectCategory(
           ? windowFactors.reduce((s, f) => s + f, 0) / windowFactors.length
           : 1;
         if (target !== null && windowFactor > 0) {
-          factor = clamp(
-            target / windowFactor,
-            options.minSeasonalFactor,
-            options.maxSeasonalFactor,
-          );
+          factor = clamp(target / windowFactor, MIN_SEASONAL_FACTOR, MAX_SEASONAL_FACTOR);
         }
       }
       estimate = avg * factor * occurrences;
@@ -165,29 +151,22 @@ function projectCategory(
 export function projectMonth(params: {
   targetMonth: string;
   categories: ExpenseCategory[];
-  bills: ProjectionBill[];
+  bills: BillCore[];
   members: MemberLike[];
   house: Pick<House, 'fixedContributionCents'>;
-  options?: ProjectionOptions;
 }): MonthProjection {
   const { targetMonth, categories, bills, members, house } = params;
-  const options: Required<ProjectionOptions> = {
-    trailingBills: params.options?.trailingBills ?? 6,
-    minSeasonalFactor: params.options?.minSeasonalFactor ?? 0.5,
-    maxSeasonalFactor: params.options?.maxSeasonalFactor ?? 2,
-  };
   const months = monthsOfData(bills);
   const hasYearOfData = months >= 12;
 
   const perCategory = categories
     .filter((c) => c.isActive)
-    .map((c) => projectCategory(c, bills, categories, bills, targetMonth, hasYearOfData, options))
+    .map((c) => projectCategory(c, bills, categories, targetMonth, hasYearOfData))
     .sort((a, b) => b.estimateCents - a.estimateCents);
 
   const totalCents = perCategory.reduce((s, c) => s + c.estimateCents, 0);
   const lowCents = perCategory.reduce((s, c) => s + c.lowCents, 0);
   const highCents = perCategory.reduce((s, c) => s + c.highCents, 0);
-  const active = activeMembersInMonth(members, targetMonth);
 
   return {
     month: targetMonth,
@@ -197,10 +176,6 @@ export function projectMonth(params: {
     perCategory,
     confidence: projectionConfidence(months),
     monthsOfData: months,
-    perPerson: splitEqual(
-      totalCents,
-      active.map((m) => m.id),
-    ),
     balance: computeMonthBalance(house, members, targetMonth, totalCents),
     balanceLowSpendCents: computeMonthBalance(house, members, targetMonth, lowCents).balanceCents,
     balanceHighSpendCents: computeMonthBalance(house, members, targetMonth, highCents).balanceCents,

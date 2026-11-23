@@ -107,7 +107,7 @@ export default function PaymentsScreen() {
               key={p.id}
               icon="card"
               title={byId.get(p.memberId)?.displayName ?? '—'}
-              subtitle={`${formatDate(p.paidAt.slice(0, 10), locale, 'medium')}${p.note ? ` · ${p.note}` : ''}`}
+              subtitle={`${formatDate(p.paidAt, locale, 'medium')}${p.note ? ` · ${p.note}` : ''}`}
               value={formatMoney(p.amountCents, locale)}
               swipeActions={[{ label: t('common.delete'), destructive: true, onPress: () => del.mutate(p.id) }]}
             />

@@ -109,7 +109,7 @@ export default function DocumentsScreen() {
               key={doc.id}
               icon={doc.mimeType === 'application/pdf' ? 'document' : 'photo'}
               title={t(TYPE_LABEL[doc.type])}
-              subtitle={`${doc.fileName} · ${formatFileSize(doc.sizeBytes)} · ${formatDate(doc.uploadedAt.slice(0, 10), locale)}`}
+              subtitle={`${doc.fileName} · ${formatFileSize(doc.sizeBytes)} · ${formatDate(doc.uploadedAt, locale)}`}
               chevron
               onPress={() => void view(doc)}
               accessibilityLabel={`${t('account.view')} ${t(TYPE_LABEL[doc.type])}`}

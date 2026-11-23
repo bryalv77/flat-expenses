@@ -106,7 +106,7 @@ export default function InviteScreen() {
             <ListRow
               key={i.id}
               title={formatInviteCode(i.code)}
-              subtitle={`${t('house.expiry')} ${formatDate(i.expiresAt.slice(0, 10), locale, 'medium')}`}
+              subtitle={`${t('house.expiry')} ${formatDate(i.expiresAt, locale, 'medium')}`}
               trailing={<Badge label={`${i.usedCount}/${i.maxUses}`} tone="blue" />}
               onPress={() => void copy(i.code)}
               swipeActions={[{ label: t('house.revoke'), destructive: true, onPress: () => revoke.mutate(i.id) }]}

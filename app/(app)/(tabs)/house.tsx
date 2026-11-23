@@ -120,7 +120,7 @@ export default function HouseScreen() {
               key={m.id}
               leading={<MemberAvatar name={m.displayName} photoPath={m.photoPath} />}
               title={m.userId === authUser?.uid ? `${m.displayName} (${t('hub.youTag')})` : m.displayName}
-              subtitle={`${t('hub.joined')} ${formatDate(m.joinedAt.slice(0, 10), locale, 'medium')}${m.removedAt ? ` → ${formatDate(m.removedAt.slice(0, 10), locale, 'medium')}` : ''}`}
+              subtitle={`${t('hub.joined')} ${formatDate(m.joinedAt, locale, 'medium')}${m.removedAt ? ` → ${formatDate(m.removedAt, locale, 'medium')}` : ''}`}
               meta={
                 <>
                   <Badge small label={m.role === 'ADMIN' ? t('house.admin') : t('house.roommate')} tone={m.role === 'ADMIN' ? 'blue' : 'neutral'} />

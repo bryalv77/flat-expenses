@@ -1,6 +1,6 @@
 import { ELECTRICITY, GAS, NETFLIX, RENT, makeBill, makeMember } from '@/test/fixtures';
 import { weightedRecentAverage } from '@/features/finance/stats';
-import { projectMonth, projectionConfidence } from './projection';
+import { projectMonth } from './projection';
 
 const house = { fixedContributionCents: 50000 };
 const members = [
@@ -33,7 +33,7 @@ describe('projectMonth', () => {
       members,
       house,
     });
-    expect(p.perPerson.map((s) => s.cents)).toEqual([40500, 40500, 40500]);
+    expect(p.balance.equalShares.map((s) => s.cents)).toEqual([40500, 40500, 40500]);
     expect(p.balance.expectedIncomeCents).toBe(100000);
     expect(p.balance.balanceCents).toBe(-21500);
     expect(p.balance.status).toBe('INSUFFICIENT');
@@ -105,7 +105,7 @@ describe('projectMonth', () => {
     expect(p.confidence).toBe('HIGH');
   });
 
-  it('ignores inactive categories and reports confidence levels', () => {
+  it('ignores inactive categories', () => {
     const p = projectMonth({
       targetMonth: '2025-04',
       categories: [{ ...RENT, isActive: false }],
@@ -114,10 +114,5 @@ describe('projectMonth', () => {
       house,
     });
     expect(p.perCategory).toHaveLength(0);
-    expect([projectionConfidence(3), projectionConfidence(8), projectionConfidence(14)]).toEqual([
-      'LOW',
-      'MEDIUM',
-      'HIGH',
-    ]);
   });
 });

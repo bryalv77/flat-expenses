@@ -87,10 +87,10 @@ export function ForecastSection({ data }: { data: ReportData }) {
         </Section>
       ) : (
         <Section header={t('reportsUi.perPersonShare')}>
-          {projection.perPerson.length === 0 ? (
+          {projection.balance.equalShares.length === 0 ? (
             <ListRow title={t('reportsUi.noPeople')} />
           ) : (
-            projection.perPerson.map((p) => <ListRow key={p.memberId} title={memberName(p.memberId)} value={money(p.cents)} />)
+            projection.balance.equalShares.map((p) => <ListRow key={p.memberId} title={memberName(p.memberId)} value={money(p.cents)} />)
           )}
         </Section>
       )}

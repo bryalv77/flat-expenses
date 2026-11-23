@@ -67,7 +67,7 @@ export default function BillDetailScreen() {
           <ListRow title={t('expenses.chargeDate')} value={dateOrDash(b.chargeDate)} />
           <ListRow title={t('expenses.periodStart')} value={dateOrDash(b.periodStartDate)} />
           <ListRow title={t('expenses.cutoffDate')} value={dateOrDash(b.periodEndDate)} />
-          <ListRow title={t('billsUi.created')} value={dateOrDash(b.createdAt.slice(0, 10))} />
+          <ListRow title={t('billsUi.created')} value={dateOrDash(b.createdAt)} />
           {b.notes ? <ListRow title={t('expenses.notes')} subtitle={b.notes} /> : null}
         </Section>
 

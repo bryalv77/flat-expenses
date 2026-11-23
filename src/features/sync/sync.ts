@@ -1,3 +1,4 @@
+import { dayOf } from '@/lib/dates';
 import { LOCAL_USER_ID } from '@/lib/api/local/ctx';
 import type { Api } from '@/lib/api/types';
 import type { PickedFile } from '@/lib/storage';
@@ -36,7 +37,6 @@ export interface SyncDeps {
 }
 
 /** A member `joinedAt`/`removedAt` is an ISO datetime in local mode; the cloud guest API wants a day. */
-const dayOf = (iso: string): string => iso.slice(0, 10);
 
 /** Reads every local house with its full content. */
 export async function readLocalHouses(local: Api): Promise<LocalHouseData[]> {

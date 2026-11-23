@@ -1,5 +1,5 @@
 import type { HouseMember } from '@/types/domain';
-import { monthEnd, monthStart } from '@/lib/dates';
+import { dayOf, monthEnd, monthStart } from '@/lib/dates';
 
 export type MemberLike = Pick<
   HouseMember,
@@ -8,9 +8,9 @@ export type MemberLike = Pick<
 
 /** Was the member part of the house at any point during the month (`YYYY-MM`)? */
 function isMemberActiveInMonth(member: MemberLike, month: string): boolean {
-  const joined = member.joinedAt.slice(0, 10);
+  const joined = dayOf(member.joinedAt);
   if (joined > monthEnd(month)) return false;
-  if (member.removedAt) return member.removedAt.slice(0, 10) >= monthStart(month);
+  if (member.removedAt) return dayOf(member.removedAt) >= monthStart(month);
   return member.status === 'ACTIVE';
 }
 

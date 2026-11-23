@@ -47,7 +47,7 @@ export default function MemberDetailScreen() {
             <Badge label={member.role === 'ADMIN' ? t('house.admin') : t('house.roommate')} tone={member.role === 'ADMIN' ? 'blue' : 'neutral'} />
             {member.status === 'REMOVED' ? <Badge label={t('house.removed')} tone="red" /> : null}
           </View>
-          <Text variant="footnote" color="secondaryLabel">{`${t('hub.joined')} ${formatDate(member.joinedAt.slice(0, 10), locale, 'medium')}`}</Text>
+          <Text variant="footnote" color="secondaryLabel">{`${t('hub.joined')} ${formatDate(member.joinedAt, locale, 'medium')}`}</Text>
         </View>
 
         {isRoommate && house.splitMode === 'FIXED_CONTRIBUTION' ? (
@@ -76,7 +76,7 @@ export default function MemberDetailScreen() {
               <Section>
                 <DatePickerField label={t('hub.moveOut')} value={leftOn} onChange={setLeftOn} />
               </Section>
-              <Button title={t('house.remove')} variant="tinted" destructive disabled={!leftOn || leftOn < member.joinedAt.slice(0, 10)} onPress={() => setConfirmRemove(true)} />
+              <Button title={t('house.remove')} variant="tinted" destructive disabled={!leftOn || leftOn < dayOf(member.joinedAt)} onPress={() => setConfirmRemove(true)} />
             </>
           ) : (
             <Button title={t('house.reactivate')} variant="tinted" loading={reactivate.isPending} onPress={() => reactivate.mutate(member.id)} />

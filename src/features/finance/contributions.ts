@@ -21,9 +21,9 @@ function contributionForMember(house: ContributionHouse, member: MemberLike): nu
 export function dueForMember(house: ContributionHouse, member: MemberLike, month: string): number {
   const full = contributionForMember(house, member);
   const dim = daysInMonth(+month.slice(0, 4), monthNumber(month));
-  const joinDay = parseISODate(member.joinedAt.slice(0, 10)).d;
+  const joinDay = parseISODate(member.joinedAt).d;
   const from = monthKey(member.joinedAt) === month && joinDay > 1 ? joinDay : 0;
-  const to = member.removedAt && monthKey(member.removedAt) === month ? parseISODate(member.removedAt.slice(0, 10)).d : dim;
+  const to = member.removedAt && monthKey(member.removedAt) === month ? parseISODate(member.removedAt).d : dim;
   return Math.round((full * Math.max(0, to - from)) / dim);
 }
 

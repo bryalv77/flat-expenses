@@ -6,8 +6,11 @@ export interface YMD {
   d: number;
 }
 
+/** The `YYYY-MM-DD` part of an ISO date or datetime. */
+export const dayOf = (iso: string): string => iso.slice(0, 10);
+
 export function parseISODate(iso: string): YMD {
-  const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+  const [y, m, d] = dayOf(iso).split('-').map(Number);
   return { y, m, d };
 }
 
