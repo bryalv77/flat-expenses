@@ -11,7 +11,7 @@ export const houseSchema = <E extends z.ZodRawShape>(t: T, extra: E) =>
       name: z.string().trim().min(1, t('account.houseNameRequired')).max(80),
       address: z.string().trim().max(160),
       splitMode: z.enum(['EQUAL', 'FIXED_CONTRIBUTION']),
-      fixedContributionCents: z.number().int().positive().nullable(),
+      fixedContributionCents: z.number().int().min(0).nullable(),
       contributionDayOfMonth: z.number().int().min(1).max(28).nullable(),
       ...extra,
     })
@@ -21,7 +21,7 @@ export const houseSchema = <E extends z.ZodRawShape>(t: T, extra: E) =>
           splitMode: string;
           fixedContributionCents: number | null;
         };
-        return splitMode !== 'FIXED_CONTRIBUTION' || fixedContributionCents !== null;
+        return splitMode !== 'FIXED_CONTRIBUTION' || (fixedContributionCents !== null && fixedContributionCents > 0);
       },
       {
         path: ['fixedContributionCents'],

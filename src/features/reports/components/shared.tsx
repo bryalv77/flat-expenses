@@ -1,11 +1,10 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Chip, Icon, isIconName, Text } from '@/components/ui';
+import { Chip, Icon, Text } from '@/components/ui';
 import { useT } from '@/i18n';
 import { addMonthsToKey, monthEnd, monthStart } from '@/lib/dates';
 import { formatMonth } from '@/lib/format';
 import { MIN_TOUCH, spacing, useTheme } from '@/theme';
-import type { ExpenseCategory } from '@/types/domain';
 
 export function MonthStepper({
   month,
@@ -48,35 +47,6 @@ export function MonthStepper({
         <Icon name="chevronRight" size={20} color={colors.tint} />
       </Pressable>
     </View>
-  );
-}
-
-export function CategoryChips({
-  categories,
-  value,
-  onChange,
-  allowAll,
-}: {
-  categories: ExpenseCategory[];
-  value: string | null;
-  onChange: (id: string | null) => void;
-  allowAll?: boolean;
-}) {
-  const { t } = useT();
-  return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-      {allowAll ? <Chip label={t('common.all')} selected={value === null} onPress={() => onChange(null)} /> : null}
-      {categories.map((c) => (
-        <Chip
-          key={c.id}
-          label={c.name}
-          color={c.color}
-          icon={isIconName(c.icon) ? c.icon : undefined}
-          selected={value === c.id}
-          onPress={() => onChange(c.id)}
-        />
-      ))}
-    </ScrollView>
   );
 }
 

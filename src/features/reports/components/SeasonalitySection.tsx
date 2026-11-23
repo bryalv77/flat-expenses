@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { BarChart, LineChart } from '@/components/charts';
 import { Card, EmptyState, ListRow, Section, Text } from '@/components/ui';
+import { CategoryChips } from '@/features/categories/CategoryChips';
 import { useT } from '@/i18n';
 import { formatMoney, formatMonthName, formatPercent } from '@/lib/format';
 import { spacing, useTheme } from '@/theme';
@@ -10,7 +11,7 @@ import { spacing, useTheme } from '@/theme';
 import { getEffectiveDate } from '@/features/finance';
 
 import { computeSeasonality } from '..';
-import { CategoryChips, filterByRange, RangeChips, type RangeKey } from './shared';
+import { filterByRange, RangeChips, type RangeKey } from './shared';
 import type { ReportData } from './useReportData';
 
 export function SeasonalitySection({ data }: { data: ReportData }) {

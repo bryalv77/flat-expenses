@@ -22,6 +22,7 @@ import { useCategories } from '@/features/categories/hooks';
 import { getEffectiveDate, getEffectiveMonth } from '@/features/finance';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { sumCents } from '@/features/reports';
+import { CategoryChips } from '@/features/categories/CategoryChips';
 import { useT } from '@/i18n';
 import { addMonthsToKey, monthEnd, monthKey, monthStart, todayISO } from '@/lib/dates';
 import { formatDate, formatMoney, formatMonth } from '@/lib/format';
@@ -155,19 +156,12 @@ export default function ExpensesScreen() {
             <Chip key={o.key} label={o.label} selected={!searching && range === o.key} onPress={() => { setSearch(''); setRange(o.key); }} />
           ))}
         </ScrollView>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll} contentContainerStyle={styles.chips}>
-          <Chip label={t('common.all')} selected={!categoryId} onPress={() => setCategoryId(undefined)} />
-          {(categories.data ?? []).map((c) => (
-            <Chip
-              key={c.id}
-              label={c.name}
-              color={c.color}
-              icon={isIconName(c.icon) ? c.icon : undefined}
-              selected={categoryId === c.id}
-              onPress={() => setCategoryId(categoryId === c.id ? undefined : c.id)}
-            />
-          ))}
-        </ScrollView>
+        <CategoryChips
+          categories={categories.data ?? []}
+          value={categoryId ?? null}
+          onChange={(id) => setCategoryId(id === categoryId ? undefined : (id ?? undefined))}
+          allowAll
+        />
       </View>
 
       {houseLoading || bills.isLoading ? (

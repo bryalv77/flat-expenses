@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { LineChart } from '@/components/charts';
 import { Badge, Card, EmptyState, ListRow, Section, Text } from '@/components/ui';
+import { CategoryChips } from '@/features/categories/CategoryChips';
 import { useT } from '@/i18n';
 import { formatMoney, formatMonth } from '@/lib/format';
 import { spacing } from '@/theme';
@@ -10,7 +11,7 @@ import { spacing } from '@/theme';
 import { getEffectiveDate } from '@/features/finance';
 
 import { categoryStats } from '..';
-import { CategoryChips, filterByRange, RangeChips, type RangeKey } from './shared';
+import { filterByRange, RangeChips, type RangeKey } from './shared';
 import type { ReportData } from './useReportData';
 
 export function CategorySection({ data }: { data: ReportData }) {

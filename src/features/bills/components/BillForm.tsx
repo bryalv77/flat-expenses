@@ -1,21 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 
 import {
   Button,
-  Chip,
   DatePickerField,
   FilePickerField,
-  isIconName,
   MoneyInput,
   Section,
   Text,
   TextField,
   type PickedFile,
 } from '@/components/ui';
+import { CategoryChips } from '@/features/categories/CategoryChips';
 import { useT } from '@/i18n';
 import { compareISO } from '@/lib/dates';
 import { spacing, useTheme } from '@/theme';
@@ -116,18 +115,7 @@ export function BillForm({ categories, initial, submitLabel, submitting, progres
             <Text variant="footnote" color="secondaryLabel">
               {t('expenses.category').toUpperCase()}
             </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-              {selectable.map((c) => (
-                <Chip
-                  key={c.id}
-                  label={c.name}
-                  color={c.color}
-                  icon={isIconName(c.icon) ? c.icon : undefined}
-                  selected={field.value === c.id}
-                  onPress={() => field.onChange(c.id)}
-                />
-              ))}
-            </ScrollView>
+            <CategoryChips categories={selectable} value={field.value} onChange={(id) => id && field.onChange(id)} />
             {fieldState.error ? (
               <Text variant="footnote" color="red">
                 {fieldState.error.message}
@@ -235,7 +223,6 @@ const styles = StyleSheet.create({
   block: { gap: spacing.sm },
   pending: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
   pendingName: { flex: 1 },
-  chips: { gap: spacing.sm, paddingVertical: spacing.xs },
   track: { height: 6, borderRadius: 3, overflow: 'hidden' },
   bar: { height: 6, borderRadius: 3 },
 });

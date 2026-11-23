@@ -4,12 +4,13 @@ import { StyleSheet, View } from 'react-native';
 
 import { Card, ListRow, Section, Text } from '@/components/ui';
 import { getEffectiveDate } from '@/features/finance';
+import { CategoryChips } from '@/features/categories/CategoryChips';
 import { useT } from '@/i18n';
 import { formatDate, formatMoney, formatMonth } from '@/lib/format';
 import { spacing } from '@/theme';
 
 import { lookupMonth } from '..';
-import { CategoryChips, MonthStepper } from './shared';
+import { MonthStepper } from './shared';
 import type { ReportData } from './useReportData';
 
 /** "How much did we spend on phone in March 2026?" */
