@@ -1,10 +1,10 @@
 import {
   formatInviteCode,
   generateInviteCode,
-  INVITE_ALPHABET,
   isValidInviteCode,
   normalizeInviteCode,
 } from './inviteCode';
+import { INVITE_ALPHABET } from '@/lib/limits';
 
 describe('inviteCode', () => {
   it('normalizes case, dashes and spaces', () => {

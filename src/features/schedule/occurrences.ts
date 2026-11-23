@@ -9,7 +9,7 @@ const AVG_DAYS_PER_MONTH = 30.4375;
 const MAX_ITERATIONS = 5000;
 
 /** The n-th occurrence (n >= 0), always computed from the anchor so month-ends never drift. */
-export function occurrenceAt(schedule: ScheduleFields, n: number): string {
+function occurrenceAt(schedule: ScheduleFields, n: number): string {
   const count = Math.max(1, schedule.intervalCount);
   switch (schedule.intervalUnit) {
     case 'DAY':

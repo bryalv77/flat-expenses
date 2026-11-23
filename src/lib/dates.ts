@@ -20,7 +20,7 @@ export function toISODate({ y, m, d }: YMD): string {
   return `${pad(y, 4)}-${pad(m)}-${pad(d)}`;
 }
 
-export function isLeapYear(y: number): boolean {
+function isLeapYear(y: number): boolean {
   return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
 }
 
@@ -36,7 +36,7 @@ export function toDayNumber(iso: string): number {
   return Math.floor(Date.UTC(y, m - 1, d) / DAY_MS);
 }
 
-export function fromDayNumber(n: number): string {
+function fromDayNumber(n: number): string {
   const dt = new Date(n * DAY_MS);
   return toISODate({ y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate() });
 }

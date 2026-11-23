@@ -9,9 +9,9 @@ export type SplitMode = 'EQUAL' | 'FIXED_CONTRIBUTION';
 export type AmountType = 'FIXED' | 'VARIABLE';
 export type IntervalUnit = 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
 export type DocumentType = 'PASSPORT' | 'NATIONAL_ID';
-export type InviteStatus = 'ACTIVE' | 'REVOKED' | 'EXPIRED';
+type InviteStatus = 'ACTIVE' | 'REVOKED' | 'EXPIRED';
 export type MemberStatus = 'ACTIVE' | 'REMOVED';
-export type OcrStatus = 'NONE' | 'PENDING' | 'DONE' | 'FAILED';
+type OcrStatus = 'NONE' | 'PENDING' | 'DONE' | 'FAILED';
 export interface User {
   id: string;
   email: string;

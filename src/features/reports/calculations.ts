@@ -130,7 +130,7 @@ export function amortizedMonthlyTotals(
   return out;
 }
 
-export function cyclesOf(categories: ExpenseCategory[]): Record<string, CycleFields> {
+function cyclesOf(categories: ExpenseCategory[]): Record<string, CycleFields> {
   return Object.fromEntries(categories.map((c) => [c.id, c]));
 }
 
@@ -425,7 +425,7 @@ function csvCell(value: string | number | null | undefined, delimiter: string): 
 }
 
 /** Decimal string with a dot, e.g. 120050 -> `1200.50` (locale-neutral for spreadsheets). */
-export function centsToPlainDecimal(cents: number): string {
+function centsToPlainDecimal(cents: number): string {
   const sign = cents < 0 ? '-' : '';
   const abs = Math.abs(cents);
   return `${sign}${Math.floor(abs / 100)}.${String(abs % 100).padStart(2, '0')}`;

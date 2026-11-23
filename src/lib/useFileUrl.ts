@@ -4,7 +4,7 @@ import { getFileStore } from './fileStore';
 import { qk } from './queryKeys';
 
 /** Goes through the active FileStore (cloud URL or local file URI). */
-export const resolveFileUrl = (storagePath: string) => getFileStore().getUrl(storagePath);
+const resolveFileUrl = (storagePath: string) => getFileStore().getUrl(storagePath);
 
 /** Resolves a Storage path (read from the API) to a displayable URL. */
 export function useFileUrl(storagePath: string | null | undefined) {

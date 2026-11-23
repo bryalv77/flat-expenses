@@ -2,7 +2,7 @@ import { openDatabaseAsync, type SQLiteBindParams, type SQLiteDatabase } from 'e
 import { migrate } from './migrate';
 import type { SqlDb } from './sql';
 
-export function fromExpoDb(db: SQLiteDatabase): SqlDb {
+function fromExpoDb(db: SQLiteDatabase): SqlDb {
   return {
     all: <T>(sql: string, params: SQLiteBindParams = []) => db.getAllAsync<T>(sql, params),
     get: async <T>(sql: string, params: SQLiteBindParams = []) =>
@@ -21,7 +21,7 @@ export function fromExpoDb(db: SQLiteDatabase): SqlDb {
 }
 
 /** Opens the app database, enables foreign keys and runs pending migrations. */
-export async function openLocalDb(name = 'costos-local.db'): Promise<SqlDb> {
+async function openLocalDb(name = 'costos-local.db'): Promise<SqlDb> {
   const raw = await openDatabaseAsync(name);
   await raw.execAsync('PRAGMA foreign_keys = ON');
   const db = fromExpoDb(raw);
