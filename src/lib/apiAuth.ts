@@ -14,3 +14,10 @@ export function getApiAuth(): ApiAuth {
   }
   return instance;
 }
+
+/** Signs out on the server and always drops the local token, even offline. */
+export async function signOutOfCloud(): Promise<void> {
+  const { client, clearToken } = getApiAuth();
+  await client.signOut().catch(() => undefined);
+  await clearToken();
+}

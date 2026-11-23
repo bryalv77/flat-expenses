@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { getPendingSync } from '@/features/sync/pending';
-import { getApiAuth } from '@/lib/apiAuth';
+import { getApiAuth, signOutOfCloud } from '@/lib/apiAuth';
 import { orNetworkError, toAuthError } from '@/lib/authErrors';
 import { api } from '@/lib/db';
 import { WEB_URL } from '@/lib/http';
@@ -122,13 +122,16 @@ export function ApiAuthProvider({ children }: { children: ReactNode }) {
     [client, qc, refresh],
   );
 
-  const signOut = useCallback(async () => {
-    await client.signOut().catch(() => undefined); // offline: the token is still dropped locally below
-    await clearToken();
+  const resetSession = useCallback(() => {
     setAuthUser(null);
     qc.clear();
     useUiStore.getState().setActiveHouseId(null);
-  }, [client, clearToken, qc]);
+  }, [qc]);
+
+  const signOut = useCallback(async () => {
+    await signOutOfCloud();
+    resetSession();
+  }, [resetSession]);
 
   // Always "succeeds" for unknown emails (Better Auth does not reveal which accounts exist). The email only goes out once the
   // Worker has RESEND_API_KEY + EMAIL_FROM; the link opens `${WEB_URL}/reset-password?token=…`, which calls confirmPasswordReset.
@@ -163,11 +166,9 @@ export function ApiAuthProvider({ children }: { children: ReactNode }) {
       const { error } = await orNetworkError(() => client.deleteUser(password ? { password } : {}));
       if (error) throw toAuthError(error); // wrong password: INVALID_PASSWORD -> reauthErrorKey
       await clearToken();
-      setAuthUser(null);
-      qc.clear();
-      useUiStore.getState().setActiveHouseId(null);
+      resetSession();
     },
-    [client, clearToken, qc],
+    [client, clearToken, resetSession],
   );
 
   const value = useMemo<AuthContextValue>(

@@ -4,12 +4,7 @@ const calls: string[] = [];
 jest.mock('@/lib/appMode', () => ({ saveAppMode: jest.fn(async (m: string) => void calls.push(`save:${m}`)) }));
 jest.mock('@/lib/queryClient', () => ({ queryClient: { clear: jest.fn(() => void calls.push('qc.clear')) } }));
 jest.mock('@/lib/uiStore', () => ({ useUiStore: { getState: () => ({ setActiveHouseId: () => void calls.push('house:null') }) } }));
-jest.mock('@/lib/apiAuth', () => ({
-  getApiAuth: () => ({
-    client: { signOut: async () => void calls.push('cloud.signOut') },
-    clearToken: async () => void calls.push('clearToken'),
-  }),
-}));
+jest.mock('@/lib/apiAuth', () => ({ signOutOfCloud: async () => void calls.push('cloud.signOut') }));
 jest.mock('@/features/sync/pending', () => ({
   clearPendingSync: async () => void calls.push('pendingSync:clear'),
 }));
@@ -19,7 +14,7 @@ beforeEach(() => (calls.length = 0));
 describe('appModeSwitch', () => {
   it('entering local signs out of cloud, clears the pending sync flag and the token before saving the mode', async () => {
     await enterLocalMode();
-    expect(calls).toEqual(['cloud.signOut', 'clearToken', 'pendingSync:clear', 'save:local', 'qc.clear', 'house:null']);
+    expect(calls).toEqual(['cloud.signOut', 'pendingSync:clear', 'save:local', 'qc.clear', 'house:null']);
   });
 
   it('leaving local saves cloud and clears caches', async () => {

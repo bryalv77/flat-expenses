@@ -1,5 +1,5 @@
 import { clearPendingSync } from '@/features/sync/pending';
-import { getApiAuth } from '@/lib/apiAuth';
+import { signOutOfCloud } from '@/lib/apiAuth';
 import { saveAppMode } from '@/lib/appMode';
 import { queryClient } from '@/lib/queryClient';
 import { useUiStore } from '@/lib/uiStore';
@@ -11,12 +11,6 @@ export const getTreeKey = () => treeKey;
 export function subscribeTreeReset(fn: () => void) {
   listeners.add(fn);
   return () => void listeners.delete(fn);
-}
-
-async function signOutOfCloud() {
-  const { client, clearToken } = getApiAuth();
-  await client.signOut().catch(() => undefined); // offline: the token is still dropped locally
-  await clearToken();
 }
 
 async function switchTo(mode: 'local' | 'cloud') {
