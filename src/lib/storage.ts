@@ -1,10 +1,11 @@
 import { randomUUID } from 'expo-crypto';
 import * as ImageManipulator from 'expo-image-manipulator';
 
+import { parseFileKey, type FileKind } from './fileKeys';
 import { API_URL, ApiError, authHeader, request } from './http';
 import { DOCUMENT_MIME_TYPES, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES, MAX_FILE_BYTES } from './limits';
 
-export type FileKind = 'avatar' | 'document' | 'bill';
+export type { FileKind };
 
 const MAX_BYTES: Record<FileKind, number> = { avatar: MAX_AVATAR_BYTES, document: MAX_FILE_BYTES, bill: MAX_FILE_BYTES };
 
@@ -57,7 +58,7 @@ function isImageType(mimeType: string): boolean {
 }
 
 /** Avatars have their own (image-only, smaller) rules; everything else is a document. */
-export const kindOfKey = (key: string): FileKind => (key.includes('/avatar/') ? 'avatar' : 'document');
+export const kindOfKey = (key: string): FileKind => (parseFileKey(key)?.kind === 'avatar' ? 'avatar' : 'document');
 
 export function validateFile(file: Pick<PickedFile, 'mimeType' | 'size'>, kind: FileKind): void {
   const type = file.mimeType.toLowerCase();

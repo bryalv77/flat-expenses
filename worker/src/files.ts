@@ -1,33 +1,19 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 
+import { parseFileKey, type FileKind } from '../../src/lib/fileKeys';
 import type { Db } from './db/client';
 import { DOCUMENT_MIME_TYPES, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES, MAX_FILE_BYTES } from './config';
 import { isUuid, parseJson } from './http';
 import { membership, session, type AppEnv } from './middleware';
 
-// File storage on R2, uploaded through the Worker (issue #7 §6, v1). Same keys and rules as storage.rules:
+// File storage on R2, uploaded through the Worker (issue #7 §6, v1). Key layout lives in src/lib/fileKeys.ts:
 //   users/{uid}/avatar/{file}                 read: any signed-in user · write: owner · image < 2 MB
 //   users/{uid}/documents/{docId}/{file}      owner only · image or PDF < 10 MB
 //   houses/{houseId}/bills/{folder}/{file}    read: active members · write: active admins · image or PDF < 10 MB
 export const MAX_BYTES = { avatar: MAX_AVATAR_BYTES, document: MAX_FILE_BYTES, bill: MAX_FILE_BYTES };
 
-const SEG = '[A-Za-z0-9._-]+'; // what the client's sanitizeFileName() produces; also rules out '..' tricks below
-const KEY = {
-  avatar: new RegExp(`^users/(${SEG})/avatar/${SEG}$`),
-  document: new RegExp(`^users/(${SEG})/documents/${SEG}/${SEG}$`),
-  bill: new RegExp(`^houses/(${SEG})/bills/${SEG}/${SEG}$`),
-} as const;
-type FileKind = keyof typeof KEY;
-
-export const parseKey = (key: string): { kind: FileKind; owner: string } | null => {
-  if (key.split('/').some((s) => s === '.' || s === '..')) return null;
-  for (const kind of Object.keys(KEY) as FileKind[]) {
-    const m = KEY[kind].exec(key);
-    if (m) return { kind, owner: m[1]! }; // owner = uid for users/*, houseId for houses/*
-  }
-  return null;
-};
+export const parseKey = parseFileKey;
 
 /** Best-effort cleanup: a failed delete leaves an orphan object, never a broken request. */
 export const deleteObjects = async (bucket: R2Bucket, keys: string[]) => {
