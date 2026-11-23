@@ -6,7 +6,7 @@ import { app } from './index';
 import { and, eq } from 'drizzle-orm';
 
 const dbUrl = inject('testDbUrl');
-if (!dbUrl && process.env.CI) throw new Error('No Postgres reachable: the route tests would be skipped silently in CI (set TEST_DATABASE_URL).');
+if (!dbUrl) throw new Error('No Postgres reachable: start one on localhost:5432 or set TEST_DATABASE_URL (see worker/README.md).');
 // Minimal in-memory R2: just what the Worker calls (put/get/head/delete/list).
 const store = new Map<string, { data: ArrayBuffer; contentType?: string }>();
 const bucket = {
@@ -52,7 +52,7 @@ const signUp = async (name: string) => {
 const day = (offset = 7) => new Date(Date.now() + offset * 864e5).toISOString();
 const catBody = { name: 'Luz', icon: 'bolt', color: '#FFAA00', amountType: 'VARIABLE', intervalUnit: 'MONTH', intervalCount: 1, anchorDate: '2026-01-01' };
 
-describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
+describe('API routes (real Postgres)', () => {
   let admin: Awaited<ReturnType<typeof signUp>>, roomie: typeof admin, outsider: typeof admin;
   let house: string, cat: string;
 

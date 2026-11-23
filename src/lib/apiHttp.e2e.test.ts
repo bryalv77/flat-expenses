@@ -1,6 +1,6 @@
 /**
  * Drives the real `httpApi` against a running Worker (`cd worker && pnpm dev:local`), so the wire -> domain mapping is
- * checked against real responses. Skipped unless API_E2E_URL is set:  API_E2E_URL=http://localhost:8787 pnpm test apiHttp.e2e
+ * checked against real responses. Not part of `pnpm test`; run it with a Worker up:  API_E2E_URL=http://localhost:8787 pnpm test:api
  */
 import nodeHttp from 'node:http';
 
@@ -11,6 +11,7 @@ import { runHousesContract } from './api/contract/houses.contract';
 import { runPaymentsContract } from './api/contract/payments.contract';
 
 const URL_ = process.env.API_E2E_URL;
+if (!URL_) throw new Error('API_E2E_URL is not set: start the Worker (cd worker && pnpm dev:local) and run `API_E2E_URL=http://localhost:8787 pnpm test:api`.');
 
 // jest-expo swaps `fetch` for a native-backed mock that never reaches the network, so this test brings a tiny real one.
 const realFetch = (url: string, init: { method?: string; headers?: Record<string, string>; body?: string | Uint8Array } = {}) =>
@@ -29,7 +30,7 @@ const realFetch = (url: string, init: { method?: string; headers?: Record<string
   });
 const run = Math.random().toString(36).slice(2, 8);
 
-(URL_ ? describe : describe.skip)('httpApi against the Worker', () => {
+describe('httpApi against the Worker', () => {
   let api: typeof import('./db').api;
   let http: typeof import('./http');
   let request: typeof import('./http').request;

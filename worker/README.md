@@ -6,7 +6,7 @@ Independent package: it is excluded from the app's tsconfig, jest and eslint.
 ```
 cd worker
 pnpm install
-pnpm test                # vitest; route tests use a local Postgres (costos_piso_test) and skip themselves without one
+pnpm test                # vitest; route tests need a local Postgres (costos_piso_test) and fail without one
                          # TEST_DATABASE_URL=<neon url> pnpm test  runs them on an existing database instead (exercises the Neon HTTP driver;
                          # the tests leave their data behind, so use a throwaway branch or an empty database)
 pnpm typecheck
