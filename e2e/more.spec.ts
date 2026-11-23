@@ -56,6 +56,7 @@ test.describe('files', () => {
     await expect(vtext(page, 'factura.png')).toBeVisible();
     await save(page);
     await tab(page, 'Expenses');
+    await expect(page.getByLabel('Has an attached file')).toBeVisible();
     await page.getByRole('button', { name: /^Electricity/ }).click();
     await expect(vtext(page, /factura\.jpg/)).toBeVisible();
   });

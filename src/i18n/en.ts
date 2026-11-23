@@ -141,7 +141,7 @@ export const en: Messages = {
   errors: { generic: 'Something went wrong. Try again.', network: 'No connection.', fileTooLarge: 'The file is too large.', fileType: 'File type not allowed.' },
   billsUi: {
     searchPlaceholder: 'Search notes', range3: '3 months', range12: '12 months', rangeYear: 'This year', rangeMonth: 'This month',
-    editBill: 'Edit bill', duplicate: 'Duplicate', addAnotherFile: 'Add another file', details: 'Details', period: 'Period', created: 'Created', noFile: 'No attached file',
+    editBill: 'Edit bill', duplicate: 'Duplicate', addAnotherFile: 'Add another file', details: 'Details', period: 'Period', created: 'Created', noFile: 'No attached file', hasFile: 'Has an attached file',
     replaceFile: 'Replace file', removeFile: 'Remove file', uploadFailed: 'The file could not be uploaded.', retryUpload: 'Retry',
     noResults: 'No results', notFound: 'Bill not found', fileSection: 'File', openFile: 'Open file',
     saved: 'Bill saved', deleted: 'Bill deleted', invalidPeriod: 'Period end cannot be before period start',

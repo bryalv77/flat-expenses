@@ -142,7 +142,7 @@ export const it: DeepPartial<Messages> = {
   errors: { generic: 'Qualcosa è andato storto. Riprova.', network: 'Nessuna connessione.', fileTooLarge: 'Il file è troppo grande.', fileType: 'Tipo di file non consentito.' },
   billsUi: {
     searchPlaceholder: 'Cerca nelle note', range3: '3 mesi', range12: '12 mesi', rangeYear: 'Quest’anno', rangeMonth: 'Questo mese',
-    editBill: 'Modifica bolletta', duplicate: 'Duplica', addAnotherFile: 'Aggiungi un altro file', details: 'Dettagli', period: 'Periodo', created: 'Creata', noFile: 'Nessun file allegato',
+    editBill: 'Modifica bolletta', duplicate: 'Duplica', addAnotherFile: 'Aggiungi un altro file', details: 'Dettagli', period: 'Periodo', created: 'Creata', noFile: 'Nessun file allegato', hasFile: 'Con file allegato',
     replaceFile: 'Cambia file', removeFile: 'Rimuovi file', uploadFailed: 'Impossibile caricare il file.', retryUpload: 'Riprova',
     noResults: 'Nessun risultato', notFound: 'Bolletta non trovata', fileSection: 'File', openFile: 'Apri file',
     saved: 'Bolletta salvata', deleted: 'Bolletta eliminata', invalidPeriod: 'La fine del periodo non può precedere l’inizio',

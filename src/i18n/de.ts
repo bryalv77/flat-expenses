@@ -142,7 +142,7 @@ export const de: DeepPartial<Messages> = {
   errors: { generic: 'Etwas ist schiefgelaufen. Versuche es erneut.', network: 'Keine Verbindung.', fileTooLarge: 'Die Datei ist zu groß.', fileType: 'Dateityp nicht erlaubt.' },
   billsUi: {
     searchPlaceholder: 'In Notizen suchen', range3: '3 Monate', range12: '12 Monate', rangeYear: 'Dieses Jahr', rangeMonth: 'Diesen Monat',
-    editBill: 'Rechnung bearbeiten', duplicate: 'Duplizieren', addAnotherFile: 'Weitere Datei hinzufügen', details: 'Details', period: 'Zeitraum', created: 'Erstellt', noFile: 'Keine Datei angehängt',
+    editBill: 'Rechnung bearbeiten', duplicate: 'Duplizieren', addAnotherFile: 'Weitere Datei hinzufügen', details: 'Details', period: 'Zeitraum', created: 'Erstellt', noFile: 'Keine Datei angehängt', hasFile: 'Mit Anhang',
     replaceFile: 'Datei ändern', removeFile: 'Datei entfernen', uploadFailed: 'Die Datei konnte nicht hochgeladen werden.', retryUpload: 'Erneut versuchen',
     noResults: 'Keine Ergebnisse', notFound: 'Rechnung nicht gefunden', fileSection: 'Datei', openFile: 'Datei öffnen',
     saved: 'Rechnung gespeichert', deleted: 'Rechnung gelöscht', invalidPeriod: 'Das Zeitraumende darf nicht vor dem Beginn liegen',

@@ -142,7 +142,7 @@ export const pt: DeepPartial<Messages> = {
   errors: { generic: 'Algo correu mal. Tenta novamente.', network: 'Sem ligação.', fileTooLarge: 'O ficheiro é demasiado grande.', fileType: 'Tipo de ficheiro não permitido.' },
   billsUi: {
     searchPlaceholder: 'Pesquisar nas notas', range3: '3 meses', range12: '12 meses', rangeYear: 'Este ano', rangeMonth: 'Este mês',
-    editBill: 'Editar fatura', duplicate: 'Duplicar', addAnotherFile: 'Adicionar outro ficheiro', details: 'Detalhes', period: 'Período', created: 'Criada', noFile: 'Sem ficheiro anexado',
+    editBill: 'Editar fatura', duplicate: 'Duplicar', addAnotherFile: 'Adicionar outro ficheiro', details: 'Detalhes', period: 'Período', created: 'Criada', noFile: 'Sem ficheiro anexado', hasFile: 'Com ficheiro anexo',
     replaceFile: 'Alterar ficheiro', removeFile: 'Remover ficheiro', uploadFailed: 'Não foi possível enviar o ficheiro.', retryUpload: 'Tentar novamente',
     noResults: 'Sem resultados', notFound: 'Fatura não encontrada', fileSection: 'Ficheiro', openFile: 'Abrir ficheiro',
     saved: 'Fatura guardada', deleted: 'Fatura eliminada', invalidPeriod: 'O fim do período não pode ser anterior ao início',

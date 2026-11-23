@@ -142,7 +142,7 @@ export const ca: DeepPartial<Messages> = {
   errors: { generic: 'Alguna cosa ha anat malament. Torna-ho a provar.', network: 'Sense connexió.', fileTooLarge: 'El fitxer és massa gran.', fileType: 'Tipus de fitxer no permès.' },
   billsUi: {
     searchPlaceholder: 'Cerca a les notes', range3: '3 mesos', range12: '12 mesos', rangeYear: 'Aquest any', rangeMonth: 'Aquest mes',
-    editBill: 'Edita la factura', duplicate: 'Duplica', addAnotherFile: 'Afegeix un altre fitxer', details: 'Detalls', period: 'Període', created: 'Creada', noFile: 'Sense fitxer adjunt',
+    editBill: 'Edita la factura', duplicate: 'Duplica', addAnotherFile: 'Afegeix un altre fitxer', details: 'Detalls', period: 'Període', created: 'Creada', noFile: 'Sense fitxer adjunt', hasFile: 'Amb fitxer adjunt',
     replaceFile: 'Canvia el fitxer', removeFile: 'Treu el fitxer', uploadFailed: 'No s’ha pogut pujar el fitxer.', retryUpload: 'Torna-ho a provar',
     noResults: 'Sense resultats', notFound: 'Factura no trobada', fileSection: 'Fitxer', openFile: 'Obre el fitxer',
     saved: 'Factura desada', deleted: 'Factura eliminada', invalidPeriod: 'El final del període no pot ser anterior a l’inici',

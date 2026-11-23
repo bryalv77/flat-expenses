@@ -27,6 +27,7 @@ export const iconMap = {
   camera: ['camera.fill', 'camera'],
   photo: ['photo.fill', 'image'],
   document: ['doc.fill', 'document'],
+  attach: ['paperclip', 'attach'],
   folder: ['folder.fill', 'folder'],
   calendar: ['calendar', 'calendar'],
   settings: ['gearshape.fill', 'settings'],

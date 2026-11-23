@@ -142,7 +142,7 @@ export const fr: DeepPartial<Messages> = {
   errors: { generic: 'Une erreur est survenue. Réessayez.', network: 'Pas de connexion.', fileTooLarge: 'Le fichier est trop volumineux.', fileType: 'Type de fichier non autorisé.' },
   billsUi: {
     searchPlaceholder: 'Rechercher dans les notes', range3: '3 mois', range12: '12 mois', rangeYear: 'Cette année', rangeMonth: 'Ce mois-ci',
-    editBill: 'Modifier la facture', duplicate: 'Dupliquer', addAnotherFile: 'Ajouter un autre fichier', details: 'Détails', period: 'Période', created: 'Créée', noFile: 'Aucun fichier joint',
+    editBill: 'Modifier la facture', duplicate: 'Dupliquer', addAnotherFile: 'Ajouter un autre fichier', details: 'Détails', period: 'Période', created: 'Créée', noFile: 'Aucun fichier joint', hasFile: 'Fichier joint',
     replaceFile: 'Changer le fichier', removeFile: 'Retirer le fichier', uploadFailed: 'Impossible d’envoyer le fichier.', retryUpload: 'Réessayer',
     noResults: 'Aucun résultat', notFound: 'Facture introuvable', fileSection: 'Fichier', openFile: 'Ouvrir le fichier',
     saved: 'Facture enregistrée', deleted: 'Facture supprimée', invalidPeriod: 'La fin de période ne peut pas précéder le début',

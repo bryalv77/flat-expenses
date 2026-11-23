@@ -139,7 +139,7 @@ export const es = {
   errors: { generic: 'Algo salió mal. Inténtalo de nuevo.', network: 'Sin conexión.', fileTooLarge: 'El archivo es demasiado grande.', fileType: 'Tipo de archivo no permitido.' },
   billsUi: {
     searchPlaceholder: 'Buscar en notas', range3: '3 meses', range12: '12 meses', rangeYear: 'Este año', rangeMonth: 'Este mes',
-    editBill: 'Editar factura', duplicate: 'Duplicar', addAnotherFile: 'Añadir otro archivo', details: 'Detalles', period: 'Periodo', created: 'Creada', noFile: 'Sin archivo adjunto',
+    editBill: 'Editar factura', duplicate: 'Duplicar', addAnotherFile: 'Añadir otro archivo', details: 'Detalles', period: 'Periodo', created: 'Creada', noFile: 'Sin archivo adjunto', hasFile: 'Con archivo adjunto',
     replaceFile: 'Cambiar archivo', removeFile: 'Quitar archivo', uploadFailed: 'No se pudo subir el archivo.', retryUpload: 'Reintentar',
     noResults: 'Sin resultados', notFound: 'Factura no encontrada', fileSection: 'Archivo', openFile: 'Abrir archivo',
     saved: 'Factura guardada', deleted: 'Factura eliminada', invalidPeriod: 'El fin del periodo no puede ser anterior al inicio',

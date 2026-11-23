@@ -200,6 +200,7 @@ export default function ExpensesScreen() {
                   value={formatMoney(b.amountCents, locale)}
                   icon={cat && isIconName(cat.icon) ? (cat.icon as IconName) : 'document'}
                   iconColor={cat?.color}
+                  trailing={b.files.length ? <View accessible accessibilityLabel={t('billsUi.hasFile')}><Icon name="attach" size={16} color={colors.secondaryLabel} /></View> : undefined}
                   chevron
                   onPress={() => router.push(`/bills/${b.id}`)}
                   swipeActions={isAdmin ? [{ label: t('common.delete'), destructive: true, onPress: () => setToDelete(b) }] : undefined}
