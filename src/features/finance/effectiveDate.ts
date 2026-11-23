@@ -15,3 +15,13 @@ export function getEffectiveDate(bill: Pick<BillCore, 'chargeDate' | 'periodEndD
 export function getEffectiveMonth(bill: Pick<BillCore, 'chargeDate' | 'periodEndDate' | 'createdAt'>): string {
   return getEffectiveDate(bill).slice(0, 7);
 }
+
+/** `YYYY-MM` -> total cents (only months with bills). */
+export function totalsByMonth(bills: BillCore[]): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const b of bills) {
+    const m = getEffectiveMonth(b);
+    out[m] = (out[m] ?? 0) + b.amountCents;
+  }
+  return out;
+}

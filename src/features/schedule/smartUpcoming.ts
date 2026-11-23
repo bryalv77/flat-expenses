@@ -1,6 +1,6 @@
 import type { ExpenseCategory } from '@/types/domain';
 import { addMonthsToKey, monthIndex, monthKey, monthRange } from '@/lib/dates';
-import { getEffectiveMonth, type BillCore } from '@/features/finance/effectiveDate';
+import { totalsByMonth, type BillCore } from '@/features/finance/effectiveDate';
 import { clamp, coefficientOfVariation, mean, weightedRecentAverage } from '@/features/finance/stats';
 import { getUpcomingCharges } from './occurrences';
 
@@ -52,9 +52,9 @@ export function detectCycle(billed: Set<string>, firstMonth: string, lastMonth: 
   return null;
 }
 
-function estimate(totals: Map<string, number>, target: string): { cents: number; low: number; high: number; basis: SmartBasis } {
-  const keys = [...totals.keys()].sort();
-  const values = keys.map((k) => totals.get(k) as number);
+function estimate(totals: Record<string, number>, target: string): { cents: number; low: number; high: number; basis: SmartBasis } {
+  const keys = Object.keys(totals).sort();
+  const values = keys.map((k) => totals[k]!);
   const recent = values.slice(-6);
   const last3 = values.slice(-3);
 
@@ -65,11 +65,11 @@ function estimate(totals: Map<string, number>, target: string): { cents: number;
   }
 
   // Seasonal: same month last year, scaled by how much the latest occurrences grew vs. a year earlier.
-  const lastYear = totals.get(addMonthsToKey(target, -12));
+  const lastYear = totals[addMonthsToKey(target, -12)];
   if (lastYear != null) {
     const pairs = keys
       .slice(-3)
-      .map((k) => [totals.get(k) as number, totals.get(addMonthsToKey(k, -12))] as const)
+      .map((k) => [totals[k]!, totals[addMonthsToKey(k, -12)]] as const)
       .filter((p): p is readonly [number, number] => p[1] != null && p[1] > 0);
     const ratio = pairs.length >= 2 ? clamp((mean(pairs.map((p) => p[0])) ?? 0) / (mean(pairs.map((p) => p[1])) ?? 0), 0.7, 1.6) : 1;
     const c = lastYear * ratio;
@@ -95,13 +95,8 @@ export function getSmartUpcoming(
 
   for (const category of categories) {
     if (!category.isActive) continue;
-    const totals = new Map<string, number>();
-    for (const b of bills) {
-      if (b.categoryId !== category.id || b.amountCents <= 0) continue;
-      const m = getEffectiveMonth(b);
-      totals.set(m, (totals.get(m) ?? 0) + b.amountCents);
-    }
-    const sorted = [...totals.keys()].sort();
+    const totals = totalsByMonth(bills.filter((b) => b.categoryId === category.id && b.amountCents > 0));
+    const sorted = Object.keys(totals).sort();
     const windowStart = addMonthsToKey(current, -WINDOW_MONTHS);
     const first = sorted.find((m) => m >= windowStart);
     const lastBilled = sorted[sorted.length - 1];
@@ -118,7 +113,7 @@ export function getSmartUpcoming(
     }
 
     for (const month of targets) {
-      if (monthIndex(month) % cycle.every !== cycle.residue || totals.has(month)) continue;
+      if (monthIndex(month) % cycle.every !== cycle.residue || month in totals) continue;
       const est = estimate(totals, month);
       out.push({ category, month, date: null, estimateCents: est.cents, lowCents: est.low, highCents: est.high, everyMonths: cycle.every, basis: est.basis });
     }

@@ -4,13 +4,13 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { StackedBarChart } from '@/components/charts';
 import { Card, Chip, EmptyState, isIconName, ListRow, Section, Text, type IconName } from '@/components/ui';
-import { getEffectiveDate, getEffectiveMonth } from '@/features/finance';
+import { getEffectiveDate, getEffectiveMonth, totalsByMonth } from '@/features/finance';
 import { useT } from '@/i18n';
 import { addMonthsToKey, monthNumber } from '@/lib/dates';
 import { formatDate, formatMoney, formatMonth, formatMonthName } from '@/lib/format';
 import { spacing, useTheme } from '@/theme';
 
-import { lastNMonths, lookupMonth, monthlySeries, totalsByMonth } from '..';
+import { lastNMonths, lookupMonth, monthlySeries } from '..';
 import { Stat } from './Stat';
 import { MonthStepper } from './shared';
 import type { ReportData } from './useReportData';

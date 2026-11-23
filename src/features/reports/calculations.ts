@@ -1,6 +1,6 @@
 import type { Bill, ExpenseCategory, MemberPayment } from '@/types/domain';
 import { addMonthsToKey, monthKey, monthOfYear, monthRange, parseISODate } from '@/lib/dates';
-import { getEffectiveDate, getEffectiveMonth, type BillCore } from '@/features/finance/effectiveDate';
+import { getEffectiveDate, getEffectiveMonth, totalsByMonth, type BillCore } from '@/features/finance/effectiveDate';
 import { activeMembersInMonth, type MemberLike } from '@/features/finance/members';
 import { mean } from '@/features/finance/stats';
 import { splitEqual, type Share } from '@/features/finance/split';
@@ -26,16 +26,6 @@ export function filterBills<T extends BillCore>(
 
 export function sumCents(bills: Pick<BillCore, 'amountCents'>[]): number {
   return bills.reduce((s, b) => s + b.amountCents, 0);
-}
-
-/** `YYYY-MM` -> total cents (only months with bills). */
-export function totalsByMonth(bills: BillCore[]): Record<string, number> {
-  const out: Record<string, number> = {};
-  for (const b of bills) {
-    const m = getEffectiveMonth(b);
-    out[m] = (out[m] ?? 0) + b.amountCents;
-  }
-  return out;
 }
 
 /** The `n` month keys ending at `endMonth` (inclusive), oldest first. */

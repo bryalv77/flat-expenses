@@ -7,6 +7,7 @@ import {
   makeCategory,
   makeMember,
 } from '@/test/fixtures';
+import { totalsByMonth } from '@/features/finance';
 import {
   amortizedMonthlyTotals,
   buildBillsCsv,
@@ -19,7 +20,6 @@ import {
   lookupMonth,
   monthlySeries,
   perPersonTable,
-  totalsByMonth,
   whoPays,
 } from './calculations';
 

@@ -3,12 +3,12 @@ import { StyleSheet, View } from 'react-native';
 
 import { LineChart } from '@/components/charts';
 import { Badge, Card, EmptyState, ListRow, Section, Text } from '@/components/ui';
-import { computeBalanceSeries, computePaymentStatus, recommendContribution } from '@/features/finance';
+import { computeBalanceSeries, computePaymentStatus, recommendContribution, totalsByMonth } from '@/features/finance';
 import { useT } from '@/i18n';
 import { formatMoney, formatMonth } from '@/lib/format';
 import { spacing, useTheme } from '@/theme';
 
-import { lastNMonths, perPersonTable, totalsByMonth } from '..';
+import { lastNMonths, perPersonTable } from '..';
 import type { ReportData } from './useReportData';
 
 /** Mode A: equal split per person per month. Mode B (when the house uses it): contribution balance. Both views are always computed. */
