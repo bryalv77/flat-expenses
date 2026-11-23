@@ -6,7 +6,7 @@
 //   pnpm deploy:web
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 
 // Inlined at bundle time and overriding .env: a deploy must never ship a build pointing anywhere else.
 const PROD_ENV = { EXPO_PUBLIC_API_URL: 'https://api-cuota.devalv.com', EXPO_PUBLIC_WEB_URL: 'https://app-cuota.devalv.com' };
@@ -17,7 +17,14 @@ const run = (cmd, args) => {
   if (r.status !== 0) process.exit(r.status ?? 1);
 };
 
-run('pnpm', ['exec', 'expo', 'export', '--platform', 'web']);
+// --clear: Metro's transform cache is not keyed on EXPO_PUBLIC_* values, so a cached build made without them ships an empty API URL.
+run('pnpm', ['exec', 'expo', 'export', '--platform', 'web', '--clear']);
+
+const bundle = readdirSync('dist/_expo/static/js/web').filter((f) => f.startsWith('entry-'));
+if (!bundle.some((f) => readFileSync(`dist/_expo/static/js/web/${f}`, 'utf8').includes(PROD_ENV.EXPO_PUBLIC_API_URL))) {
+  console.error('\n✖ The exported bundle does not contain the API URL; refusing to deploy a build that cannot reach the API.');
+  process.exit(1);
+}
 
 const html = readFileSync('dist/index.html', 'utf8');
 const csp = readFileSync('public/_headers', 'utf8');
