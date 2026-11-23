@@ -1,7 +1,7 @@
 import { addBill, addRoommate, button, confirm, expect, save, startFlat, tab, test, vtext } from './fixtures';
 
 test.describe('flat settings', () => {
-  test('renames the flat, sets an address and toggles balance visibility', async ({ page }) => {
+  test('renames the flat and sets an address', async ({ page }) => {
     await startFlat(page);
     await tab(page, 'Flat');
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Casa Renombrada');

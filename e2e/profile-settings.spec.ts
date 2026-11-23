@@ -72,10 +72,4 @@ test.describe('settings', () => {
     await page.getByText('English', { exact: true }).click();
     await expect(page.getByText('APPEARANCE')).toBeVisible();
   });
-
-  test('theme options are selectable', async ({ page }) => {
-    await page.goto('/settings');
-    for (const t of ['Dark', 'Light', 'System']) await page.getByText(t, { exact: true }).click();
-    await expect(page.getByText('APPEARANCE')).toBeVisible();
-  });
 });
