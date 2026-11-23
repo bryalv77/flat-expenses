@@ -167,7 +167,6 @@ export default function HomeScreen() {
               }))}
               centerLabel={t('hub.monthTotal')}
               centerValue={formatMoney(view.total, locale, { compact: true })}
-              onSelect={() => undefined}
             />
           </Card>
         ) : null}

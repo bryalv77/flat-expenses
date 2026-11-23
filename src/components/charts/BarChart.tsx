@@ -1,7 +1,6 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import Svg, { G, Line, Rect, Text as SvgText } from 'react-native-svg';
 
-import { haptics } from '@/lib/haptics';
 import { fontFamily, useTheme } from '@/theme';
 
 import { ChartFrame, GRID_LINES, compactLabel, niceMax, useChartWidth } from './shared';
@@ -17,14 +16,12 @@ export interface BarDatum {
 export interface BarChartProps {
   data: BarDatum[];
   height?: number;
-  selectedKey?: string | null;
-  onSelect?: (key: string) => void;
   accessibilityLabel?: string;
 }
 
 const PAD = { top: 10, bottom: 24, left: 34, right: 4 };
 
-export function BarChart({ data, height = 200, selectedKey, onSelect, accessibilityLabel }: BarChartProps) {
+export function BarChart({ data, height = 200, accessibilityLabel }: BarChartProps) {
   const { colors } = useTheme();
   const { width, onLayout } = useChartWidth();
   const max = niceMax(Math.max(0, ...data.map((d) => d.value)));
@@ -52,11 +49,10 @@ export function BarChart({ data, height = 200, selectedKey, onSelect, accessibil
           })}
           {data.map((d, i) => {
             const x = PAD.left + slot * i + (slot - barW) / 2;
-            const selected = selectedKey == null || selectedKey === d.key;
             const h = Math.max(d.value > 0 ? 2 : 0, plotH - (y(d.value) - PAD.top));
             return (
               <G key={d.key}>
-                <Rect x={x} y={PAD.top + plotH - h} width={barW} height={h} rx={4} fill={d.color ?? colors.tint} opacity={selected ? 1 : 0.35} />
+                <Rect x={x} y={PAD.top + plotH - h} width={barW} height={h} rx={4} fill={d.color ?? colors.tint} />
                 {(data.length - 1 - i) % labelEvery === 0 ? (
                   <SvgText x={x + barW / 2} y={height - 8} fontSize={10} fontFamily={fontFamily} fill={colors.secondaryLabel} textAnchor="middle">
                     {d.label}
@@ -66,22 +62,6 @@ export function BarChart({ data, height = 200, selectedKey, onSelect, accessibil
             );
           })}
         </Svg>
-        {onSelect ? (
-          <View style={{ position: 'absolute', left: PAD.left, top: 0, width: plotW, height, flexDirection: 'row' }}>
-            {data.map((d) => (
-              <Pressable
-                key={d.key}
-                accessibilityRole="button"
-                accessibilityLabel={`${d.label}: ${compactLabel(d.value)}`}
-                style={{ flex: 1 }}
-                onPress={() => {
-                  haptics.selection();
-                  onSelect(d.key);
-                }}
-              />
-            ))}
-          </View>
-        ) : null}
       </View>
     </ChartFrame>
   );

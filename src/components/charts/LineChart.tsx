@@ -1,7 +1,6 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 
-import { haptics } from '@/lib/haptics';
 import { fontFamily, useTheme } from '@/theme';
 
 import { ChartFrame, GRID_LINES, compactLabel, niceMax, useChartWidth } from './shared';
@@ -12,21 +11,18 @@ export interface LineSeries {
   color: string;
   /** One value (cents) per x label; null leaves a gap. */
   values: (number | null)[];
-  dashed?: boolean;
 }
 
 export interface LineChartProps {
   xLabels: string[];
   series: LineSeries[];
   height?: number;
-  selectedIndex?: number | null;
-  onSelect?: (index: number) => void;
   accessibilityLabel?: string;
 }
 
 const PAD = { top: 10, bottom: 24, left: 34, right: 10 };
 
-export function LineChart({ xLabels, series, height = 200, selectedIndex, onSelect, accessibilityLabel }: LineChartProps) {
+export function LineChart({ xLabels, series, height = 200, accessibilityLabel }: LineChartProps) {
   const { colors } = useTheme();
   const { width, onLayout } = useChartWidth();
   const all = series.flatMap((s) => s.values).filter((v): v is number => v != null);
@@ -74,30 +70,13 @@ export function LineChart({ xLabels, series, height = 200, selectedIndex, onSele
               </SvgText>
             ) : null,
           )}
-          {selectedIndex != null ? <Line x1={x(selectedIndex)} x2={x(selectedIndex)} y1={PAD.top} y2={PAD.top + plotH} stroke={colors.tertiaryLabel} strokeWidth={1} strokeDasharray="3 3" /> : null}
           {series.map((s) => (
             <G key={s.key}>
-              <Path d={pathFor(s.values)} stroke={s.color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" fill="none" strokeDasharray={s.dashed ? '6 5' : undefined} />
-              {s.values.map((v, i) => (v != null && (n <= 14 || i === selectedIndex) ? <Circle key={i} cx={x(i)} cy={y(v)} r={selectedIndex === i ? 5 : 3} fill={s.color} /> : null))}
+              <Path d={pathFor(s.values)} stroke={s.color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" fill="none" />
+              {s.values.map((v, i) => (v != null && n <= 14 ? <Circle key={i} cx={x(i)} cy={y(v)} r={3} fill={s.color} /> : null))}
             </G>
           ))}
         </Svg>
-        {onSelect ? (
-          <View style={{ position: 'absolute', left: PAD.left - 10, top: 0, width: plotW + 20, height, flexDirection: 'row' }}>
-            {xLabels.map((l, i) => (
-              <Pressable
-                key={i}
-                accessibilityRole="button"
-                accessibilityLabel={l}
-                style={{ flex: 1 }}
-                onPress={() => {
-                  haptics.selection();
-                  onSelect(i);
-                }}
-              />
-            ))}
-          </View>
-        ) : null}
       </View>
     </ChartFrame>
   );
