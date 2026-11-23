@@ -1,18 +1,14 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { hashPassword, verifyPassword } from 'better-auth/crypto';
 import { bearer } from 'better-auth/plugins';
-import { eq } from 'drizzle-orm';
 
 import { deleteAccountData } from './account';
 import { WEB_ORIGINS, devWebOrigins } from './config';
 import type { Db } from './db/client';
-import { account } from './db/schema';
 import { resetPasswordEmail, sendEmail, type EmailEnv } from './email';
-import { FIREBASE_HASH_PREFIX, firebaseParamsFromEnv, verifyFirebasePassword, type FirebaseScryptEnv } from './firebasePassword';
 import * as schema from './db/schema';
 
-interface AuthEnv extends EmailEnv, FirebaseScryptEnv {
+interface AuthEnv extends EmailEnv {
   BUCKET: R2Bucket;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
@@ -26,18 +22,7 @@ export const createAuth = (db: Db, env: AuthEnv, waitUntil?: (p: Promise<unknown
     database: drizzleAdapter(db, { provider: 'pg', schema }),
     emailAndPassword: {
       enabled: true,
-      // Users migrated from Firebase arrive with a Firebase scrypt hash. It is accepted once, then replaced by a Better Auth hash.
-      password: {
-        hash: hashPassword,
-        verify: async ({ hash, password }) => {
-          if (!hash.startsWith(FIREBASE_HASH_PREFIX)) return verifyPassword({ hash, password });
-          const params = firebaseParamsFromEnv(env);
-          if (!params || !(await verifyFirebasePassword(hash, password, params))) return false;
-          await db.update(account).set({ password: await hashPassword(password) }).where(eq(account.password, hash));
-          return true;
-        },
-      },
-      minPasswordLength: 6, // same as the app's forms (and Firebase); Better Auth defaults to 8
+      minPasswordLength: 6, // same as the app's forms; Better Auth defaults to 8
       resetPasswordTokenExpiresIn: 3600,
       revokeSessionsOnPasswordReset: true, // whoever had the old password is signed out everywhere
       // The link goes through the Worker, which validates the token and redirects to `redirectTo?token=…` (a trusted origin).

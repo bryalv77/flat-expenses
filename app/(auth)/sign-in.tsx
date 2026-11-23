@@ -8,7 +8,6 @@ import { z } from 'zod';
 import { Button, Screen, Text, TextField } from '@/components/ui';
 import { useAuth } from '@/features/auth';
 import { authErrorKey } from '@/features/auth/errors';
-import { SocialButtons } from '@/features/auth/SocialButtons';
 import { useT } from '@/i18n';
 import { haptics } from '@/lib/haptics';
 import { spacing } from '@/theme';
@@ -89,7 +88,6 @@ export default function SignInScreen() {
         ) : null}
         <Button title={t('auth.signIn')} onPress={onSubmit} loading={formState.isSubmitting} />
         <Button title={t('auth.forgot')} variant="plain" onPress={() => router.push('/(auth)/forgot-password')} />
-        <SocialButtons />
         <Button title={`${t('auth.noAccount')} ${t('auth.signUp')}`} variant="plain" onPress={() => router.replace('/(auth)/sign-up')} />
       </View>
     </Screen>

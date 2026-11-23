@@ -7,7 +7,7 @@ import { haptics } from '@/lib/haptics';
 import { useUiStore } from '@/lib/uiStore';
 import { MIN_TOUCH, radii, spacing, useTheme } from '@/theme';
 
-/** Globe button that opens a dropdown of languages; for screens shown before Settings is reachable (welcome, first flat). */
+/** Globe button that opens a dropdown of languages; for headers of screens shown before Settings is reachable. */
 export function LanguagePicker() {
   const { t } = useT();
   const { colors } = useTheme();
@@ -23,7 +23,7 @@ export function LanguagePicker() {
     });
 
   return (
-    <View style={{ alignItems: 'flex-end', paddingHorizontal: spacing.lg, marginBottom: spacing.lg }}>
+    <>
       <Pressable
         ref={trigger}
         accessibilityRole="button"
@@ -60,6 +60,6 @@ export function LanguagePicker() {
           ) : null}
         </Pressable>
       </Modal>
-    </View>
+    </>
   );
 }

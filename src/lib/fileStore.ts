@@ -11,7 +11,7 @@ export interface FileStore {
   list?(prefix: string): Promise<string[]>;
 }
 
-// Wraps the existing storage.ts functions (Firebase Storage or the Worker).
+// Wraps the existing storage.ts functions (the Worker).
 const cloudFileStore: FileStore = {
   upload: (p, f, cb) => uploadFile(p, f, cb),
   getUrl: (p) => getFileUrl(p),

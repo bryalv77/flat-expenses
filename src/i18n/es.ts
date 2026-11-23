@@ -9,7 +9,7 @@ export const es = {
     welcomeTitle: 'Cuota', welcomeSubtitle: 'Gestiona los gastos compartidos de tu piso sin dramas.',
     signIn: 'Iniciar sesión', signUp: 'Crear cuenta', email: 'Correo electrónico', password: 'Contraseña',
     name: 'Nombre', forgot: '¿Olvidaste tu contraseña?', reset: 'Enviar enlace', resetSent: 'Te hemos enviado un correo para restablecerla.',
-    google: 'Continuar con Google', apple: 'Continuar con Apple', or: 'o', signOut: 'Cerrar sesión',
+    signOut: 'Cerrar sesión',
     invalidEmail: 'Correo no válido', shortPassword: 'Mínimo 6 caracteres', nameRequired: 'Introduce tu nombre',
     wrongCredentials: 'Correo o contraseña incorrectos', emailInUse: 'Ese correo ya está registrado',
     noAccount: '¿No tienes cuenta?', haveAccount: '¿Ya tienes cuenta?',
@@ -91,7 +91,7 @@ export const es = {
   },
   account: {
     forgotTitle: 'Recuperar contraseña', forgotHint: 'Introduce tu correo y te enviaremos un enlace para crear una nueva contraseña.',
-    socialFailed: 'No se pudo iniciar sesión. Inténtalo de nuevo.', houseNameRequired: 'Introduce el nombre del piso',
+    houseNameRequired: 'Introduce el nombre del piso',
     fixedRequired: 'Indica la aportación mensual', contributionDay: 'Día de cobro de la aportación', creating: 'Creando…',
     suggestedHint: 'Alquiler, luz, internet, teléfono, gas, limpieza, agua y Netflix, listas para editar.',
     joinHint: 'Pide el código de 8 caracteres al admin del piso.', codeFormatHint: 'Formato XXXX-XXXX',

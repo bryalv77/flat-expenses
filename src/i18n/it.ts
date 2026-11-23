@@ -12,7 +12,7 @@ export const it: DeepPartial<Messages> = {
     welcomeTitle: 'Cuota', welcomeSubtitle: 'Gestisci le spese condivise del tuo appartamento senza drammi.',
     signIn: 'Accedi', signUp: 'Crea account', email: 'E-mail', password: 'Password',
     name: 'Nome', forgot: 'Hai dimenticato la password?', reset: 'Invia link', resetSent: 'Ti abbiamo inviato un’e-mail per reimpostarla.',
-    google: 'Continua con Google', apple: 'Continua con Apple', or: 'o', signOut: 'Esci',
+    signOut: 'Esci',
     invalidEmail: 'E-mail non valida', shortPassword: 'Almeno 6 caratteri', nameRequired: 'Inserisci il tuo nome',
     wrongCredentials: 'E-mail o password errate', emailInUse: 'Questa e-mail è già registrata',
     noAccount: 'Non hai un account?', haveAccount: 'Hai già un account?',
@@ -94,7 +94,7 @@ export const it: DeepPartial<Messages> = {
   },
   account: {
     forgotTitle: 'Recupera password', forgotHint: 'Inserisci la tua e-mail e ti invieremo un link per creare una nuova password.',
-    socialFailed: 'Accesso non riuscito. Riprova.', houseNameRequired: 'Inserisci il nome dell’appartamento',
+    houseNameRequired: 'Inserisci il nome dell’appartamento',
     fixedRequired: 'Indica il contributo mensile', contributionDay: 'Giorno di addebito del contributo', creating: 'Creazione…',
     suggestedHint: 'Affitto, luce, internet, telefono, gas, pulizie, acqua e Netflix, pronti da modificare.',
     joinHint: 'Chiedi il codice di 8 caratteri all’admin dell’appartamento.', codeFormatHint: 'Formato XXXX-XXXX',

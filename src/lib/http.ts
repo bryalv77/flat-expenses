@@ -1,12 +1,11 @@
-// Client for the Worker API (issue #7). `EXPO_PUBLIC_API_URL` set => the app talks to it; unset => Firebase, as before.
+// Client for the Worker API (issue #7). `EXPO_PUBLIC_API_URL` empty => no cloud, the app only works in local mode.
 // NOTE: Expo only inlines literal `process.env.EXPO_PUBLIC_*` accesses.
 export const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, '') ?? '';
-export const USE_API = API_URL !== '';
 /** Where the hosted web app lives: password-reset emails send people to `${WEB_URL}/reset-password`. */
 export const WEB_URL = (process.env.EXPO_PUBLIC_WEB_URL ?? 'https://app-cuota.devalv.com').replace(/\/+$/, '');
 
 type TokenProvider = () => Promise<string | null>;
-// Until Better Auth replaces Firebase Auth in the app (next step), a Better Auth session token can be
+// Default token source until apiAuth installs the SecureStore one; a Better Auth session token can be
 // passed in for manual testing: EXPO_PUBLIC_API_DEV_TOKEN (dev only: anything EXPO_PUBLIC_ ships in the bundle).
 let tokenProvider: TokenProvider = async () => process.env.EXPO_PUBLIC_API_DEV_TOKEN ?? null;
 export const setApiTokenProvider = (fn: TokenProvider) => {

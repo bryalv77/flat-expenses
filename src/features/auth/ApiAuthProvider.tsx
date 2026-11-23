@@ -1,4 +1,4 @@
-// Auth against the Worker (Better Auth), used when EXPO_PUBLIC_API_URL is set. Same context as the Firebase provider.
+// Auth against the Worker (Better Auth), used when EXPO_PUBLIC_API_URL is set. Cloud mode's auth provider.
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
@@ -175,7 +175,6 @@ export function ApiAuthProvider({ children }: { children: ReactNode }) {
       authUser,
       initializing,
       profileReady,
-      features: { google: false, apple: false }, // TODO(#7): Better Auth social providers
       signIn,
       signUp,
       signOut,

@@ -11,7 +11,7 @@ export const en: Messages = {
     welcomeTitle: 'Cuota', welcomeSubtitle: 'Manage your flat’s shared costs without the drama.',
     signIn: 'Sign in', signUp: 'Create account', email: 'Email', password: 'Password',
     name: 'Name', forgot: 'Forgot your password?', reset: 'Send link', resetSent: 'We sent you an email to reset it.',
-    google: 'Continue with Google', apple: 'Continue with Apple', or: 'or', signOut: 'Sign out',
+    signOut: 'Sign out',
     invalidEmail: 'Invalid email', shortPassword: 'At least 6 characters', nameRequired: 'Enter your name',
     wrongCredentials: 'Wrong email or password', emailInUse: 'That email is already registered',
     noAccount: 'No account yet?', haveAccount: 'Already have an account?',
@@ -93,7 +93,7 @@ export const en: Messages = {
   },
   account: {
     forgotTitle: 'Reset password', forgotHint: 'Enter your email and we will send you a link to create a new password.',
-    socialFailed: 'Could not sign in. Try again.', houseNameRequired: 'Enter the flat name',
+    houseNameRequired: 'Enter the flat name',
     fixedRequired: 'Enter the monthly contribution', contributionDay: 'Contribution due day', creating: 'Creating…',
     suggestedHint: 'Rent, electricity, internet, phone, gas, cleaning, water and Netflix, ready to edit.',
     joinHint: 'Ask the flat admin for the 8-character code.', codeFormatHint: 'Format XXXX-XXXX',

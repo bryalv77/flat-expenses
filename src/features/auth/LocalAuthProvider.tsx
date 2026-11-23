@@ -13,7 +13,6 @@ export const localAuthValue: AuthContextValue = {
   authUser: { uid: LOCAL_USER_ID, email: null, displayName: null },
   initializing: false,
   profileReady: true,
-  features: { google: false, apple: false },
   signIn: unavailable,
   signUp: unavailable,
   signOut: unavailable,

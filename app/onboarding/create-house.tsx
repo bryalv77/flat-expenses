@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter, type Href } from 'expo-router';
+import { Stack, useRouter, type Href } from 'expo-router';
 import { useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { StyleSheet, View } from 'react-native';
 import { z } from 'zod';
 
-import { LanguagePicker } from '@/components/LanguagePicker';
+import { HeaderControls } from '@/components/HeaderControls';
 import { Button, ListRow, MoneyInput, Screen, SegmentedControl, Section, Switch, Text, TextField, useToast } from '@/components/ui';
 import { leaveLocalMode } from '@/features/auth/appModeSwitch';
 import { useCreateHouse } from '@/features/houses/hooks';
@@ -83,8 +83,8 @@ export default function CreateHouseScreen() {
 
   return (
     <Screen>
+      <Stack.Screen options={{ headerRight: () => <HeaderControls /> }} />
       <View style={styles.form}>
-        <LanguagePicker />
         <Text variant="largeTitle">{t('onboarding.createHouse')}</Text>
         <Controller
           control={control}

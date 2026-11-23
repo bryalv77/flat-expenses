@@ -1,4 +1,4 @@
-jest.mock('@/lib/http', () => ({ USE_API: true }));
+jest.mock('@/lib/http', () => ({ API_URL: 'https://api.test' }));
 jest.mock('@/lib/tokenStorage', () => ({
   tokenStorage: { get: jest.fn(() => new Promise<string | null>(() => undefined)) }, // never resolves
 }));

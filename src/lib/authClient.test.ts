@@ -8,7 +8,7 @@ describe('toAuthError', () => {
     ['USER_ALREADY_EXISTS', 'auth/email-already-in-use'],
     ['USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL', 'auth/email-already-in-use'],
     ['INVALID_PASSWORD', 'auth/wrong-password'],
-  ])('maps %s to the Firebase-style code the app already translates (%s)', (code, expected) => {
+  ])('maps %s to the `auth/*` code the app already translates (%s)', (code, expected) => {
     expect((toAuthError({ code, message: 'x', status: 400 }) as Error & { code: string }).code).toBe(expected);
   });
 

@@ -12,7 +12,7 @@ export const de: DeepPartial<Messages> = {
     welcomeTitle: 'Cuota', welcomeSubtitle: 'Verwalte die gemeinsamen Kosten deiner Wohnung ohne Streit.',
     signIn: 'Anmelden', signUp: 'Konto erstellen', email: 'E-Mail', password: 'Passwort',
     name: 'Name', forgot: 'Passwort vergessen?', reset: 'Link senden', resetSent: 'Wir haben dir eine E-Mail zum Zurücksetzen geschickt.',
-    google: 'Weiter mit Google', apple: 'Weiter mit Apple', or: 'oder', signOut: 'Abmelden',
+    signOut: 'Abmelden',
     invalidEmail: 'Ungültige E-Mail', shortPassword: 'Mindestens 6 Zeichen', nameRequired: 'Gib deinen Namen ein',
     wrongCredentials: 'E-Mail oder Passwort falsch', emailInUse: 'Diese E-Mail ist bereits registriert',
     noAccount: 'Noch kein Konto?', haveAccount: 'Schon ein Konto?',
@@ -94,7 +94,7 @@ export const de: DeepPartial<Messages> = {
   },
   account: {
     forgotTitle: 'Passwort zurücksetzen', forgotHint: 'Gib deine E-Mail ein, dann senden wir dir einen Link für ein neues Passwort.',
-    socialFailed: 'Anmeldung nicht möglich. Versuche es erneut.', houseNameRequired: 'Gib den Namen der Wohnung ein',
+    houseNameRequired: 'Gib den Namen der Wohnung ein',
     fixedRequired: 'Gib den monatlichen Beitrag an', contributionDay: 'Abbuchungstag des Beitrags', creating: 'Wird erstellt…',
     suggestedHint: 'Miete, Strom, Internet, Telefon, Gas, Reinigung, Wasser und Netflix, zum Bearbeiten bereit.',
     joinHint: 'Frage den Admin der Wohnung nach dem 8-stelligen Code.', codeFormatHint: 'Format XXXX-XXXX',

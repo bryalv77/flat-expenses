@@ -7,7 +7,7 @@ import { ERR } from '../errors';
 import type { Api } from '../types';
 import type { LocalCtx } from './ctx';
 
-// Same limits as the Worker (worker/src/categories.ts) and firestore.rules.
+// Same limits as the Worker (worker/src/categories.ts).
 const shape = z.object({
   name: z.string().trim().min(1).max(60),
   icon: z.string().min(1).max(40),

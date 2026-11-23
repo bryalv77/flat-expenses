@@ -1,7 +1,7 @@
 // Constants shared by more than one file. No imports, so db/schema.ts (also read by drizzle-kit) can use it.
 
-/** Hosted web app (production domain; the workers.dev address lets a deploy be checked before the domain is attached; the Firebase hosts go when the old site is retired, docs/cutover-plan.md). The native app's scheme is a trusted origin only, not a CORS one. */
-export const WEB_ORIGINS = ['https://app-cuota.devalv.com', 'https://costos-piso.bryalv77.workers.dev', 'https://costos-piso.web.app', 'https://costos-piso.firebaseapp.com'];
+/** Hosted web app (production domain; the workers.dev address lets a deploy be checked before the domain is attached). The native app's scheme is a trusted origin only, not a CORS one. */
+export const WEB_ORIGINS = ['https://app-cuota.devalv.com', 'https://costos-piso.bryalv77.workers.dev'];
 /** Expo web dev server: only when the Worker itself runs locally, so a page on someone's localhost:8081 can never call production. */
 export const devWebOrigins = (env: { BETTER_AUTH_URL: string }) => (env.BETTER_AUTH_URL.startsWith('http://localhost') ? ['http://localhost:8081', 'http://localhost:19006'] : []);
 

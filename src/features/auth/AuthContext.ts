@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 
 import type { HouseRole } from '@/types/domain';
 
-/** What the app needs to know about the signed-in account (a Firebase `User` satisfies it structurally). */
+/** What the app needs to know about the signed-in account. */
 export interface AuthUser {
   uid: string;
   email: string | null;
@@ -23,12 +23,11 @@ export interface AuthContextValue {
   initializing: boolean;
   /** True once the `User` row exists for the signed-in account. */
   profileReady: boolean;
-  features: { google: boolean; apple: boolean };
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (input: SignUpInput) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
-  /** Finishes a reset from the emailed link (API mode only: Firebase finishes it on its own hosted page). */
+  /** Finishes a reset from the emailed link (cloud mode only). */
   confirmPasswordReset?: (token: string, newPassword: string) => Promise<void>;
   /** Email/password accounts only; re-authenticates with the current password. */
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;

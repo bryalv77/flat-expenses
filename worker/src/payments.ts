@@ -7,7 +7,7 @@ import { MAX_CENTS, MAX_LIST } from './config';
 import { houseId, noContentOr404, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
 
-// Reads: any active member. Writes: admins. Payments are immutable (no update), as in firestore.rules.
+// Reads: any active member. Writes: admins. Payments are immutable (no update).
 export const paymentsApp = new Hono<AppEnv>();
 
 const month = z.iso.date().regex(/^20\d\d-(0[1-9]|1[0-2])-01$/, 'first day of a month'); // matches payments_month check

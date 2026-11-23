@@ -1,6 +1,6 @@
 // Pure helpers (no better-auth import, so jest can load them).
 
-/** Better Auth error codes -> the Firebase-style codes that features/auth/errors.ts already maps to translations. */
+/** Better Auth error codes -> the `auth/*` codes that features/auth/errors.ts already maps to translations. */
 const CODE_MAP: Record<string, string> = {
   INVALID_EMAIL_OR_PASSWORD: 'auth/invalid-credential',
   INVALID_EMAIL: 'auth/invalid-email',

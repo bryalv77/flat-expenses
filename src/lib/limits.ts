@@ -1,4 +1,4 @@
-/** Limits shared by the local backend and the Firestore client; keep in sync with worker/src/* and firestore.rules. */
+/** Limits shared by the local backend; keep in sync with worker/src/*. */
 /** Hard cap on documents returned by any list query (cost guard). */
 export const MAX_LIST = 2000;
 /** Max amount of a bill or payment, in cents. */
