@@ -8,7 +8,7 @@ import { DOC_MIME, MAX_BYTES, deleteObjects, parseKey } from './files';
 import { houseId, notFound, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
 
-// Reads: any active member. Writes: admins (as in firestore.rules).
+// Reads: any active member. Writes: admins.
 // Attachments: the client uploads to PUT /api/files/houses/:id/bills/:folder/:file first, then sends `files` (max 5) here;
 // sending `files` on PATCH replaces the whole set, and objects that are no longer referenced are deleted from R2.
 export const billsApp = new Hono<AppEnv>();

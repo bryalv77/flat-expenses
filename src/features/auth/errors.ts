@@ -3,7 +3,7 @@ import type { TranslationKey } from '@/i18n';
 const errorCode = (error: unknown): string =>
   typeof error === 'object' && error !== null && 'code' in error ? String((error as { code: unknown }).code) : '';
 
-/** Maps a Firebase/unknown error to a translation key. */
+/** Maps an auth error code (see lib/authErrors.ts) to a translation key. */
 export function authErrorKey(error: unknown): TranslationKey {
   const code = errorCode(error);
   switch (code) {

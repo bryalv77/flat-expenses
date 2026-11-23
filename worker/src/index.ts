@@ -17,11 +17,6 @@ export interface Env {
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
   EMAIL_MODE?: string;
-  // Firebase project password-hash parameters (console > Authentication > Users > menu), needed only while migrated users still have Firebase hashes
-  FIREBASE_SCRYPT_SIGNER_KEY?: string;
-  FIREBASE_SCRYPT_SALT_SEPARATOR?: string;
-  FIREBASE_SCRYPT_ROUNDS?: string;
-  FIREBASE_SCRYPT_MEM_COST?: string;
 }
 
 export const app = new Hono<{ Bindings: Env }>();

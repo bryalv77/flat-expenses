@@ -1,12 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { LanguagePicker } from '@/components/LanguagePicker';
+import { HeaderControls } from '@/components/HeaderControls';
 import { ActionSheet, Button, Icon, Screen, Text } from '@/components/ui';
 import { enterLocalMode } from '@/features/auth/appModeSwitch';
-import { SocialButtons } from '@/features/auth/SocialButtons';
 import { useT } from '@/i18n';
 import { radii, spacing, useTheme } from '@/theme';
 
@@ -31,6 +30,7 @@ export default function WelcomeScreen() {
 
   return (
     <Screen>
+      <Stack.Screen options={{ headerShown: true, headerTransparent: true, headerRight: () => <HeaderControls /> }} />
       <View style={styles.hero}>
         <View style={[styles.logo, { backgroundColor: colors.tint }]}>
           <Icon name="home" size={44} color={colors.tintOnFilled} />
@@ -42,11 +42,9 @@ export default function WelcomeScreen() {
           {t('auth.welcomeSubtitle')}
         </Text>
       </View>
-      <LanguagePicker />
       <View style={styles.actions}>
         <Button title={t('auth.signUp')} onPress={() => router.push('/(auth)/sign-up')} />
         <Button title={t('auth.signIn')} variant="tinted" onPress={() => router.push('/(auth)/sign-in')} />
-        <SocialButtons />
         <Button title={t('auth.useLocal')} variant="plain" onPress={() => void startLocal()} />
       </View>
       <ActionSheet

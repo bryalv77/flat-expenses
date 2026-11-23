@@ -76,7 +76,7 @@ housesApp.delete('/:id', guardAdmin, async (c) => {
   return c.body(null, 204);
 });
 
-const day = z.iso.date().transform((d) => new Date(`${d}T12:00:00Z`)); // same noon-UTC convention as the Firestore client
+const day = z.iso.date().transform((d) => new Date(`${d}T12:00:00Z`)); // noon UTC, so the stored date never shifts a day with the time zone
 const cents = z.number().int().min(0).nullable();
 
 const target = (c: Context) =>
@@ -89,7 +89,7 @@ housesApp.get('/:id/members', guardMember, async (c) =>
 // Admin registers a roommate without an account (id guest_…); dates may be historical.
 housesApp.post('/:id/members/guests', guardAdmin, async (c) => {
   const b = await readBody(c, z.object({
-    id: z.string().regex(GUEST_ID).optional(), // client-generated, like the Firestore client did
+    id: z.string().regex(GUEST_ID).optional(), // client-generated
     displayName: z.string().trim().min(1).max(100),
     joinedAt: day,
     removedAt: day.nullable(),

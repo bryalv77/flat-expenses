@@ -1,7 +1,3 @@
-/// <reference types="node" />
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { centsToInputString, formatMonth, parseMoneyToCents } from '@/lib/format';
 
 import { LOCALES, LOCALE_CODES, isLocale, matchLocale, type Locale } from './locales';
@@ -40,13 +36,6 @@ describe('locale registry', () => {
     expect(matchLocale(null, 'es')).toBe('es');
     expect(isLocale('de')).toBe(true);
     expect(isLocale('xx')).toBe(false);
-  });
-
-  it('keeps the Firestore rules locale allow-list in sync with the registry', () => {
-    const rules = readFileSync(join(__dirname, '../../firestore.rules'), 'utf8');
-    const line = rules.split('\n').find((l) => l.includes('d.locale in'));
-    const codes = [...(line?.match(/'([a-z]{2})'/g) ?? [])].map((c) => c.replace(/'/g, ''));
-    expect([...codes].sort()).toEqual([...LOCALE_CODES].sort());
   });
 });
 

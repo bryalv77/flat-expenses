@@ -1,10 +1,6 @@
-import { signOut as firebaseSignOut } from 'firebase/auth';
-
 import { clearPendingSync } from '@/features/sync/pending';
 import { getApiAuth } from '@/lib/apiAuth';
 import { saveAppMode } from '@/lib/appMode';
-import { auth } from '@/lib/firebase';
-import { USE_API } from '@/lib/http';
 import { queryClient } from '@/lib/queryClient';
 import { useUiStore } from '@/lib/uiStore';
 
@@ -18,13 +14,9 @@ export function subscribeTreeReset(fn: () => void) {
 }
 
 async function signOutOfCloud() {
-  if (USE_API) {
-    const { client, clearToken } = getApiAuth();
-    await client.signOut().catch(() => undefined); // offline: the token is still dropped locally
-    await clearToken();
-  } else {
-    await firebaseSignOut(auth).catch(() => undefined);
-  }
+  const { client, clearToken } = getApiAuth();
+  await client.signOut().catch(() => undefined); // offline: the token is still dropped locally
+  await clearToken();
 }
 
 async function switchTo(mode: 'local' | 'cloud') {

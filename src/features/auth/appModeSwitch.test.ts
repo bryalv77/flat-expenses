@@ -2,9 +2,6 @@ const calls: string[] = [];
 jest.mock('@/lib/appMode', () => ({ saveAppMode: jest.fn(async (m: string) => void calls.push(`save:${m}`)) }));
 jest.mock('@/lib/queryClient', () => ({ queryClient: { clear: jest.fn(() => void calls.push('qc.clear')) } }));
 jest.mock('@/lib/uiStore', () => ({ useUiStore: { getState: () => ({ setActiveHouseId: () => void calls.push('house:null') }) } }));
-jest.mock('@/lib/http', () => ({ USE_API: true }));
-jest.mock('@/lib/firebase', () => ({ auth: {} }));
-jest.mock('firebase/auth', () => ({ signOut: jest.fn() }));
 jest.mock('@/lib/apiAuth', () => ({
   getApiAuth: () => ({
     client: { signOut: async () => void calls.push('cloud.signOut') },

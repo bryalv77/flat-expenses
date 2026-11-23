@@ -4,8 +4,8 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Cost guard: Firestore bills per document read, so cached data stays fresh for 5 minutes and
-      // never refetches just because the window/tab regained focus (mutations invalidate explicitly).
+      // Cached data stays fresh for 5 minutes and never refetches just because the window/tab regained focus
+      // (mutations invalidate explicitly).
       staleTime: 5 * 60_000,
       refetchOnWindowFocus: false,
       gcTime: 24 * 60 * 60 * 1000,

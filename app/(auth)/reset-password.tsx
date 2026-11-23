@@ -36,7 +36,7 @@ export default function ResetPasswordScreen() {
     }
   });
 
-  // No token, an error from the Worker, or Firebase mode (it resets on its own page): nothing to do here.
+  // No token, an error from the Worker, or local mode (no password reset): nothing to do here.
   if (!token || error || !confirmPasswordReset) {
     return (
       <Screen>

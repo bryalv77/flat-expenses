@@ -1,4 +1,4 @@
-// Static server for the exported web build (dev server can't bundle expo-sqlite's web worker). SPA fallback like Firebase Hosting.
+// Static server for the exported web build (dev server can't bundle expo-sqlite's web worker). SPA fallback.
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize } from 'node:path';

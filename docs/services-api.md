@@ -5,13 +5,12 @@ Everything lives under `src/`. Import with the `@/` alias. All money is integer 
 
 ## Setup
 - Providers (in `app/_layout.tsx`): `QueryClientProvider client={queryClient}` (`@/lib/queryClient`) → `AuthProvider` (`@/features/auth`).
-- `@/lib/firebase`: `app`, `auth`, `storage`, `db` (Firestore), `USE_EMULATORS`, `featureFlags {google, apple, googleWebClientId}`.
+- `@/lib/http`: `API_URL` (`EXPO_PUBLIC_API_URL`, the Worker; empty = local mode only), `request()`, `ApiError`.
 - `@/lib/uiStore` — `useUiStore()` (persisted): `themeMode: 'system'|'light'|'dark'`, `locale: 'es'|'en'`, `activeHouseId`, `setThemeMode(m)`, `setLocale(l)`, `setActiveHouseId(id|null)`.
 
 ## Auth — `@/features/auth`
 `useAuth(): AuthContextValue`
-- `firebaseUser: FirebaseUser | null`, `initializing: boolean` (show splash until false), `profileReady: boolean` (User row exists), `isPasswordAccount`
-- `features: {google, apple}`
+- `authUser: AuthUser | null`, `initializing: boolean` (show splash until false), `profileReady: boolean` (User row exists), `isPasswordAccount`
 - `signIn(email, password)`, `signUp({email, password, displayName, accountRole?})`, `signOut()`, `resetPassword(email)`
 - `changePassword(current, next)`, `deleteAccount(password?)` (throws `auth/requires-recent-login` for stale social sessions)
 
@@ -64,8 +63,8 @@ Everything lives under `src/`. Import with the `@/` alias. All money is integer 
 - `useFileUrl(storagePath)` → react-query result with the download URL (use for avatars, bill/document previews).
 
 ## Low level
-`@/lib/db` exports `api` (Firestore, one function per former Data Connect operation; see docs/firestore-model.md) — prefer the hooks. `@/lib/queryKeys` (`qk`), `@/lib/optimistic`.
+`@/lib/db` exports `api` (local SQLite or the Worker API, chosen by app mode) — prefer the hooks. `@/lib/queryKeys` (`qk`), `@/lib/optimistic`.
 
 ## Notes
-- Firestore/Storage security rules enforce authorization server-side (member reads, admin writes); hooks do not duplicate it — hide admin UI with `useActiveHouse().isAdmin`.
+- The Worker enforces authorization server-side (member reads, admin writes); hooks do not duplicate it — hide admin UI with `useActiveHouse().isAdmin`.
 - Bill queries run three server queries (charge date / period end / createdAt) and merge, to honour the effective-date rule.

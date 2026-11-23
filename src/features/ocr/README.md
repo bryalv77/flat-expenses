@@ -7,9 +7,8 @@ Bills already carry the extension points:
 
 ## Planned pipeline
 
-1. **Trigger** — Cloud Function on Storage `onObjectFinalized` for `houses/{houseId}/bills/{billId}/*`
-   (or an explicit callable after the Firestore write).
-2. **Mark** — set `ocrStatus = PENDING` through the Firestore Admin SDK.
+1. **Trigger** — a Worker queue/handler after a bill file is uploaded.
+2. **Mark** — set `ocrStatus = PENDING` in Postgres.
 3. **Extract** — Document AI / an LLM with vision reads the PDF or photo and returns
    `{ amountCents, chargeDate, periodStartDate, periodEndDate, supplier, categoryGuess, confidence }`.
 4. **Store** — write the raw result to `ocrData`, set `ocrStatus = DONE` (or `FAILED` with the error).
@@ -17,5 +16,5 @@ Bills already carry the extension points:
    Suggestions never overwrite admin-entered values silently.
 
 ## Notes
-- Needs the Blaze plan and Cloud Functions (see README roadmap), and custom claims for tighter Storage rules.
+- Needs a background job on the Worker (queue or cron).
 - Keep extraction idempotent: re-running must only touch `ocrStatus` / `ocrData`.

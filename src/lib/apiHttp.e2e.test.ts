@@ -53,7 +53,7 @@ const run = Math.random().toString(36).slice(2, 8);
     http.setApiTokenProvider(async () => token);
   });
 
-  it('runs the app flows with the same signatures and result shapes as the Firestore api', async () => {
+  it('runs the app flows with the same signatures and result shapes as the local api', async () => {
     const me = await api.getMe();
     expect(me).toMatchObject({ displayName: 'E2E', accountRole: 'ROOMMATE', locale: 'es' });
     await api.updateMyProfile({ displayName: 'Ana', locale: 'en' });

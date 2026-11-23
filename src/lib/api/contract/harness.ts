@@ -1,10 +1,8 @@
-import type { CategoryInput } from '@/lib/db';
-
-import type { Api } from '../types';
+import type { Api, CategoryInput } from '../types';
 
 /**
  * Builds a fresh backend for one test. `adminProtected` is optional harness info: true when the backend refuses to
- * remove an ADMIN member (firestore.rules does; the Worker does not, see houses.contract.ts), so that test only
+ * remove an ADMIN member (the local backend does; the Worker does not, see houses.contract.ts), so that test only
  * asserts where it holds.
  * Assumption: attachments are not exercised with real files (the Worker verifies each object exists in R2), so the
  * contract needs no FileStore; it only checks the "<= 5 files" limit.

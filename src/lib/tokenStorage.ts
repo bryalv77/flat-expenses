@@ -6,7 +6,6 @@ import type { TokenStorage } from './authClient';
 const KEY = 'costospiso.session-token';
 
 // SecureStore (Keychain / Keystore) on iOS and Android. It does not exist on web, where localStorage is the equivalent
-// (same exposure as the Firebase web persistence it replaces).
 const web: TokenStorage = {
   get: async () => {
     try { return globalThis.localStorage?.getItem(KEY) ?? null; } catch { return null; }

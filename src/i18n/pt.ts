@@ -12,7 +12,7 @@ export const pt: DeepPartial<Messages> = {
     welcomeTitle: 'Cuota', welcomeSubtitle: 'Gere as despesas partilhadas do teu apartamento sem dramas.',
     signIn: 'Iniciar sessão', signUp: 'Criar conta', email: 'E-mail', password: 'Palavra-passe',
     name: 'Nome', forgot: 'Esqueceste-te da palavra-passe?', reset: 'Enviar ligação', resetSent: 'Enviámos-te um e-mail para a repor.',
-    google: 'Continuar com o Google', apple: 'Continuar com a Apple', or: 'ou', signOut: 'Terminar sessão',
+    signOut: 'Terminar sessão',
     invalidEmail: 'E-mail inválido', shortPassword: 'Mínimo de 6 caracteres', nameRequired: 'Introduz o teu nome',
     wrongCredentials: 'E-mail ou palavra-passe incorretos', emailInUse: 'Este e-mail já está registado',
     noAccount: 'Ainda não tens conta?', haveAccount: 'Já tens conta?',
@@ -94,7 +94,7 @@ export const pt: DeepPartial<Messages> = {
   },
   account: {
     forgotTitle: 'Recuperar palavra-passe', forgotHint: 'Introduz o teu e-mail e enviaremos uma ligação para criares uma nova palavra-passe.',
-    socialFailed: 'Não foi possível iniciar sessão. Tenta novamente.', houseNameRequired: 'Introduz o nome do apartamento',
+    houseNameRequired: 'Introduz o nome do apartamento',
     fixedRequired: 'Indica a contribuição mensal', contributionDay: 'Dia de cobrança da contribuição', creating: 'A criar…',
     suggestedHint: 'Renda, luz, internet, telefone, gás, limpeza, água e Netflix, prontas a editar.',
     joinHint: 'Pede o código de 8 caracteres ao admin do apartamento.', codeFormatHint: 'Formato XXXX-XXXX',

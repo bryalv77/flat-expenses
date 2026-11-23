@@ -8,8 +8,8 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
-// Inlined at bundle time and overriding .env (which holds Firebase and emulator settings): a deploy must never ship a build pointing anywhere else.
-const PROD_ENV = { EXPO_PUBLIC_API_URL: 'https://api-cuota.devalv.com', EXPO_PUBLIC_WEB_URL: 'https://app-cuota.devalv.com', EXPO_PUBLIC_USE_EMULATORS: 'false', EXPO_PUBLIC_RECAPTCHA_SITE_KEY: '' };
+// Inlined at bundle time and overriding .env: a deploy must never ship a build pointing anywhere else.
+const PROD_ENV = { EXPO_PUBLIC_API_URL: 'https://api-cuota.devalv.com', EXPO_PUBLIC_WEB_URL: 'https://app-cuota.devalv.com' };
 
 const run = (cmd, args) => {
   console.log(`\n$ ${cmd} ${args.join(' ')}`);

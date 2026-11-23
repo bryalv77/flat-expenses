@@ -8,7 +8,7 @@ import { purgePrefix } from './files';
 
 /**
  * Cleanup that runs just before Better Auth deletes the user row (auth.ts `beforeDelete`; it has already checked the password).
- * Same behaviour as the Firestore client's deleteMyAccountData: identity documents and files go, memberships are left
+ * Identity documents and files go, memberships are left
  * (active ones become REMOVED) and anonymised so bills and payments keep their history, and houses are never deleted
  * as a side effect. Every step is idempotent, so a failure halfway can simply be retried (the session is still valid).
  */

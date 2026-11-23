@@ -12,7 +12,7 @@ export const ca: DeepPartial<Messages> = {
     welcomeTitle: 'Cuota', welcomeSubtitle: 'Gestiona les despeses compartides del teu pis sense drames.',
     signIn: 'Inicia la sessió', signUp: 'Crea un compte', email: 'Correu electrònic', password: 'Contrasenya',
     name: 'Nom', forgot: 'Has oblidat la contrasenya?', reset: 'Envia l’enllaç', resetSent: 'T’hem enviat un correu per restablir-la.',
-    google: 'Continua amb Google', apple: 'Continua amb Apple', or: 'o', signOut: 'Tanca la sessió',
+    signOut: 'Tanca la sessió',
     invalidEmail: 'Correu no vàlid', shortPassword: 'Mínim 6 caràcters', nameRequired: 'Introdueix el teu nom',
     wrongCredentials: 'Correu o contrasenya incorrectes', emailInUse: 'Aquest correu ja està registrat',
     noAccount: 'No tens compte?', haveAccount: 'Ja tens compte?',
@@ -94,7 +94,7 @@ export const ca: DeepPartial<Messages> = {
   },
   account: {
     forgotTitle: 'Recupera la contrasenya', forgotHint: 'Introdueix el teu correu i t’enviarem un enllaç per crear una contrasenya nova.',
-    socialFailed: 'No s’ha pogut iniciar la sessió. Torna-ho a provar.', houseNameRequired: 'Introdueix el nom del pis',
+    houseNameRequired: 'Introdueix el nom del pis',
     fixedRequired: 'Indica l’aportació mensual', contributionDay: 'Dia de cobrament de l’aportació', creating: 'Creant…',
     suggestedHint: 'Lloguer, llum, internet, telèfon, gas, neteja, aigua i Netflix, a punt per editar.',
     joinHint: 'Demana el codi de 8 caràcters a l’admin del pis.', codeFormatHint: 'Format XXXX-XXXX',

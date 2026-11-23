@@ -6,10 +6,9 @@ import { bills, categories } from './db/schema';
 import { houseId, noContentOr404, notFound, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
 
-// Reads: any active member. Writes: admins (as in firestore.rules).
+// Reads: any active member. Writes: admins.
 export const categoriesApp = new Hono<AppEnv>();
 
-// Same limits as validCategory() in firestore.rules.
 const shape = z.object({
   name: z.string().trim().min(1).max(60),
   icon: z.string().min(1).max(40),

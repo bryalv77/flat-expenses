@@ -1,17 +1,8 @@
-import {
-  deleteObject,
-  getDownloadURL,
-  listAll,
-  ref,
-  uploadBytesResumable,
-  type StorageReference,
-} from 'firebase/storage';
 import { randomUUID } from 'expo-crypto';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 import { ERR } from './api/errors';
-import { storage } from './firebase';
-import { API_URL, ApiError, USE_API, authHeader, request } from './http';
+import { API_URL, ApiError, authHeader, request } from './http';
 
 export type FileKind = 'avatar' | 'document' | 'bill';
 
@@ -125,25 +116,7 @@ export async function uploadFile(
 ): Promise<UploadedFile> {
   const blob = await (await fetch(file.uri)).blob();
   validateFile({ mimeType: file.mimeType, size: blob.size }, kindOfKey(storagePath));
-  if (USE_API) return uploadToApi(storagePath, file, blob, onProgress);
-  const task = uploadBytesResumable(ref(storage, storagePath), blob, { contentType: file.mimeType });
-  return new Promise<UploadedFile>((resolve, reject) => {
-    task.on(
-      'state_changed',
-      (snap) => onProgress?.(snap.totalBytes > 0 ? snap.bytesTransferred / snap.totalBytes : 0),
-      (e) => {
-        console.error('upload failed', storagePath, e);
-        reject(e);
-      },
-      () =>
-        resolve({
-          storagePath,
-          fileName: sanitizeFileName(file.name),
-          mimeType: file.mimeType,
-          sizeBytes: blob.size,
-        }),
-    );
-  });
+  return uploadToApi(storagePath, file, blob, onProgress);
 }
 
 /** PUT to the Worker (issue #7 §6). XHR rather than fetch so upload progress still works. */
@@ -165,34 +138,17 @@ async function uploadToApi(storagePath: string, file: PickedFile, blob: Blob, on
   return { storagePath, fileName: sanitizeFileName(file.name), mimeType: file.mimeType, sizeBytes: blob.size };
 }
 
-/**
- * Download URL for a stored path. Storage rules check house membership through Firestore, so only
- * members can resolve bill files — see README "Security model".
- */
+/** Download URL for a stored path; the Worker only signs links for house members. */
 export async function getFileUrl(storagePath: string): Promise<string> {
   // <Image> can't send an Authorization header, so the Worker hands out a signed link (valid 1 h, like the 50 min cache in useFileUrl).
-  if (USE_API) return (await request<{ url: string }>('POST', '/api/files/sign', { key: storagePath })).url;
-  return getDownloadURL(ref(storage, storagePath));
+  return (await request<{ url: string }>('POST', '/api/files/sign', { key: storagePath })).url;
 }
 
-export async function deleteFile(storagePath: string): Promise<void> {
-  if (USE_API) return request('DELETE', `/api/files/${storagePath}`); // idempotent on the Worker
-  try {
-    await deleteObject(ref(storage, storagePath));
-  } catch (e) {
-    if ((e as { code?: string }).code !== 'storage/object-not-found') throw e;
-  }
-}
+export const deleteFile = (storagePath: string): Promise<void> => request('DELETE', `/api/files/${storagePath}`); // idempotent on the Worker
 
-/** Recursively deletes everything below a folder (used by account deletion). */
-export async function deleteFolder(path: string): Promise<void> {
-  if (USE_API) throw new Error(ERR.USE_AUTH_DELETE_USER); // the Worker deletes users/{uid}/ itself, see ApiAuthProvider.deleteAccount
-  const walk = async (folder: StorageReference): Promise<void> => {
-    const { items, prefixes } = await listAll(folder);
-    await Promise.all(items.map((i) => deleteObject(i).catch(() => undefined)));
-    await Promise.all(prefixes.map(walk));
-  };
-  await walk(ref(storage, path));
+/** The Worker deletes users/{uid}/ itself, see ApiAuthProvider.deleteAccount. */
+export async function deleteFolder(_path: string): Promise<void> {
+  throw new Error(ERR.USE_AUTH_DELETE_USER);
 }
 
 export function newId(): string {

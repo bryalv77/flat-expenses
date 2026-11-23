@@ -35,7 +35,7 @@ export function runHousesContract(make: ApiFactory): void {
       });
 
       // DIVERGENCE (not tested): listMyDocuments/addMyDocument/deleteMyDocument need a real uploaded object on the Worker and
-      // are dropped in local mode; deleteMyAccountData deletes the user in Firestore but throws USE_AUTH_DELETE_USER on the Worker.
+      // are dropped in local mode; deleteMyAccountData throws USE_AUTH_DELETE_USER on the Worker (account deletion goes through Better Auth).
       it('listMemberDocuments is always empty for admins', async () => {
         const houseId = await newHouse(ctx);
         const me = await ctx.api.getMe();
@@ -60,7 +60,7 @@ export function runHousesContract(make: ApiFactory): void {
         });
         expect(got?.members).toEqual([expect.objectContaining({ id: me.id, userId: me.id, role: 'ADMIN', status: 'ACTIVE', removedAt: null })]);
         expect(await ctx.api.listMyHouses()).toEqual(expect.arrayContaining([expect.objectContaining({ id: houseId, role: 'ADMIN' })]));
-        // DIVERGENCE: the suggested categories are seeded by the app (seedSuggestedCategories) on Firestore and the Worker,
+        // DIVERGENCE: the suggested categories are seeded by the app (seedSuggestedCategories) on the Worker,
         // while local createHouse is meant to seed them itself; the count is not asserted (categories.contract.ts is count-agnostic).
       });
 
@@ -87,8 +87,6 @@ export function runHousesContract(make: ApiFactory): void {
       });
 
       it('rejects invalid house fields', async () => {
-        // DIVERGENCE: name max is 80 in firestore.rules and 100 in the Worker, splitMode is only an enum in the rules,
-        // so only limits shared by both are asserted.
         await expect(ctx.api.createHouse({ id: uuid(), name: '' })).rejects.toThrow();
         await expect(ctx.api.createHouse({ id: uuid(), name: 'x'.repeat(101) })).rejects.toThrow();
         await expect(ctx.api.createHouse({ id: uuid(), name: 'Piso', address: 'x'.repeat(201) })).rejects.toThrow();
@@ -163,7 +161,7 @@ export function runHousesContract(make: ApiFactory): void {
       it('an ADMIN cannot be removed, so the house always keeps an ADMIN', async () => {
         const houseId = await newHouse(ctx);
         const me = (await ctx.api.getMe())!;
-        // DIVERGENCE: firestore.rules reject removing an ADMIN; the Worker's /remove route does not. Asserted only when the
+        // DIVERGENCE: the local backend rejects removing an ADMIN; the Worker's /remove route does not. Asserted only when the
         // backend declares `adminProtected` (the local one must).
         if (!ctx.adminProtected) return;
         await expect(ctx.api.removeMember({ houseId, memberId: me.id })).rejects.toThrow();
@@ -198,7 +196,7 @@ export function runHousesContract(make: ApiFactory): void {
         expect((await ctx.api.getHouse({ houseId }))?.members.map((m) => m.id)).toEqual(members.map((m) => m.id));
       });
 
-      // DIVERGENCE (not tested): createInvite, revokeInvite, listInvites, redeemInvite exist on Firestore and the Worker but
+      // DIVERGENCE (not tested): createInvite, revokeInvite, listInvites, redeemInvite exist on the Worker but
       // local mode has no invites (single device); they cannot be shared. A second signed-in user would be needed anyway.
     });
   });
