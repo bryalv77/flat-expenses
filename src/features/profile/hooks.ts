@@ -5,7 +5,8 @@ import { api } from '@/lib/db';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
 import { getFileStore } from '@/lib/fileStore';
-import { newId, prepareFile, storagePaths, type PickedFile } from '@/lib/storage';
+import { storagePaths } from '@/lib/fileKeys';
+import { newId, prepareFile, type PickedFile } from '@/lib/storage';
 import type { DocumentType, Locale, User, UserDocument } from '@/types/domain';
 
 export function useMe() {

@@ -1,4 +1,5 @@
-import { kindOfKey, sanitizeFileName, validateFile, type PickedFile, type UploadedFile } from './storage';
+import { sanitizeFileName } from './fileKeys';
+import { kindOfKey, validateFile, type PickedFile, type UploadedFile } from './storage';
 
 /** Rejects empty, absolute, backslash and `.`/`..`/empty-segment keys. A trailing slash is allowed for folders. */
 export function assertSafeKey(key: string, { folder = false } = {}): string {

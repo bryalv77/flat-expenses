@@ -1,8 +1,7 @@
 import { Hono } from 'hono';
 
-import { parseFileKey, type FileKind } from '../../src/lib/fileKeys';
+import { FILE_RULES, parseFileKey, type FileKind } from '../../src/lib/fileKeys';
 import type { Db } from './db/client';
-import { DOCUMENT_MIME_TYPES, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES, MAX_FILE_BYTES } from './config';
 import { zSignFileUrlBody } from './generated/zod.gen';
 import { isUuid, parseJson } from './http';
 import { membership, session, type AppEnv } from './middleware';
@@ -11,9 +10,7 @@ import { membership, session, type AppEnv } from './middleware';
 //   users/{uid}/avatar/{file}                 read: any signed-in user · write: owner · image < 2 MB
 //   users/{uid}/documents/{docId}/{file}      owner only · image or PDF < 10 MB
 //   houses/{houseId}/bills/{folder}/{file}    read: active members · write: active admins · image or PDF < 10 MB
-export const MAX_BYTES = { avatar: MAX_AVATAR_BYTES, document: MAX_FILE_BYTES, bill: MAX_FILE_BYTES };
 
-export const parseKey = parseFileKey;
 
 /** Best-effort cleanup: a failed delete leaves an orphan object, never a broken request. */
 export const deleteObjects = async (bucket: R2Bucket, keys: string[]) => {
@@ -59,7 +56,7 @@ const payload = (key: string, exp: number) => new TextEncoder().encode(`file:${k
 
 filesApp.post('/sign', async (c) => {
   const b = await parseJson(c, zSignFileUrlBody);
-  const p = b.success ? parseKey(b.data.key) : null;
+  const p = b.success ? parseFileKey(b.data.key) : null;
   if (!b.success || !p) return c.json({ error: 'invalid_key' }, 400);
   const deny = await denied(c.var.db, c.var.uid, p, false);
   if (deny) return c.json({ error: deny === 404 ? 'not_found' : 'forbidden' }, deny);
@@ -77,15 +74,14 @@ const keyOf = (path: string) => decodeURIComponent(path.replace(/^\/api\/files\/
 
 filesApp.put('/*', async (c) => {
   const key = keyOf(c.req.path);
-  const p = parseKey(key);
+  const p = parseFileKey(key);
   if (!p) return c.json({ error: 'invalid_key' }, 400);
   const deny = await denied(c.var.db, c.var.uid, p, true);
   if (deny) return c.json({ error: deny === 404 ? 'not_found' : 'forbidden' }, deny);
 
   const mime = (c.req.header('content-type') ?? '').split(';')[0]!.trim().toLowerCase();
-  const allowed: readonly string[] = p.kind === 'avatar' ? IMAGE_MIME_TYPES : DOCUMENT_MIME_TYPES;
-  if (!allowed.includes(mime)) return c.json({ error: 'unsupported_type' }, 415);
-  const max = MAX_BYTES[p.kind];
+  const { maxBytes: max, mimeTypes } = FILE_RULES[p.kind];
+  if (!mimeTypes.includes(mime)) return c.json({ error: 'unsupported_type' }, 415);
   if (Number(c.req.header('content-length') ?? 0) > max) return c.json({ error: 'too_large' }, 413); // before buffering
   const body = await c.req.arrayBuffer();
   if (body.byteLength === 0) return c.json({ error: 'empty' }, 400);
@@ -97,7 +93,7 @@ filesApp.put('/*', async (c) => {
 
 filesApp.get('/*', async (c) => {
   const key = keyOf(c.req.path);
-  const p = parseKey(key);
+  const p = parseFileKey(key);
   if (!p) return c.json({ error: 'invalid_key' }, 400);
   const sig = c.req.query('sig');
   if (sig) {
@@ -120,7 +116,7 @@ filesApp.get('/*', async (c) => {
 
 filesApp.delete('/*', async (c) => {
   const key = keyOf(c.req.path);
-  const p = parseKey(key);
+  const p = parseFileKey(key);
   if (!p) return c.json({ error: 'invalid_key' }, 400);
   const deny = await denied(c.var.db, c.var.uid, p, true);
   if (deny) return c.json({ error: deny === 404 ? 'not_found' : 'forbidden' }, deny);

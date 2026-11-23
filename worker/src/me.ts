@@ -2,7 +2,8 @@ import { and, desc, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 
 import { user, userDocuments, members } from './db/schema';
-import { deleteObjects, parseKey } from './files';
+import { parseFileKey } from '../../src/lib/fileKeys';
+import { deleteObjects } from './files';
 import { zAddMyDocumentBody, zUpdateMeBody } from './generated/zod.gen';
 import { notFound, readBody, rowOr404, uuidParam } from './http';
 import { session, type AppEnv } from './middleware';
@@ -24,7 +25,7 @@ meApp.patch('/', async (c) => {
   const displayName = b.data.displayName?.trim();
   const { db, uid } = c.var;
   if (photoKey) {
-    const p = parseKey(photoKey);
+    const p = parseFileKey(photoKey);
     if (p?.kind !== 'avatar' || p.owner !== uid) return c.json({ error: 'invalid_photo_key' }, 400); // only your own avatar object
   }
   const [u] = await db.update(user).set({ name: displayName, photoKey, locale, accountRole }).where(eq(user.id, uid)).returning();
@@ -45,7 +46,7 @@ const doc = zAddMyDocumentBody;
 meApp.post('/documents', async (c) => {
   const b = await readBody(c, doc);
   if (b.res) return b.res;
-  const p = parseKey(b.data.objectKey);
+  const p = parseFileKey(b.data.objectKey);
   if (p?.kind !== 'document' || p.owner !== c.var.uid) return c.json({ error: 'invalid_object_key' }, 400); // only your own documents folder
   if ((await c.env.BUCKET.head(b.data.objectKey))?.size !== b.data.sizeBytes) return c.json({ error: 'invalid_object' }, 400); // upload first
   const [d] = await c.var.db.insert(userDocuments).values({ ...b.data, userId: c.var.uid }).returning();

@@ -4,7 +4,8 @@ import { api, type BillInput } from '@/lib/db';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
 import { getFileStore } from '@/lib/fileStore';
-import { newId, prepareFile, storagePaths, type PickedFile } from '@/lib/storage';
+import { storagePaths } from '@/lib/fileKeys';
+import { newId, prepareFile, type PickedFile } from '@/lib/storage';
 import type { Bill, BillFile } from '@/types/domain';
 
 type BillFields = Omit<BillInput, 'files'>;

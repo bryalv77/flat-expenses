@@ -1,15 +1,12 @@
 import { randomUUID } from 'expo-crypto';
 import * as ImageManipulator from 'expo-image-manipulator';
 
-import { parseFileKey, type FileKind } from './fileKeys';
+import { FILE_RULES, parseFileKey, sanitizeFileName, type FileKind } from './fileKeys';
 import { deleteFile as deleteFileRequest, signFileUrl } from './api/generated/sdk.gen';
 import './apiClient';
 import { API_URL, ApiError, authHeader } from './http';
-import { DOCUMENT_MIME_TYPES, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES, MAX_FILE_BYTES } from './limits';
 
 export type { FileKind };
-
-const MAX_BYTES: Record<FileKind, number> = { avatar: MAX_AVATAR_BYTES, document: MAX_FILE_BYTES, bill: MAX_FILE_BYTES };
 
 export interface PickedFile {
   uri: string;
@@ -36,39 +33,13 @@ export class FileValidationError extends Error {
   }
 }
 
-export const storagePaths = {
-  avatar: (uid: string, fileName: string) => `users/${uid}/avatar/${sanitizeFileName(fileName)}`,
-  userDocument: (uid: string, docId: string, fileName: string) =>
-    `users/${uid}/documents/${docId}/${sanitizeFileName(fileName)}`,
-  bill: (houseId: string, billId: string, fileName: string) =>
-    `houses/${houseId}/bills/${billId}/${sanitizeFileName(fileName)}`,
-};
-
-export function sanitizeFileName(name: string): string {
-  const base = name.split(/[\\/]/).pop() ?? 'file';
-  const normalized = base.normalize('NFKD').replace(/[̀-ͯ]/g, '');
-  const dot = normalized.lastIndexOf('.');
-  const stem = dot > 0 ? normalized.slice(0, dot) : normalized;
-  const ext = dot > 0 ? normalized.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, '') : '';
-  const cleanStem = stem.replace(/[^A-Za-z0-9._-]+/g, '_').replace(/^[._]+|_+$/g, '').slice(0, 80);
-  const safeStem = cleanStem.length > 0 ? cleanStem : 'file';
-  return ext ? `${safeStem}.${ext.slice(0, 8)}` : safeStem;
-}
-
-function isImageType(mimeType: string): boolean {
-  return (IMAGE_MIME_TYPES as readonly string[]).includes(mimeType.toLowerCase());
-}
-
 /** Avatars have their own (image-only, smaller) rules; everything else is a document. */
 export const kindOfKey = (key: string): FileKind => (parseFileKey(key)?.kind === 'avatar' ? 'avatar' : 'document');
 
 export function validateFile(file: Pick<PickedFile, 'mimeType' | 'size'>, kind: FileKind): void {
-  const type = file.mimeType.toLowerCase();
-  const allowed = kind === 'avatar' ? isImageType(type) : (DOCUMENT_MIME_TYPES as readonly string[]).includes(type);
-  if (!allowed) throw new FileValidationError('unsupported-type', `Unsupported file type: ${file.mimeType}`);
-  if (file.size != null && file.size > MAX_BYTES[kind]) {
-    throw new FileValidationError('too-large', `File exceeds ${MAX_BYTES[kind] / 1024 / 1024} MB`);
-  }
+  const { maxBytes, mimeTypes } = FILE_RULES[kind];
+  if (!mimeTypes.includes(file.mimeType.toLowerCase())) throw new FileValidationError('unsupported-type', `Unsupported file type: ${file.mimeType}`);
+  if (file.size != null && file.size > maxBytes) throw new FileValidationError('too-large', `File exceeds ${maxBytes / 1024 / 1024} MB`);
 }
 
 /**
@@ -78,7 +49,7 @@ export function validateFile(file: Pick<PickedFile, 'mimeType' | 'size'>, kind: 
 export async function prepareFile(file: PickedFile, kind: FileKind): Promise<PickedFile> {
   validateFile({ mimeType: file.mimeType, size: undefined }, kind);
   let result = file;
-  if (isImageType(file.mimeType)) {
+  if (FILE_RULES.avatar.mimeTypes.includes(file.mimeType.toLowerCase())) { // avatars accept exactly the image types
     const maxWidth = kind === 'avatar' ? 512 : 2000;
     const out = await ImageManipulator.manipulateAsync(
       file.uri,

@@ -1,4 +1,6 @@
-/** Layout of stored file keys, shared by the app (builders in storage.ts) and the Worker (authorization). Must stay import-free. */
+/** Layout and rules of stored files, shared by the app (building keys, validating uploads) and the Worker (authorizing and validating). */
+import { DOCUMENT_MIME_TYPES, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES, MAX_FILE_BYTES } from './limits';
+
 export type FileKind = 'avatar' | 'document' | 'bill';
 
 // What sanitizeFileName() produces; also rules out '..' tricks (see parseFileKey).
@@ -18,3 +20,29 @@ export function parseFileKey(key: string): { kind: FileKind; owner: string } | n
   }
   return null;
 }
+
+/** Avatars are images up to 2 MB; documents and bill files are images or PDF up to 10 MB. */
+export const FILE_RULES: Record<FileKind, { maxBytes: number; mimeTypes: readonly string[] }> = {
+  avatar: { maxBytes: MAX_AVATAR_BYTES, mimeTypes: IMAGE_MIME_TYPES },
+  document: { maxBytes: MAX_FILE_BYTES, mimeTypes: DOCUMENT_MIME_TYPES },
+  bill: { maxBytes: MAX_FILE_BYTES, mimeTypes: DOCUMENT_MIME_TYPES },
+};
+
+export function sanitizeFileName(name: string): string {
+  const base = name.split(/[\\/]/).pop() ?? 'file';
+  const normalized = base.normalize('NFKD').replace(/[̀-ͯ]/g, '');
+  const dot = normalized.lastIndexOf('.');
+  const stem = dot > 0 ? normalized.slice(0, dot) : normalized;
+  const ext = dot > 0 ? normalized.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+  const cleanStem = stem.replace(/[^A-Za-z0-9._-]+/g, '_').replace(/^[._]+|_+$/g, '').slice(0, 80);
+  const safeStem = cleanStem.length > 0 ? cleanStem : 'file';
+  return ext ? `${safeStem}.${ext.slice(0, 8)}` : safeStem;
+}
+
+export const storagePaths = {
+  avatar: (uid: string, fileName: string) => `users/${uid}/avatar/${sanitizeFileName(fileName)}`,
+  userDocument: (uid: string, docId: string, fileName: string) =>
+    `users/${uid}/documents/${docId}/${sanitizeFileName(fileName)}`,
+  bill: (houseId: string, billId: string, fileName: string) =>
+    `houses/${houseId}/bills/${billId}/${sanitizeFileName(fileName)}`,
+};

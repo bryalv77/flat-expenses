@@ -4,7 +4,8 @@ import { z } from 'zod';
 
 import { billFiles, bills, categories } from './db/schema';
 import { MAX_LIST } from './config';
-import { deleteObjects, parseKey } from './files';
+import { parseFileKey } from '../../src/lib/fileKeys';
+import { deleteObjects } from './files';
 import { zCreateBillBody, zListBillsQuery, zUpdateBillBody } from './generated/zod.gen';
 import { houseId, notFound, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
@@ -36,7 +37,7 @@ const withFiles = async (db: Db, rows: (typeof bills.$inferSelect)[]) => {
 const checkFiles = async (bucket: R2Bucket, houseId: string, files: FileRef[]) => {
   if (new Set(files.map((f) => f.objectKey)).size !== files.length) return false;
   for (const f of files) {
-    const p = parseKey(f.objectKey);
+    const p = parseFileKey(f.objectKey);
     if (p?.kind !== 'bill' || p.owner !== houseId) return false;
     if ((await bucket.head(f.objectKey))?.size !== f.sizeBytes) return false;
   }
