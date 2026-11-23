@@ -2,7 +2,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { ActionSheet, Badge, Button, Card, EmptyState, ListRow, Screen, ScreenSpinner, Section, Text, useToast } from '@/components/ui';
+import { Badge, Button, Card, ConfirmSheet, EmptyState, ListRow, Screen, ScreenSpinner, Section, Text, useToast } from '@/components/ui';
 import { BillFilePreview } from '@/features/bills/components/BillFilePreview';
 import { useBill, useDeleteBill } from '@/features/bills/hooks';
 import { useCategories } from '@/features/categories/hooks';
@@ -89,11 +89,12 @@ export default function BillDetailScreen() {
         ) : null}
       </View>
 
-      <ActionSheet
+      <ConfirmSheet
         visible={confirm}
         onClose={() => setConfirm(false)}
         title={t('expenses.deleteConfirm')}
-        options={[{ label: t('common.delete'), destructive: true, onPress: doDelete }]}
+        confirmLabel={t('common.delete')}
+        onConfirm={doDelete}
       />
     </Screen>
   );

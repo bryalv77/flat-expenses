@@ -15,7 +15,6 @@ export interface ScreenProps {
   scroll?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
-  /** Extra bottom padding, e.g. for a floating tab bar. */
 }
 
 export function Screen({

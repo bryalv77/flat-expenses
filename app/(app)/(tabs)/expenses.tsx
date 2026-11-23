@@ -2,21 +2,7 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import {
-  ActionSheet,
-  Chip,
-  EmptyState,
-  ErrorState,
-  Icon,
-  isIconName,
-  ListRow,
-  Screen,
-  Section,
-  Skeleton,
-  TextField,
-  useToast,
-  type IconName,
-} from '@/components/ui';
+import { Chip, ConfirmSheet, EmptyState, ErrorState, Icon, ListRow, Screen, Section, Skeleton, TextField, isIconName, type IconName, useToast } from '@/components/ui';
 import { useBills, useDeleteBill } from '@/features/bills/hooks';
 import { useCategories } from '@/features/categories/hooks';
 import { getEffectiveDate, getEffectiveMonth } from '@/features/finance';
@@ -204,11 +190,12 @@ export default function ExpensesScreen() {
         ))
       )}
 
-      <ActionSheet
+      <ConfirmSheet
         visible={toDelete !== null}
         onClose={() => setToDelete(null)}
         title={t('expenses.deleteConfirm')}
-        options={[{ label: t('common.delete'), destructive: true, onPress: confirmDelete }]}
+        confirmLabel={t('common.delete')}
+        onConfirm={confirmDelete}
       />
     </Screen>
   );

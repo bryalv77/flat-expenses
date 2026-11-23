@@ -3,7 +3,7 @@ import { useRouter, type Href } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { ActionSheet, Button, Screen, Text } from '@/components/ui';
+import { Button, ConfirmSheet, Screen, Text } from '@/components/ui';
 import { enterLocalMode } from '@/features/auth/appModeSwitch';
 import { useAuth } from '@/features/auth';
 import { wipeAllLocalData } from '@/features/backup/backup';
@@ -129,12 +129,13 @@ export default function SyncScreen() {
           </View>
         ) : null}
       </View>
-      <ActionSheet
+      <ConfirmSheet
         visible={confirmDiscard}
         onClose={() => setConfirmDiscard(false)}
         title={t('sync.discardConfirmTitle')}
         message={t('sync.discardConfirmBody')}
-        options={[{ label: t('sync.discard'), destructive: true, onPress: () => void resolve.mutate('discard') }]}
+        confirmLabel={t('sync.discard')}
+        onConfirm={() => void resolve.mutate('discard')}
       />
     </Screen>
   );

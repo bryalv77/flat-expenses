@@ -2,18 +2,7 @@ import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import {
-  ActionSheet,
-  BottomSheet,
-  Button,
-  Icon,
-  ListRow,
-  Screen,
-  SegmentedControl,
-  Section,
-  Text,
-  TextField,
-} from '@/components/ui';
+import { BottomSheet, Button, ConfirmSheet, Icon, ListRow, Screen, Section, SegmentedControl, Text, TextField } from '@/components/ui';
 import { useAuth } from '@/features/auth';
 import { reauthErrorKey } from '@/features/auth/errors';
 import { useMyHouses } from '@/features/houses/hooks';
@@ -115,12 +104,13 @@ export default function SettingsScreen() {
         </Section>
       ) : null}
 
-      <ActionSheet
+      <ConfirmSheet
         visible={confirmDelete && !isPasswordAccount}
         onClose={() => setConfirmDelete(false)}
         title={t('profile.deleteAccount')}
         message={deleteError ?? t('account.deleteAccountWarn')}
-        options={[{ label: t('profile.deleteAccount'), destructive: true, onPress: () => void runDelete() }]}
+        confirmLabel={t('profile.deleteAccount')}
+        onConfirm={() => void runDelete()}
       />
 
       <BottomSheet
