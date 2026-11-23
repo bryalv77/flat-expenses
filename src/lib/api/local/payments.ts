@@ -2,21 +2,13 @@ import { z } from 'zod';
 
 import type { MemberPayment } from '@/types/domain';
 import { ERR } from '../errors';
-import { MAX_AMOUNT_CENTS, MAX_LIST } from '../../limits';
+import { zListPaymentsQuery, zRecordPaymentBody } from '../generated/zod.gen';
+import { MAX_LIST } from '../../limits';
 import type { Api } from '../types';
 import type { LocalCtx } from './ctx';
 
-// Mirrors worker/src/payments.ts (a separate package, so not importable).
-const month = z.iso.date().regex(/^20\d\d-(0[1-9]|1[0-2])-01$/, 'first day of a month');
-const record = z.object({
-  id: z.string().min(1),
-  houseId: z.string().min(1),
-  memberId: z.string().min(1).max(128),
-  month,
-  amountCents: z.number().int().min(1).max(MAX_AMOUNT_CENTS),
-  note: z.string().max(200).nullish(),
-});
-const range = z.object({ houseId: z.string(), from: month, to: month });
+const record = zRecordPaymentBody.extend({ id: z.string().min(1), houseId: z.string().min(1) });
+const range = zListPaymentsQuery.extend({ houseId: z.string() });
 
 export function makePaymentsApi(ctx: LocalCtx): Partial<Api> {
   const { db } = ctx;

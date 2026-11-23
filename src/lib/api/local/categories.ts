@@ -1,33 +1,14 @@
-import { z } from 'zod';
-
 import type { ExpenseCategory } from '@/types/domain';
 import { normalizeIconName } from '../../iconAliases';
-import { MAX_CATEGORIES_LIST, MAX_CONFIG_CENTS } from '../../limits';
+import { MAX_CATEGORIES_LIST } from '../../limits';
 import { ERR } from '../errors';
+import { zCreateCategoryBody, zUpdateCategoryBody } from '../generated/zod.gen';
+import { fixedNeedsAmount, namesAreValid, trimmed, trimmedNames } from '../rules';
 import type { Api } from '../types';
 import type { LocalCtx } from './ctx';
 
-// Same limits as the Worker (worker/src/categories.ts).
-const shape = z.object({
-  name: z.string().trim().min(1).max(60),
-  icon: z.string().min(1).max(40),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
-  amountType: z.enum(['FIXED', 'VARIABLE']),
-  expectedAmountCents: z.number().int().min(0).max(MAX_CONFIG_CENTS).nullable(),
-  intervalUnit: z.enum(['DAY', 'WEEK', 'MONTH', 'YEAR']),
-  intervalCount: z.number().int().min(1).max(1000),
-  anchorDate: z.iso.date(),
-  isActive: z.boolean(),
-  sortOrder: z.number().int().min(0).max(10_000),
-  notes: z.string().max(500).nullable(),
-  names: z.record(z.string().regex(/^[a-z]{2,3}$/), z.string().trim().min(1).max(60)).refine((o) => Object.keys(o).length <= 12).nullable(),
-});
-const fixedNeedsAmount = (v: { amountType?: string; expectedAmountCents?: number | null }) =>
-  v.amountType !== 'FIXED' || v.expectedAmountCents != null;
-const create = shape
-  .partial({ expectedAmountCents: true, isActive: true, sortOrder: true, notes: true, names: true })
-  .refine(fixedNeedsAmount, 'FIXED categories need expectedAmountCents');
-const update = shape.partial();
+const create = zCreateCategoryBody.refine(fixedNeedsAmount, 'FIXED categories need expectedAmountCents').refine(namesAreValid, 'invalid names');
+const update = zUpdateCategoryBody.refine(namesAreValid, 'invalid names');
 
 type Row = {
   id: string; name: string; icon: string; color: string; amount_type: string; expected_amount_cents: number | null;
@@ -69,8 +50,8 @@ export function makeCategoriesApi({ db, now }: LocalCtx): Partial<Api> {
         `insert into categories (id, house_id, name, icon, color, amount_type, expected_amount_cents, interval_unit,
           interval_count, anchor_date, is_active, sort_order, notes, names, created_at, updated_at)
          values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-        [id, houseId, v.name, v.icon, v.color, v.amountType, v.expectedAmountCents ?? null, v.intervalUnit,
-          v.intervalCount, v.anchorDate, Number(v.isActive ?? true), v.sortOrder ?? 0, v.notes ?? null, namesJson(v.names) ?? null, t, t],
+        [id, houseId, trimmed(v.name), v.icon, v.color, v.amountType, v.expectedAmountCents ?? null, v.intervalUnit,
+          v.intervalCount, v.anchorDate, Number(v.isActive ?? true), v.sortOrder ?? 0, v.notes ?? null, namesJson(v.names && trimmedNames(v.names)) ?? null, t, t],
       );
     },
     updateCategory: async ({ houseId, id, ...rest }) => {
@@ -83,7 +64,7 @@ export function makeCategoriesApi({ db, now }: LocalCtx): Partial<Api> {
         expectedAmountCents: v.expectedAmountCents === undefined ? cur.expected_amount_cents : v.expectedAmountCents,
       };
       if (!fixedNeedsAmount(merged)) throw new Error('FIXED categories need expectedAmountCents');
-      await patch(houseId, id, { ...v, names: namesJson(v.names) });
+      await patch(houseId, id, { ...v, name: v.name === undefined ? undefined : trimmed(v.name), names: namesJson(v.names && trimmedNames(v.names)) });
     },
     archiveCategory: ({ houseId, id, isActive }) => patch(houseId, id, { isActive }),
     deleteCategory: async ({ houseId, id }) => {
@@ -93,6 +74,6 @@ export function makeCategoriesApi({ db, now }: LocalCtx): Partial<Api> {
     listCategories: async ({ houseId }) =>
       (await db.all<Row>(`select * from categories where house_id = ? order by sort_order, name limit ${MAX_CATEGORIES_LIST}`, [houseId])).map(toCategory),
     setCategorySortOrder: async ({ houseId, id, sortOrder }) =>
-      patch(houseId, id, { sortOrder: shape.shape.sortOrder.parse(sortOrder) }),
+      patch(houseId, id, { sortOrder: zUpdateCategoryBody.shape.sortOrder.parse(sortOrder) }),
   };
 }

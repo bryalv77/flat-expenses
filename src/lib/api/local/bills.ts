@@ -2,28 +2,22 @@ import { z } from 'zod';
 
 import type { Bill, BillFile } from '@/types/domain';
 
+import { zCreateBillBody, zUpdateBillBody } from '../generated/zod.gen';
 import type { Api } from '../types';
-import { MAX_AMOUNT_CENTS, MAX_BILL_FILES, MAX_LIST, MAX_NOTES } from '../../limits';
+import { MAX_BILL_FILES, MAX_LIST } from '../../limits';
 import type { LocalCtx } from './ctx';
 import type { SqlParam } from './sql';
 
+// Local files are referenced by `storagePath` (the wire's `objectKey`) and ids are not necessarily uuids.
 const fileRef = z.object({
   storagePath: z.string().min(1).max(300),
   fileName: z.string().min(1).max(150),
   mimeType: z.string().max(100),
   sizeBytes: z.number().int().min(0),
 });
-const shape = z.object({
-  files: z.array(fileRef).max(MAX_BILL_FILES),
-  categoryId: z.string().min(1),
-  amountCents: z.number().int().min(1).max(MAX_AMOUNT_CENTS),
-  chargeDate: z.iso.date().nullable(),
-  periodStartDate: z.iso.date().nullable(),
-  periodEndDate: z.iso.date().nullable(),
-  notes: z.string().max(MAX_NOTES).nullable(),
-});
-const createSchema = shape.partial({ files: true, chargeDate: true, periodStartDate: true, periodEndDate: true, notes: true });
-const updateSchema = shape.partial();
+const files = z.array(fileRef).max(MAX_BILL_FILES);
+const createSchema = zCreateBillBody.extend({ id: z.string().optional(), files: files.optional(), categoryId: z.string().min(1) });
+const updateSchema = zUpdateBillBody.extend({ files: files.optional(), categoryId: z.string().min(1).optional() });
 
 interface BillRow {
   id: string; category_id: string; amount_cents: number; charge_date: string | null;

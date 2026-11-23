@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 import type { HouseMember } from '@/types/domain';
 
-import { GUEST_ID, MAX_CONFIG_CENTS, MAX_MEMBERS_LIST } from '../../limits';
+import { MAX_MEMBERS_LIST } from '../../limits';
+import { zCreateGuestMemberBody, zGuestId, zMemberRemove, zMemberContributionUpdate } from '../generated/zod.gen';
 import type { Api } from '../types';
 import type { LocalCtx } from './ctx';
 
@@ -24,23 +25,15 @@ export const mapMember = (m: MemberRow): HouseMember => ({
   individualContributionCents: m.individual_contribution_cents,
 });
 
-const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
-const cents = z.number().int().min(0).max(MAX_CONFIG_CENTS).nullable();
-const guestSchema = z.object({
-  houseId: z.string(),
-  id: z.string().regex(GUEST_ID),
-  displayName: z.string().trim().min(1).max(100),
-  joinedAt: day,
-  removedAt: day.nullable(),
-  individualContributionCents: cents,
-});
+const guestSchema = zCreateGuestMemberBody.extend({ houseId: z.string(), id: zGuestId });
+
 const noon = (d: string) => `${d}T12:00:00.000Z`;
 
 export function makeMembersApi(ctx: LocalCtx): Partial<Api> {
   const { db } = ctx;
   return {
     removeMember: async (v) => {
-      const removedAt = v.removedAt ? noon(day.parse(v.removedAt)) : ctx.now();
+      const removedAt = v.removedAt ? noon(zMemberRemove.parse({ removedAt: v.removedAt }).removedAt!) : ctx.now();
       const m = await db.get<{ role: string }>('select role from members where house_id = ? and user_id = ?', [v.houseId, v.memberId]);
       if (m?.role === 'ADMIN') throw new Error('An ADMIN cannot be removed');
       await db.run(`update members set status = 'REMOVED', removed_at = ? where house_id = ? and user_id = ?`, [removedAt, v.houseId, v.memberId]);
@@ -54,11 +47,11 @@ export function makeMembersApi(ctx: LocalCtx): Partial<Api> {
         `insert into members (house_id, user_id, role, status, joined_at, removed_at, individual_contribution_cents, display_name, email)
          values (?, ?, 'ROOMMATE', ?, ?, ?, ?, ?, '')`,
         [v.houseId, v.id, v.removedAt ? 'REMOVED' : 'ACTIVE', noon(v.joinedAt), v.removedAt ? noon(v.removedAt) : null,
-          v.individualContributionCents, v.displayName],
+          v.individualContributionCents, v.displayName.trim()],
       );
     },
     setMemberContribution: async (v) => {
-      const c = cents.parse(v.individualContributionCents);
+      const c = zMemberContributionUpdate.parse({ individualContributionCents: v.individualContributionCents }).individualContributionCents;
       await db.run('update members set individual_contribution_cents = ? where house_id = ? and user_id = ?', [c, v.houseId, v.memberId]);
     },
     listMembers: async ({ houseId }) =>

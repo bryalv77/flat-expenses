@@ -583,7 +583,7 @@ components:
       type: object
       description: Optional per-language names, language -> name.
       maxProperties: 12
-      propertyNames: { pattern: '^[a-z]{2,3}$' }
+      propertyNames: { pattern: '^[a-z]{2,3}$' } # not generated: enforced by `namesAreValid` in src/lib/api/rules.ts
       additionalProperties: { type: string, minLength: 1, maxLength: 60, pattern: '\S' }
     CategoryCreate:
       description: A FIXED category also needs expectedAmountCents (checked by the server, see src/lib/api/rules.ts).

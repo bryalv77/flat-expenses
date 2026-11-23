@@ -2,22 +2,16 @@ import { z } from 'zod';
 
 import type { House, HouseMember, HouseRole } from '@/types/domain';
 
-import { MAX_CONFIG_CENTS, MAX_MEMBERS_LIST } from '../../limits';
+import { MAX_MEMBERS_LIST } from '../../limits';
+import { zCreateHouseBody, zUpdateHouseBody } from '../generated/zod.gen';
+import { trimmed } from '../rules';
 import type { Api } from '../types';
 import type { LocalCtx } from './ctx';
 import { mapMember, type MemberRow } from './members';
 import { ensureUser } from './user';
 
-const fields = {
-  name: z.string().trim().min(1).max(100),
-  address: z.string().trim().max(200).nullish(),
-  splitMode: z.enum(['EQUAL', 'FIXED_CONTRIBUTION']).optional(),
-  fixedContributionCents: z.number().int().min(0).max(MAX_CONFIG_CENTS).nullish(),
-  contributionDayOfMonth: z.number().int().min(1).max(31).nullish(),
-  showBalanceToRoommates: z.boolean().optional(),
-};
-const createSchema = z.object({ id: z.string().min(1).max(64), ...fields });
-const updateSchema = z.object({ houseId: z.string(), ...fields }).partial().required({ houseId: true });
+const createSchema = zCreateHouseBody.extend({ id: z.string().min(1).max(64) });
+const updateSchema = zUpdateHouseBody.extend({ houseId: z.string() });
 
 type HouseRow = {
   id: string; name: string; address: string | null; currency: string; split_mode: House['splitMode'];
@@ -53,7 +47,7 @@ export function makeHousesApi(ctx: LocalCtx): Partial<Api> {
         await db.run(
           `insert into houses (id, name, address, currency, split_mode, fixed_contribution_cents, contribution_day_of_month,
            show_balance_to_roommates, created_by, created_at, updated_at) values (?, ?, ?, 'EUR', ?, ?, ?, ?, ?, ?, ?)`,
-          [v.id, v.name, v.address ?? null, v.splitMode ?? 'EQUAL', v.fixedContributionCents ?? null,
+          [v.id, trimmed(v.name), v.address?.trim() ?? null, v.splitMode ?? 'EQUAL', v.fixedContributionCents ?? null,
             v.contributionDayOfMonth ?? null, v.showBalanceToRoommates === false ? 0 : 1, ctx.userId, now, now],
         );
         await db.run(
@@ -65,7 +59,7 @@ export function makeHousesApi(ctx: LocalCtx): Partial<Api> {
     },
     updateHouse: async (input) => {
       const { houseId, ...rest } = updateSchema.parse(input);
-      const sets = Object.entries(rest).filter(([, x]) => x !== undefined);
+      const sets = Object.entries({ ...rest, name: rest.name?.trim(), address: rest.address?.trim() ?? rest.address }).filter(([, x]) => x !== undefined);
       await db.run(
         `update houses set ${[...sets.map(([k]) => `${COLUMNS[k]} = ?`), 'updated_at = ?'].join(', ')} where id = ?`,
         [...sets.map(([, x]) => toSql(x)), ctx.now(), houseId],

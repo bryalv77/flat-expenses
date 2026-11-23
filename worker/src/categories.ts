@@ -1,7 +1,7 @@
 import { and, asc, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 
-import { fixedNeedsAmount, trimmed, trimmedNames } from '../../src/lib/api/rules';
+import { fixedNeedsAmount, namesAreValid, trimmed, trimmedNames } from '../../src/lib/api/rules';
 import { MAX_CATEGORIES_LIST } from './config';
 import { zCreateCategoryBody, zUpdateCategoryBody } from './generated/zod.gen';
 import { ERR } from '../../src/lib/api/errors';
@@ -12,8 +12,8 @@ import { guardAdmin, guardMember, type AppEnv } from './middleware';
 // Reads: any active member. Writes: admins.
 export const categoriesApp = new Hono<AppEnv>();
 
-const create = zCreateCategoryBody.strict().refine(fixedNeedsAmount, { message: 'FIXED categories need expectedAmountCents', path: ['expectedAmountCents'] });
-const update = zUpdateCategoryBody.strict();
+const create = zCreateCategoryBody.strict().refine(fixedNeedsAmount, { message: 'FIXED categories need expectedAmountCents', path: ['expectedAmountCents'] }).refine(namesAreValid, { path: ['names'] });
+const update = zUpdateCategoryBody.strict().refine(namesAreValid, { path: ['names'] });
 const clean = <T extends { name?: string; names?: Record<string, string> | null }>(v: T): T => ({
   ...v,
   ...(v.name !== undefined && { name: trimmed(v.name) }),
