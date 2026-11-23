@@ -1,4 +1,4 @@
-import { clearPendingSync } from '@/features/sync/pending';
+import { clearPendingSync, markPendingSync } from '@/features/sync/pending';
 import { signOutOfCloud } from '@/lib/apiAuth';
 import { saveAppMode } from '@/lib/appMode';
 import { queryClient } from '@/lib/queryClient';
@@ -26,7 +26,11 @@ export async function enterLocalMode() {
   await switchTo('local');
 }
 
-export const leaveLocalMode = () => switchTo('cloud');
+/** "Log in" from local mode: flag the local→cloud sync first so a crash mid-login still resumes it. */
+export async function startCloudLogin() {
+  await markPendingSync();
+  await switchTo('cloud');
+}
 
 /**
  * Startup fallback: switch to local without any cloud call. Used when the auth provider restores no

@@ -8,11 +8,10 @@ import { z } from 'zod';
 
 import { HeaderControls } from '@/components/HeaderControls';
 import { Button, ListRow, MoneyInput, Screen, SegmentedControl, Section, Switch, Text, TextField, useToast } from '@/components/ui';
-import { leaveLocalMode } from '@/features/auth/appModeSwitch';
+import { startCloudLogin } from '@/features/auth/appModeSwitch';
 import { houseSchema, parseDayInput } from '@/features/houses/houseFields';
 import { useCreateHouse } from '@/features/houses/hooks';
 import { seedSuggestedCategories } from '@/features/houses/seed';
-import { markPendingSync } from '@/features/sync/pending';
 import { useT } from '@/i18n';
 import { getAppMode } from '@/lib/appMode';
 import { haptics } from '@/lib/haptics';
@@ -158,7 +157,7 @@ export default function CreateHouseScreen() {
           loading={formState.isSubmitting}
         />
         {getAppMode() === 'local' ? (
-          <Button title={t('localMode.logIn')} variant="plain" onPress={() => void markPendingSync().then(() => leaveLocalMode())} />
+          <Button title={t('localMode.logIn')} variant="plain" onPress={() => void startCloudLogin()} />
         ) : null}
       </View>
     </Screen>

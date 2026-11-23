@@ -1,4 +1,4 @@
-import { enterLocalMode, getTreeKey, leaveLocalMode, startInLocalMode, subscribeTreeReset } from './appModeSwitch';
+import { enterLocalMode, getTreeKey, startCloudLogin, startInLocalMode, subscribeTreeReset } from './appModeSwitch';
 
 const calls: string[] = [];
 jest.mock('@/lib/appMode', () => ({ saveAppMode: jest.fn(async (m: string) => void calls.push(`save:${m}`)) }));
@@ -7,6 +7,7 @@ jest.mock('@/lib/uiStore', () => ({ useUiStore: { getState: () => ({ setActiveHo
 jest.mock('@/lib/apiAuth', () => ({ signOutOfCloud: async () => void calls.push('cloud.signOut') }));
 jest.mock('@/features/sync/pending', () => ({
   clearPendingSync: async () => void calls.push('pendingSync:clear'),
+  markPendingSync: async () => void calls.push('pendingSync:mark'),
 }));
 
 beforeEach(() => (calls.length = 0));
@@ -17,9 +18,9 @@ describe('appModeSwitch', () => {
     expect(calls).toEqual(['cloud.signOut', 'pendingSync:clear', 'save:local', 'qc.clear', 'house:null']);
   });
 
-  it('leaving local saves cloud and clears caches', async () => {
-    await leaveLocalMode();
-    expect(calls).toEqual(['save:cloud', 'qc.clear', 'house:null']);
+  it('starting cloud login flags the pending sync before switching to cloud', async () => {
+    await startCloudLogin();
+    expect(calls).toEqual(['pendingSync:mark', 'save:cloud', 'qc.clear', 'house:null']);
   });
 
   it('startInLocalMode switches to local without any cloud call', async () => {
