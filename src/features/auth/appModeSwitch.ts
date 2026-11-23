@@ -2,23 +2,21 @@ import { clearPendingSync } from '@/features/sync/pending';
 import { signOutOfCloud } from '@/lib/apiAuth';
 import { saveAppMode } from '@/lib/appMode';
 import { queryClient } from '@/lib/queryClient';
+import { createSubscribers } from '@/lib/subscribers';
 import { useUiStore } from '@/lib/uiStore';
 
 // Tree reset: the root layout keys its providers on this counter, so a bump remounts everything (providers, api consumers).
 let treeKey = 0;
-const listeners = new Set<() => void>();
+const subscribers = createSubscribers();
 export const getTreeKey = () => treeKey;
-export function subscribeTreeReset(fn: () => void) {
-  listeners.add(fn);
-  return () => void listeners.delete(fn);
-}
+export const subscribeTreeReset = subscribers.subscribe;
 
 async function switchTo(mode: 'local' | 'cloud') {
   await saveAppMode(mode);
   queryClient.clear();
   useUiStore.getState().setActiveHouseId(null);
   treeKey += 1;
-  listeners.forEach((fn) => fn());
+  subscribers.notify();
 }
 
 /** Cloud and local never mix: sign out of cloud (and drop its token) first, then switch and remount. */

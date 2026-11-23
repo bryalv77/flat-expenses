@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { createSubscribers } from '@/lib/subscribers';
+
 /**
  * Marks that the user entered cloud login from local mode and, once signed in, must resolve the
  * local→cloud sync (upload local data, or discard it in favour of their cloud data). Persisted so a
@@ -8,17 +10,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const KEY = 'costos-piso.pendingCloudSync';
 
 let pending = false;
-const listeners = new Set<() => void>();
+const subscribers = createSubscribers();
 
 export const getPendingSync = (): boolean => pending;
-export function subscribePendingSync(fn: () => void) {
-  listeners.add(fn);
-  return () => void listeners.delete(fn);
-}
+export const subscribePendingSync = subscribers.subscribe;
 
 function setPending(value: boolean) {
   pending = value;
-  listeners.forEach((fn) => fn());
+  subscribers.notify();
 }
 
 /** Reads the persisted flag once at startup (before the first render, like `loadAppMode`). */
