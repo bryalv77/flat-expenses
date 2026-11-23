@@ -21,3 +21,57 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+
+  # Worker route tests + the app's HTTP client against a real local Worker. Both need Postgres, so they never skip: they fail without it.
+  worker:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: postgres
+      DB_ADMIN: postgres://postgres:postgres@localhost:5432
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            worker/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm install --frozen-lockfile
+        working-directory: worker
+      - name: Create databases
+        run: |
+          psql -h localhost -U postgres -c 'create database costos_piso'
+          psql -h localhost -U postgres -c 'create database costos_piso_test'
+      - name: Worker tests (vitest, migrates costos_piso_test itself)
+        run: pnpm test
+        working-directory: worker
+        env:
+          TEST_DATABASE_URL: ${{ env.DB_ADMIN }}/costos_piso_test
+      - name: Migrate the dev database
+        run: pnpm db:migrate
+        working-directory: worker
+        env:
+          DATABASE_URL: ${{ env.DB_ADMIN }}/costos_piso
+      - name: Start the local Worker
+        working-directory: worker
+        run: |
+          printf 'DATABASE_URL=%s\nBETTER_AUTH_SECRET=%s\nBETTER_AUTH_URL=http://localhost:8787\nEMAIL_MODE=log\n' \
+            "$DB_ADMIN/costos_piso" "$(openssl rand -hex 32)" > .dev.vars.local
+          nohup pnpm dev:local --port 8787 > wrangler.log 2>&1 &
+          for i in $(seq 1 30); do curl -fs localhost:8787/health && exit 0; sleep 2; done
+          cat wrangler.log; exit 1
+      - name: App HTTP client against the Worker
+        run: pnpm test:api
+        env:
+          API_E2E_URL: http://localhost:8787
