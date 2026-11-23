@@ -112,5 +112,5 @@
       "/.claude/"
     ]
   },
-  "packageManager": "pnpm@8.15.6"
+  "packageManager": "pnpm@10.34.9"
 }
