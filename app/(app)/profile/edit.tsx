@@ -198,6 +198,6 @@ export default function EditProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  block: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
+  block: { gap: spacing.sm, paddingBottom: spacing.lg },
   avatarBlock: { alignItems: 'center', gap: spacing.md, paddingBottom: spacing.md },
 });

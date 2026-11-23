@@ -165,5 +165,5 @@ export default function CreateHouseScreen() {
 }
 
 const styles = StyleSheet.create({
-  form: { gap: spacing.sm, paddingHorizontal: spacing.lg },
+  form: { gap: spacing.sm },
 });

@@ -25,7 +25,7 @@ export default function ProfileScreen() {
 
   return (
     <Screen title={t('tabs.profile')}>
-      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+      <View style={{ gap: spacing.lg }}>
         <View style={{ alignItems: 'center', gap: spacing.sm }}>
           <Avatar name={name} uri={avatarUrl ?? undefined} size={88} />
           <Text variant="title2">{name}</Text>

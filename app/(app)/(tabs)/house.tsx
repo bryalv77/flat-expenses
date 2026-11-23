@@ -93,7 +93,7 @@ export default function HouseScreen() {
 
   return (
     <Screen title={house.name}>
-      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+      <View style={{ gap: spacing.lg }}>
         <Section header={t('hub.manage')}>
           <ListRow icon="folder" title={t('hub.categoriesLink')} chevron onPress={() => router.push('/categories')} />
           {isAdmin ? (

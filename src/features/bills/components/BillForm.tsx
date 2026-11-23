@@ -219,7 +219,7 @@ export function BillForm({ categories, initial, submitLabel, submitting, progres
 }
 
 const styles = StyleSheet.create({
-  form: { gap: spacing.lg, paddingHorizontal: spacing.lg },
+  form: { gap: spacing.lg },
   block: { gap: spacing.sm },
   pending: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.sm },
   pendingName: { flex: 1 },

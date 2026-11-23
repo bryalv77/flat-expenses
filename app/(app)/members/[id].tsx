@@ -37,7 +37,7 @@ export default function MemberDetailScreen() {
 
   return (
     <Screen>
-      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+      <View style={{ gap: spacing.lg }}>
         <View style={{ alignItems: 'center', gap: spacing.sm }}>
           <MemberAvatar name={member.displayName} photoPath={member.photoPath} size={80} />
           <Text variant="title2">{member.displayName}</Text>

@@ -42,6 +42,6 @@ export default function RoleScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
-  footer: { paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
+  header: { paddingBottom: spacing.lg },
+  footer: { paddingTop: spacing.lg },
 });

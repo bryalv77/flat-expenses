@@ -46,7 +46,7 @@ export default function CategoriesScreen() {
             : undefined,
         }}
       />
-      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+      <View style={{ gap: spacing.lg }}>
         {isLoading ? <Skeleton height={200} radius={12} /> : null}
         {!isLoading && categories.length === 0 ? (
           <EmptyState

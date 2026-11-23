@@ -104,7 +104,7 @@ export default function ReportsScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { gap: spacing.lg, paddingHorizontal: spacing.lg },
+  body: { gap: spacing.lg },
   segments: { gap: spacing.sm, paddingVertical: spacing.xs },
   skeletons: { gap: spacing.md },
   export: { minWidth: 44, minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },

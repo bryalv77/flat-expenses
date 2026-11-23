@@ -215,9 +215,9 @@ export default function ExpensesScreen() {
 }
 
 const styles = StyleSheet.create({
-  filters: { gap: spacing.sm, paddingHorizontal: spacing.lg },
+  filters: { gap: spacing.sm },
   chipsScroll: { flexGrow: 0 },
   chips: { gap: spacing.sm, paddingVertical: spacing.xs, alignItems: 'center' },
-  skeletons: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingTop: spacing.lg },
+  skeletons: { gap: spacing.sm, paddingTop: spacing.lg },
   add: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

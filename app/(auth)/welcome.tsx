@@ -62,5 +62,5 @@ const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: spacing.md, paddingTop: 72, paddingBottom: spacing.xxxl },
   logo: { width: 96, height: 96, borderRadius: radii.xl, alignItems: 'center', justifyContent: 'center' },
   center: { textAlign: 'center' },
-  actions: { gap: spacing.sm, paddingHorizontal: spacing.lg },
+  actions: { gap: spacing.sm },
 });

@@ -155,5 +155,5 @@ export default function DocumentsScreen() {
 }
 
 const styles = StyleSheet.create({
-  block: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
+  block: { gap: spacing.sm, paddingBottom: spacing.lg },
 });

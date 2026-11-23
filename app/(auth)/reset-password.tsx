@@ -78,5 +78,5 @@ export default function ResetPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  form: { gap: spacing.sm, paddingHorizontal: spacing.lg },
+  form: { gap: spacing.sm },
 });

@@ -27,7 +27,7 @@ export default function NewGuestMemberScreen() {
 
   return (
     <Screen>
-      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+      <View style={{ gap: spacing.lg }}>
         <Section footer={t('hub.guestHelp')}>
           <TextField inline label={t('hub.guestName')} value={name} onChangeText={setName} />
           <DatePickerField label={t('hub.moveIn')} value={joinedAt} onChange={setJoinedAt} />

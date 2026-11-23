@@ -29,7 +29,7 @@ export default function CategoryDetailScreen() {
   if (!isAdmin) {
     return (
       <Screen>
-        <View style={{ paddingHorizontal: spacing.lg, gap: spacing.sm }}>
+        <View style={{ gap: spacing.sm }}>
           <Text variant="title2">{category.name}</Text>
           <Text color="secondaryLabel">{describeSchedule(category, locale).full}</Text>
           {category.notes ? <Text>{category.notes}</Text> : null}
@@ -40,7 +40,7 @@ export default function CategoryDetailScreen() {
 
   return (
     <Screen>
-      <View style={{ paddingHorizontal: spacing.lg }}>
+      <View>
         <CategoryForm
           initial={category}
           submitLabel={t('common.save')}

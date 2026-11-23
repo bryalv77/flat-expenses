@@ -7,7 +7,6 @@ import { useCreateCategory } from '@/features/categories/hooks';
 import { AdminOnlyScreen } from '@/features/houses/AdminOnlyScreen';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useT } from '@/i18n';
-import { spacing } from '@/theme';
 
 export default function NewCategoryScreen() {
   const { t } = useT();
@@ -20,7 +19,7 @@ export default function NewCategoryScreen() {
 
   return (
     <Screen>
-      <View style={{ paddingHorizontal: spacing.lg }}>
+      <View>
         <CategoryForm
           submitLabel={t('common.save')}
           onSubmit={async (input) => {

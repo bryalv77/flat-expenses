@@ -85,7 +85,7 @@ export default function HomeScreen() {
 
   return (
     <Screen title={t('tabs.home')} refreshing={refreshing} onRefresh={onRefresh}>
-      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+      <View style={{ gap: spacing.lg }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
           <Avatar name={name} uri={avatarUrl ?? undefined} size={48} />
           <View style={{ flex: 1 }}>

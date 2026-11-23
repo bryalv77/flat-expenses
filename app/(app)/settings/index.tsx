@@ -159,5 +159,5 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   control: { padding: spacing.md },
-  sheet: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
+  sheet: { gap: spacing.sm, paddingBottom: spacing.lg },
 });

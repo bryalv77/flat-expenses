@@ -100,7 +100,7 @@ export default function BillDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { gap: spacing.lg, paddingHorizontal: spacing.lg },
+  body: { gap: spacing.lg },
   file: { gap: spacing.sm },
   actions: { gap: spacing.sm },
 });

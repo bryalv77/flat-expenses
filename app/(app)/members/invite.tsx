@@ -72,7 +72,7 @@ export default function InviteScreen() {
 
   return (
     <Screen>
-      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+      <View style={{ gap: spacing.lg }}>
         <Section header={t('hub.expiresIn')}>
           <View style={{ padding: spacing.md }}>
             <SegmentedControl value={expiry} onChange={setExpiry} options={EXPIRY_OPTIONS} />

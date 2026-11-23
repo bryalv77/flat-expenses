@@ -69,7 +69,7 @@ export default function PaymentsScreen() {
 
   return (
     <Screen>
-      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
+      <View style={{ gap: spacing.lg }}>
         {house.splitMode !== 'FIXED_CONTRIBUTION' ? <Text variant="footnote" color="secondaryLabel">{t('hub.onlyFixedMode')}</Text> : null}
 
         <Text variant="footnote" color="secondaryLabel">{t('hub.recordPaymentHint')}</Text>

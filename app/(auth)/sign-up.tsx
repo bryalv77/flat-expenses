@@ -110,5 +110,5 @@ export default function SignUpScreen() {
 }
 
 const styles = StyleSheet.create({
-  form: { gap: spacing.sm, paddingHorizontal: spacing.lg },
+  form: { gap: spacing.sm },
 });
