@@ -1,5 +1,6 @@
 export const es = {
   common: {
+    close: 'Cerrar', clear: 'Borrar',
     cancel: 'Cancelar', save: 'Guardar', delete: 'Eliminar', edit: 'Editar',
     done: 'Hecho', retry: 'Reintentar', confirm: 'Confirmar',
     error: 'Algo salió mal', optional: 'Opcional', required: 'Obligatorio', search: 'Buscar',

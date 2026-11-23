@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } fr
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useT } from '@/i18n';
 import { MAX_CONTENT_WIDTH, radii, spacing, useTheme } from '@/theme';
 
 import { Text } from './Text';
@@ -16,6 +17,7 @@ export interface BottomSheetProps {
 
 export function BottomSheet({ visible, onClose, title, children }: BottomSheetProps) {
   const { colors } = useTheme();
+  const { t } = useT();
   const insets = useSafeAreaInsets();
   const [mounted, setMounted] = useState(visible);
   const progress = useSharedValue(0);
@@ -39,7 +41,7 @@ export function BottomSheet({ visible, onClose, title, children }: BottomSheetPr
     <Modal visible={mounted} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.fill}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay }, backdrop]}>
-          <Pressable style={styles.fill} onPress={onClose} accessibilityLabel="Cerrar" />
+          <Pressable style={styles.fill} onPress={onClose} accessibilityLabel={t('common.close')} />
         </Animated.View>
         <View style={styles.bottom} pointerEvents="box-none">
           <Animated.View

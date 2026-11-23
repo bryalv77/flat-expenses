@@ -1,13 +1,13 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { View } from 'react-native';
 
+import { useT } from '@/i18n';
+
 import { Button } from './Button';
 import { Text } from './Text';
 
 interface Props {
   children: ReactNode;
-  fallbackTitle?: string;
-  retryLabel?: string;
 }
 interface State {
   error: Error | null;
@@ -26,14 +26,19 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (!this.state.error) return this.props.children;
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 }}>
-        <Text variant="title3">{this.props.fallbackTitle ?? 'Algo salió mal'}</Text>
-        <Text variant="footnote" color="secondaryLabel" style={{ textAlign: 'center' }}>
-          {this.state.error.message}
-        </Text>
-        <Button title={this.props.retryLabel ?? 'Reintentar'} fullWidth={false} onPress={() => this.setState({ error: null })} />
-      </View>
-    );
+    return <Fallback error={this.state.error} onRetry={() => this.setState({ error: null })} />;
   }
+}
+
+function Fallback({ error, onRetry }: { error: Error; onRetry: () => void }) {
+  const { t } = useT();
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 }}>
+      <Text variant="title3">{t('common.error')}</Text>
+      <Text variant="footnote" color="secondaryLabel" style={{ textAlign: 'center' }}>
+        {error.message}
+      </Text>
+      <Button title={t('common.retry')} fullWidth={false} onPress={onRetry} />
+    </View>
+  );
 }

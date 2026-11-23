@@ -2,6 +2,7 @@ import type { Messages } from './es';
 
 export const en: Messages = {
   common: {
+    close: 'Close', clear: 'Clear',
     cancel: 'Cancel', save: 'Save', delete: 'Delete', edit: 'Edit',
     done: 'Done', retry: 'Retry', confirm: 'Confirm',
     error: 'Something went wrong', optional: 'Optional', required: 'Required', search: 'Search',

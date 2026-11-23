@@ -105,7 +105,7 @@ export function DatePickerField({ value, onChange, label, error, clearable }: Da
             {display}
           </Text>
           {clearable && value ? (
-            <Pressable accessibilityLabel="Clear" hitSlop={10} onPress={() => onChange(null)}>
+            <Pressable accessibilityLabel={t('common.clear')} hitSlop={10} onPress={() => onChange(null)}>
               <Icon name="close" size={16} color={colors.tertiaryLabel} />
             </Pressable>
           ) : null}

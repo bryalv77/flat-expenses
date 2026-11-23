@@ -3,6 +3,7 @@ import type { DeepPartial } from './translate';
 
 export const pt: DeepPartial<Messages> = {
   common: {
+    close: 'Fechar', clear: 'Limpar',
     cancel: 'Cancelar', save: 'Guardar', delete: 'Eliminar', edit: 'Editar',
     done: 'Concluído', retry: 'Tentar novamente', confirm: 'Confirmar',
     error: 'Algo correu mal', optional: 'Opcional', required: 'Obrigatório', search: 'Pesquisar',
