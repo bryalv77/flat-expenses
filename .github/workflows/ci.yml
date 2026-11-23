@@ -47,7 +47,8 @@ jobs:
             pnpm-lock.yaml
             worker/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile --ignore-scripts
-      - run: pnpm install --frozen-lockfile
+      # worker/pnpm-lock.yaml is lockfile v9, which the pnpm 8 pinned for the app cannot read.
+      - run: npx -y pnpm@10 install --frozen-lockfile
         working-directory: worker
       - name: Create databases
         run: |
