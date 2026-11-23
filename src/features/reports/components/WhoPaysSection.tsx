@@ -7,7 +7,7 @@ import { getEffectiveMonth } from '@/features/finance';
 import { useT } from '@/i18n';
 import { monthKey } from '@/lib/dates';
 import { formatMoney, formatMonth } from '@/lib/format';
-import { spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 import { lastNMonths, whoPays } from '..';
 import { Stat } from './Stat';
@@ -18,6 +18,7 @@ type Range = '1' | '3' | '6' | '12' | 'all';
 /** Admin (you) vs roommates, month by month: the admin covers what the roommates' payments don't. */
 export function WhoPaysSection({ data }: { data: ReportData }) {
   const { t, locale } = useT();
+  const { colors } = useTheme();
   const [range, setRange] = useState<Range>('12');
   const money = (c: number) => formatMoney(c, locale);
 
@@ -45,8 +46,8 @@ export function WhoPaysSection({ data }: { data: ReportData }) {
         <Stat inRow label={t('reportsUi.avgMonthly')} value={money(r.averageMonthlyCents)} />
       </View>
       <View style={styles.stats}>
-        <Stat inRow label={t('reportsUi.youAdmin')} value={money(r.adminCents)} hint={`${youPct}%`} color="#007AFF" />
-        <Stat inRow label={t('reportsUi.roommates')} value={money(r.roommatesCents)} hint={`${100 - youPct}%`} color="#34C759" />
+        <Stat inRow label={t('reportsUi.youAdmin')} value={money(r.adminCents)} hint={`${youPct}%`} color={colors.blue} />
+        <Stat inRow label={t('reportsUi.roommates')} value={money(r.roommatesCents)} hint={`${100 - youPct}%`} color={colors.green} />
       </View>
 
       <Card>
@@ -55,8 +56,8 @@ export function WhoPaysSection({ data }: { data: ReportData }) {
         <LineChart
           xLabels={r.rows.map((x) => formatMonth(x.month, locale, 'short'))}
           series={[
-            { key: 'admin', label: t('reportsUi.youAdmin'), color: '#007AFF', values: r.rows.map((x) => Math.max(0, x.adminCents)) },
-            { key: 'roommates', label: t('reportsUi.roommates'), color: '#34C759', values: r.rows.map((x) => x.roommatesCents) },
+            { key: 'admin', label: t('reportsUi.youAdmin'), color: colors.blue, values: r.rows.map((x) => Math.max(0, x.adminCents)) },
+            { key: 'roommates', label: t('reportsUi.roommates'), color: colors.green, values: r.rows.map((x) => x.roommatesCents) },
           ]}
           accessibilityLabel={t('reportsUi.whoPays')}
         />

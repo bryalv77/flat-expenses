@@ -8,14 +8,13 @@ import { Icon } from './Icon';
 export interface ColorPickerProps {
   value: string;
   onChange: (hex: string) => void;
-  colors?: readonly string[];
 }
 
-export function ColorPicker({ value, onChange, colors: palette = categoryColors }: ColorPickerProps) {
+export function ColorPicker({ value, onChange }: ColorPickerProps) {
   const { colors } = useTheme();
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, padding: spacing.lg, backgroundColor: colors.grouped, borderRadius: 12 }}>
-      {palette.map((hex) => {
+      {categoryColors.map((hex) => {
         const selected = hex.toLowerCase() === value.toLowerCase();
         return (
           <Pressable

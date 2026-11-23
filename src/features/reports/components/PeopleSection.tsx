@@ -6,7 +6,7 @@ import { Badge, Card, EmptyState, ListRow, Section, Text } from '@/components/ui
 import { computeBalanceSeries, computePaymentStatus, recommendContribution } from '@/features/finance';
 import { useT } from '@/i18n';
 import { formatMoney, formatMonth } from '@/lib/format';
-import { spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 import { lastNMonths, perPersonTable, totalsByMonth } from '..';
 import type { ReportData } from './useReportData';
@@ -14,6 +14,7 @@ import type { ReportData } from './useReportData';
 /** Mode A: equal split per person per month. Mode B (when the house uses it): contribution balance. Both views are always computed. */
 export function PeopleSection({ data }: { data: ReportData }) {
   const { t, locale } = useT();
+  const { colors } = useTheme();
   const house = data.house;
   const months = useMemo(() => lastNMonths(data.currentMonth, 12), [data.currentMonth]);
   const from = months[0];
@@ -70,8 +71,8 @@ export function PeopleSection({ data }: { data: ReportData }) {
               <LineChart
                 xLabels={series.map((r) => formatMonth(r.month, locale, 'short'))}
                 series={[
-                  { key: 'income', label: t('reportsUi.expectedIncome'), color: '#34C759', values: series.map((r) => r.expectedIncomeCents) },
-                  { key: 'spent', label: t('reportsUi.spent'), color: '#FF3B30', values: series.map((r) => r.totalSpentCents) },
+                  { key: 'income', label: t('reportsUi.expectedIncome'), color: colors.green, values: series.map((r) => r.expectedIncomeCents) },
+                  { key: 'spent', label: t('reportsUi.spent'), color: colors.red, values: series.map((r) => r.totalSpentCents) },
                 ]}
                 accessibilityLabel={t('reports.balance')}
               />

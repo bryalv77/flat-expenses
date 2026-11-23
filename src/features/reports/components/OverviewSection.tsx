@@ -8,7 +8,7 @@ import { getEffectiveDate, getEffectiveMonth } from '@/features/finance';
 import { useT } from '@/i18n';
 import { addMonthsToKey, monthNumber } from '@/lib/dates';
 import { formatDate, formatMoney, formatMonth, formatMonthName } from '@/lib/format';
-import { spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 import { lastNMonths, lookupMonth, monthlySeries, totalsByMonth } from '..';
 import { Stat } from './Stat';
@@ -18,6 +18,7 @@ import type { ReportData } from './useReportData';
 /** Last 12 months stacked by category; tapping a bar drills into that month's bills. */
 export function OverviewSection({ data }: { data: ReportData }) {
   const { t, locale } = useT();
+  const { colors } = useTheme();
   const router = useRouter();
   const [selected, setSelected] = useState<string>(data.currentMonth);
   // The chart shows 12 months ending at `windowEnd`; picking a month outside it slides the window.
@@ -50,7 +51,7 @@ export function OverviewSection({ data }: { data: ReportData }) {
     segments: Object.entries(row.byCategory).map(([categoryId, value]) => ({
       key: categoryId,
       value,
-      color: catById.get(categoryId)?.color ?? '#8E8E93',
+      color: catById.get(categoryId)?.color ?? colors.gray,
     })),
   }));
 
