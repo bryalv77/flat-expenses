@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { RefreshControl, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -16,8 +16,6 @@ export interface ScreenProps {
   refreshing?: boolean;
   onRefresh?: () => void;
   /** Extra bottom padding, e.g. for a floating tab bar. */
-  bottomInset?: number;
-  contentStyle?: StyleProp<ViewStyle>;
 }
 
 export function Screen({
@@ -27,8 +25,6 @@ export function Screen({
   scroll = true,
   refreshing,
   onRefresh,
-  bottomInset = 0,
-  contentStyle,
 }: ScreenProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -39,7 +35,7 @@ export function Screen({
   const topPad = title ? 44 + insets.top : spacing.lg;
 
   const inner = (
-    <View style={[styles.column, { paddingBottom: insets.bottom + bottomInset + spacing.xxl }, contentStyle]}>
+    <View style={[styles.column, { paddingBottom: insets.bottom + spacing.xxl }]}>
       {title ? <LargeTitle title={title} right={headerRight} /> : null}
       {children}
     </View>
