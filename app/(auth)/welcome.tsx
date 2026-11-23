@@ -52,7 +52,6 @@ export default function WelcomeScreen() {
         onClose={() => setNotice(false)}
         title={t('auth.localNoticeTitle')}
         message={t('auth.localNoticeBody')}
-        cancelLabel={t('common.cancel')}
         options={[{ label: t('common.confirm'), onPress: () => void confirmLocal() }]}
       />
     </Screen>

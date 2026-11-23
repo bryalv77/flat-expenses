@@ -95,7 +95,6 @@ export default function BillDetailScreen() {
         visible={confirm}
         onClose={() => setConfirm(false)}
         title={t('expenses.deleteConfirm')}
-        cancelLabel={t('common.cancel')}
         options={[{ label: t('common.delete'), destructive: true, onPress: doDelete }]}
       />
     </Screen>

@@ -2,10 +2,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { Button, EmptyState, Screen, Text, useToast } from '@/components/ui';
+import { Button, ConfirmSheet, EmptyState, Screen, Text, useToast } from '@/components/ui';
 import { CategoryForm } from '@/features/categories/CategoryForm';
 import { useArchiveCategory, useCategories, useDeleteCategory, useUpdateCategory } from '@/features/categories/hooks';
-import { ConfirmSheet } from '@/features/houses/ConfirmSheet';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useT } from '@/i18n';
 import { describeSchedule } from '@/features/schedule/occurrences';

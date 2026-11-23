@@ -142,7 +142,6 @@ export default function DocumentsScreen() {
         visible={toDelete !== null}
         onClose={() => setToDelete(null)}
         title={t('account.deleteDocConfirm')}
-        cancelLabel={t('common.cancel')}
         options={[
           {
             label: t('common.delete'),

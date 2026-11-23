@@ -5,6 +5,7 @@ export * from './BottomSheet';
 export * from './Button';
 export * from './Card';
 export * from './Chip';
+export * from './ConfirmSheet';
 export * from './ColorPicker';
 export * from './DatePickerField';
 export * from './EmptyState';

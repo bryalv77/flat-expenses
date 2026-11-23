@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { useT } from '@/i18n';
 import { haptics } from '@/lib/haptics';
 import { MIN_TOUCH, radii, spacing, useTheme } from '@/theme';
 
@@ -18,11 +19,11 @@ export interface ActionSheetProps {
   title?: string;
   message?: string;
   options: ActionSheetOption[];
-  cancelLabel?: string;
 }
 
-export function ActionSheet({ visible, onClose, title, message, options, cancelLabel = 'Cancelar' }: ActionSheetProps) {
+export function ActionSheet({ visible, onClose, title, message, options }: ActionSheetProps) {
   const { colors } = useTheme();
+  const { t } = useT();
   return (
     <BottomSheet visible={visible} onClose={onClose} title={title}>
       {message ? (
@@ -50,7 +51,7 @@ export function ActionSheet({ visible, onClose, title, message, options, cancelL
       </View>
       <Pressable accessibilityRole="button" onPress={onClose} style={[styles.group, styles.item, { backgroundColor: colors.grouped, marginTop: spacing.sm }]}>
         <Text variant="title3" color="tint" style={{ fontWeight: '600' }}>
-          {cancelLabel}
+          {t('common.cancel')}
         </Text>
       </Pressable>
     </BottomSheet>

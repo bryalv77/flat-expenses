@@ -134,7 +134,7 @@ export function FilePickerField({ value, onChange, label, error, imageOnly }: Fi
           {error}
         </Text>
       ) : null}
-      <ActionSheet visible={sheet} onClose={() => setSheet(false)} title={label} options={options} cancelLabel={t('common.cancel')} />
+      <ActionSheet visible={sheet} onClose={() => setSheet(false)} title={label} options={options} />
     </View>
   );
 }

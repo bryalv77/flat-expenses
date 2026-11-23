@@ -134,7 +134,6 @@ export default function SyncScreen() {
         onClose={() => setConfirmDiscard(false)}
         title={t('sync.discardConfirmTitle')}
         message={t('sync.discardConfirmBody')}
-        cancelLabel={t('common.cancel')}
         options={[{ label: t('sync.discard'), destructive: true, onPress: () => void resolve.mutate('discard') }]}
       />
     </Screen>

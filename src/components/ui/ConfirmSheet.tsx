@@ -1,5 +1,4 @@
-import { ActionSheet } from '@/components/ui';
-import { useT } from '@/i18n';
+import { ActionSheet } from './ActionSheet';
 
 interface Props {
   visible: boolean;
@@ -12,13 +11,11 @@ interface Props {
 
 /** Cross-platform confirmation (Alert.alert is a no-op on web). */
 export function ConfirmSheet({ visible, title, confirmLabel, destructive = true, onConfirm, onClose }: Props) {
-  const { t } = useT();
   return (
     <ActionSheet
       visible={visible}
       onClose={onClose}
       title={title}
-      cancelLabel={t('common.cancel')}
       options={[{ label: confirmLabel, destructive, onPress: onConfirm }]}
     />
   );

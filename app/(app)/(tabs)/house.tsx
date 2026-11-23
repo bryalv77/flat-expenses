@@ -5,9 +5,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { z } from 'zod';
 
-import { Badge, Button, EmptyState, ListRow, MoneyInput, Screen, Section, SegmentedControl, Switch, TextField, useToast } from '@/components/ui';
+import { Badge, Button, ConfirmSheet, EmptyState, ListRow, MoneyInput, Screen, Section, SegmentedControl, Switch, TextField, useToast } from '@/components/ui';
 import { useAuth } from '@/features/auth';
-import { ConfirmSheet } from '@/features/houses/ConfirmSheet';
 import { useActiveHouse, useDeleteHouse, useUpdateHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
 import { isGuestMember, useLeaveHouse } from '@/features/members/hooks';

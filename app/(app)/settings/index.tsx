@@ -121,7 +121,6 @@ export default function SettingsScreen() {
         onClose={() => setConfirmDelete(false)}
         title={t('profile.deleteAccount')}
         message={deleteError ?? t('account.deleteAccountWarn')}
-        cancelLabel={t('common.cancel')}
         options={[{ label: t('profile.deleteAccount'), destructive: true, onPress: () => void runDelete() }]}
       />
 

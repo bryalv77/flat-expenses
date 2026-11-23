@@ -216,7 +216,6 @@ export default function ExpensesScreen() {
         visible={toDelete !== null}
         onClose={() => setToDelete(null)}
         title={t('expenses.deleteConfirm')}
-        cancelLabel={t('common.cancel')}
         options={[{ label: t('common.delete'), destructive: true, onPress: confirmDelete }]}
       />
     </Screen>
