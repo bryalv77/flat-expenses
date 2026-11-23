@@ -1,6 +1,6 @@
 import type { House, MemberPayment } from '@/types/domain';
 import { daysInMonth, monthKey, monthNumber, monthRange, parseISODate } from '@/lib/dates';
-import { activeMembersInMonth, type MemberLike } from './members';
+import { activeMembersInMonth, activeRoommatesInMonth, type MemberLike } from './members';
 import { splitEqual } from './split';
 
 export type BalanceStatus = 'SUFFICIENT' | 'INSUFFICIENT' | 'SURPLUS';
@@ -53,8 +53,7 @@ export function computeMonthBalance(
   totalSpentCents: number,
 ): MonthBalance {
   const active = activeMembersInMonth(members, month);
-  const contributions = active
-    .filter((m) => m.role === 'ROOMMATE')
+  const contributions = activeRoommatesInMonth(members, month)
     .map((m) => ({ memberId: m.id, cents: dueForMember(house, m, month) }));
   const expectedIncomeCents = contributions.reduce((s, c) => s + c.cents, 0);
   const balanceCents = expectedIncomeCents - totalSpentCents;
@@ -144,7 +143,7 @@ export function computePaymentStatus(
   payments: Pick<MemberPayment, 'memberId' | 'month' | 'amountCents'>[],
   month: string,
 ): MonthPaymentSummary {
-  const roommates = activeMembersInMonth(members, month).filter((m) => m.role === 'ROOMMATE');
+  const roommates = activeRoommatesInMonth(members, month);
   const perMember = roommates.map((m): MemberPaymentStatus => {
     const dueCents = dueForMember(house, m, month);
     const paidCents = payments

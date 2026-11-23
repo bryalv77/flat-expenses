@@ -20,3 +20,8 @@ export function activeMembersInMonth<T extends MemberLike>(members: T[], month: 
     .filter((m) => isMemberActiveInMonth(m, month))
     .sort((a, b) => a.joinedAt.localeCompare(b.joinedAt) || a.id.localeCompare(b.id));
 }
+
+/** The members who pay a contribution in `month`: active roommates (admins who are not roommates don't). */
+export function activeRoommatesInMonth<T extends MemberLike>(members: T[], month: string): T[] {
+  return activeMembersInMonth(members, month).filter((m) => m.role === 'ROOMMATE');
+}
