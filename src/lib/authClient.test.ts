@@ -1,21 +1,12 @@
 import { authErrorKey, reauthErrorKey } from '@/features/auth/errors';
 
-import { orNetworkError, toAuthError } from './authErrors';
+import { NETWORK_ERROR, orNetworkError, toAuthError } from './authErrors';
 
 describe('toAuthError', () => {
-  it.each([
-    ['INVALID_EMAIL_OR_PASSWORD', 'auth/invalid-credential'],
-    ['USER_ALREADY_EXISTS', 'auth/email-already-in-use'],
-    ['USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL', 'auth/email-already-in-use'],
-    ['INVALID_PASSWORD', 'auth/wrong-password'],
-  ])('maps %s to the `auth/*` code the app already translates (%s)', (code, expected) => {
-    expect((toAuthError({ code, message: 'x', status: 400 }) as Error & { code: string }).code).toBe(expected);
-  });
-
-  it('passes unknown codes through, and treats a missing error as a network failure', () => {
+  it('keeps the Better Auth code, falls back to the HTTP status, and treats a missing error as a network failure', () => {
     expect((toAuthError({ code: 'SOMETHING_NEW', status: 500 }) as Error & { code: string }).code).toBe('SOMETHING_NEW');
     expect((toAuthError({ status: 502 }) as Error & { code: string }).code).toBe('http_502');
-    expect((toAuthError(undefined) as Error & { code: string }).code).toBe('auth/network-request-failed');
+    expect((toAuthError(undefined) as Error & { code: string }).code).toBe(NETWORK_ERROR);
   });
 });
 
@@ -32,6 +23,6 @@ describe('error codes reach the right translation', () => {
 describe('orNetworkError', () => {
   it('returns the result, or turns a thrown request failure into a network error', async () => {
     await expect(orNetworkError(async () => 42)).resolves.toBe(42);
-    await expect(orNetworkError(async () => { throw new TypeError('fetch failed'); })).rejects.toMatchObject({ code: 'auth/network-request-failed' });
+    await expect(orNetworkError(async () => { throw new TypeError('fetch failed'); })).rejects.toMatchObject({ code: NETWORK_ERROR });
   });
 });

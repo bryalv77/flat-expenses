@@ -1,8 +1,8 @@
 import { getRandomBytes } from 'expo-crypto';
 
-/** No 0/O/1/I/L to avoid confusion when typing codes by hand. */
-export const INVITE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-export const INVITE_CODE_LENGTH = 8;
+import { INVITE_ALPHABET, INVITE_CODE_LENGTH } from '@/lib/limits';
+
+export { INVITE_ALPHABET, INVITE_CODE_LENGTH };
 
 /** Uppercases and strips everything that is not part of the alphabet (dashes, spaces, lookalikes). */
 export function normalizeInviteCode(input: string): string {

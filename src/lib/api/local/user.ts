@@ -37,8 +37,6 @@ export function makeUserApi(ctx: LocalCtx): Partial<Api> {
         );
       });
     },
-    // Matches db.ts (always empty); documents themselves are unavailable locally.
-    listMemberDocuments: async () => [],
     getMe: async () => {
       await ensureUser(db, ctx.userId, ctx.now()); // the local user always exists
       const u = await db.get<UserRow>('select * from users where id = ?', [ctx.userId]);

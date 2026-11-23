@@ -19,7 +19,7 @@ export const session: MiddlewareHandler<AppEnv> = async (c, next) => {
   await next();
 };
 
-const membership = async (db: Db, houseId: string, uid: string) =>
+export const membership = async (db: Db, houseId: string, uid: string) =>
   (await db.select().from(members).where(and(eq(members.houseId, houseId), eq(members.userId, uid), eq(members.status, 'ACTIVE'))))[0];
 
 const guard = (admin: boolean): MiddlewareHandler<AppEnv> =>

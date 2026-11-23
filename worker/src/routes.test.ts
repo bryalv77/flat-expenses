@@ -6,6 +6,7 @@ import { app } from './index';
 import { and, eq } from 'drizzle-orm';
 
 const dbUrl = inject('testDbUrl');
+if (!dbUrl && process.env.CI) throw new Error('No Postgres reachable: the route tests would be skipped silently in CI (set TEST_DATABASE_URL).');
 // Minimal in-memory R2: just what the Worker calls (put/get/head/delete/list).
 const store = new Map<string, { data: ArrayBuffer; contentType?: string }>();
 const bucket = {
@@ -404,13 +405,11 @@ describe.skipIf(!dbUrl)('API routes (real Postgres)', () => {
       app.request(path, { method: 'OPTIONS', headers: { origin, 'access-control-request-method': method, 'access-control-request-headers': 'authorization,content-type' } }, env);
 
     it('answers the preflight for the web origins, with the headers the app sends', async () => {
-      for (const origin of [WEB]) {
-        const r = await preflight('/api/houses', origin, 'PATCH');
-        expect([r.status, r.headers.get('access-control-allow-origin')]).toEqual([204, origin]);
-        expect(r.headers.get('access-control-allow-headers')?.toLowerCase()).toContain('authorization');
-        expect(r.headers.get('access-control-allow-methods')).toContain('PATCH');
-        expect(r.headers.get('access-control-allow-credentials')).toBe('true'); // Better Auth's browser client fetches with credentials: 'include'
-      }
+      const r = await preflight('/api/houses', WEB, 'PATCH');
+      expect([r.status, r.headers.get('access-control-allow-origin')]).toEqual([204, WEB]);
+      expect(r.headers.get('access-control-allow-headers')?.toLowerCase()).toContain('authorization');
+      expect(r.headers.get('access-control-allow-methods')).toContain('PATCH');
+      expect(r.headers.get('access-control-allow-credentials')).toBe('true'); // Better Auth's browser client fetches with credentials: 'include'
     });
 
     it('gives other origins no CORS headers (the browser then blocks them)', async () => {

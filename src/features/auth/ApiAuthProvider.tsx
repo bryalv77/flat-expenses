@@ -151,7 +151,7 @@ export function ApiAuthProvider({ children }: { children: ReactNode }) {
   const changePassword = useCallback(
     async (currentPassword: string, newPassword: string) => {
       const { error } = await orNetworkError(() => client.changePassword({ currentPassword, newPassword }));
-      if (error) throw toAuthError(error); // INVALID_PASSWORD -> auth/wrong-password -> "wrong current password"
+      if (error) throw toAuthError(error); // INVALID_PASSWORD -> reauthErrorKey: "wrong current password"
     },
     [client],
   );
@@ -161,7 +161,7 @@ export function ApiAuthProvider({ children }: { children: ReactNode }) {
   const deleteAccount = useCallback(
     async (password?: string) => {
       const { error } = await orNetworkError(() => client.deleteUser(password ? { password } : {}));
-      if (error) throw toAuthError(error); // wrong password: INVALID_PASSWORD -> auth/wrong-password
+      if (error) throw toAuthError(error); // wrong password: INVALID_PASSWORD -> reauthErrorKey
       await clearToken();
       setAuthUser(null);
       qc.clear();

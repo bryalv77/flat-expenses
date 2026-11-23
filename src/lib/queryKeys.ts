@@ -1,7 +1,6 @@
 export const qk = {
   me: ['me'] as const,
   myDocuments: ['my-documents'] as const,
-  memberDocuments: (houseId: string, userId: string) => ['member-documents', houseId, userId] as const,
   houses: ['houses'] as const,
   house: (houseId: string) => ['house', houseId] as const,
   members: (houseId: string) => ['members', houseId] as const,

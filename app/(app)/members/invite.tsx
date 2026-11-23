@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Platform, Share, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-import { Badge, Button, EmptyState, ListRow, Screen, Section, SegmentedControl, Text, useToast } from '@/components/ui';
+import { Badge, Button, ListRow, Screen, Section, SegmentedControl, Text, useToast } from '@/components/ui';
+import { AdminOnlyScreen } from '@/features/houses/AdminOnlyScreen';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { formatInviteCode } from '@/features/members/inviteCode';
 import { useCreateInvite, useInvites, useRevokeInvite } from '@/features/members/hooks';
@@ -36,15 +37,15 @@ export default function InviteScreen() {
   const [uses, setUses] = useState('1');
   const [code, setCode] = useState<string | null>(null);
 
-  if (!house || !isAdmin) return <Screen><EmptyState icon="lock" title={t('hub.adminOnly')} /></Screen>;
+  if (!house || !isAdmin) return <AdminOnlyScreen />;
 
   const generate = async () => {
     try {
       const c = await create.mutateAsync({ expiresInDays: Number(expiry), maxUses: Number(uses) });
       setCode(c);
       haptics.success();
-    } catch {
-      toast.error(t('errors.generic'));
+    } catch (e) {
+      toast.fail(e);
     }
   };
 

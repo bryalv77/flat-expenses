@@ -75,12 +75,3 @@ export function useDeleteDocument() {
     ...optimisticOptions<UserDocument, UserDocument[]>(qc, qk.myDocuments, (old, doc) => old.filter((d) => d.id !== doc.id)),
   });
 }
-
-/** SENSITIVE — house admins only (server enforced): documents of an ACTIVE member of their house. */
-export function useMemberDocuments(houseId: string | null | undefined, userId: string | null | undefined, enabled = true) {
-  return useQuery({
-    queryKey: qk.memberDocuments(houseId ?? '', userId ?? ''),
-    queryFn: () => api.listMemberDocuments({ houseId: houseId as string, userId: userId as string }),
-    enabled: Boolean(houseId && userId) && enabled,
-  });
-}

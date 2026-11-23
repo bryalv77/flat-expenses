@@ -10,6 +10,6 @@ test('navigating every tab and route raises no errors', async ({ page }) => {
   for (const path of ['/bills/new', '/categories', '/categories/new', '/members/new', '/payments', '/settings', '/profile/edit', '/profile/documents']) {
     await page.goto(path);
     await expect(page.locator('body')).not.toContainText('Unmatched Route');
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(300); // lets a render error reach the `errors` fixture before the next goto
   }
 });

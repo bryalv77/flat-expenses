@@ -80,8 +80,8 @@ export default function DocumentsScreen() {
     try {
       const url = await getFileUrl(doc.storagePath);
       await WebBrowser.openBrowserAsync(url);
-    } catch {
-      toast.error(t('errors.generic'));
+    } catch (e) {
+      toast.fail(e);
     }
   };
 

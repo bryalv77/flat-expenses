@@ -164,9 +164,9 @@ export default function EditProfileScreen() {
       await update.mutateAsync({ displayName });
       haptics.success();
       toast.success(t('account.profileSaved'));
-    } catch {
+    } catch (e) {
       haptics.error();
-      toast.error(t('errors.generic'));
+      toast.fail(e);
     }
   });
 

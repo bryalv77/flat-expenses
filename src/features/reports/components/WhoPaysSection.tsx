@@ -3,7 +3,9 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { LineChart } from '@/components/charts';
 import { Badge, Card, Chip, EmptyState, ListRow, Section, Text } from '@/components/ui';
+import { getEffectiveMonth } from '@/features/finance';
 import { useT } from '@/i18n';
+import { monthKey } from '@/lib/dates';
 import { formatMoney, formatMonth } from '@/lib/format';
 import { spacing } from '@/theme';
 
@@ -20,7 +22,7 @@ export function WhoPaysSection({ data }: { data: ReportData }) {
   const money = (c: number) => formatMoney(c, locale);
 
   const firstMonth = useMemo(() => {
-    const dates = [...data.bills.map((b) => (b.chargeDate ?? b.periodEndDate ?? b.createdAt).slice(0, 7)), ...data.payments.map((p) => p.month.slice(0, 7))];
+    const dates = [...data.bills.map((b) => getEffectiveMonth(b)), ...data.payments.map((p) => monthKey(p.month))];
     return dates.length ? dates.reduce((a, b) => (a < b ? a : b)) : data.currentMonth;
   }, [data.bills, data.payments, data.currentMonth]);
   const from = range === 'all' ? firstMonth : lastNMonths(data.currentMonth, Number(range))[0];

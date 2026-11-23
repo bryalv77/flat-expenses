@@ -7,7 +7,7 @@ import { categoriesApp } from './categories';
 import { paymentsApp } from './payments';
 import { houses, invites, members } from './db/schema';
 import { purgePrefix } from './files';
-import { GUEST_ID, INVITE_CODE } from './config';
+import { GUEST_ID, INVITE_ALPHABET, INVITE_CODE, INVITE_CODE_LENGTH } from './config';
 import { houseId, parseJson, readBody, rowOr404 } from './http';
 import { guardAdmin, guardMember, session, type AppEnv } from './middleware';
 
@@ -135,8 +135,7 @@ housesApp.post('/:id/leave', guardMember, async (c) => {
 });
 
 // Invites (admin side; redeeming lives in invites.ts)
-const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // same as the client's inviteCode.ts (no lookalike characters)
-const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => ALPHABET[b % ALPHABET.length]).join('');
+const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(INVITE_CODE_LENGTH)), (b) => INVITE_ALPHABET[b % INVITE_ALPHABET.length]).join('');
 
 housesApp.get('/:id/invites', guardAdmin, async (c) => {
   const rows = await c.var.db.select().from(invites).where(eq(invites.houseId, houseId(c))).orderBy(desc(invites.createdAt)).limit(50);

@@ -1,9 +1,9 @@
 import type { ExpenseCategory, House } from '@/types/domain';
-import { addMonthsToKey, monthEnd, monthRange, monthStart } from '@/lib/dates';
+import { addMonthsToKey, monthEnd, monthNumber, monthRange, monthStart } from '@/lib/dates';
 import { getEffectiveDate, getEffectiveMonth, type BillCore } from '@/features/finance/effectiveDate';
 import { computeMonthBalance, type MonthBalance } from '@/features/finance/contributions';
 import { activeMembersInMonth, type MemberLike } from '@/features/finance/members';
-import { coefficientOfVariation, weightedRecentAverage } from '@/features/finance/stats';
+import { clamp, coefficientOfVariation, weightedRecentAverage } from '@/features/finance/stats';
 import { splitEqual, type Share } from '@/features/finance/split';
 import { getOccurrences } from '@/features/schedule/occurrences';
 import { computeSeasonality } from './calculations';
@@ -46,10 +46,6 @@ export interface ProjectionOptions {
 }
 
 type ProjectionBill = BillCore;
-
-function clamp(v: number, lo: number, hi: number): number {
-  return Math.min(hi, Math.max(lo, v));
-}
 
 function monthsOfData(bills: ProjectionBill[]): number {
   if (bills.length === 0) return 0;
@@ -130,9 +126,9 @@ function projectCategory(
           const a = season.byMonthOfYear[moy - 1].averageCents;
           return yearly && a !== null ? a / yearly : null;
         };
-        const target = factorOf(Number(targetMonth.slice(5, 7)));
+        const target = factorOf(monthNumber(targetMonth));
         const windowFactors = recent
-          .map((b) => factorOf(Number(getEffectiveMonth(b).slice(5, 7))))
+          .map((b) => factorOf(monthNumber(getEffectiveMonth(b))))
           .filter((f): f is number => f !== null);
         const windowFactor = windowFactors.length
           ? windowFactors.reduce((s, f) => s + f, 0) / windowFactors.length

@@ -2,7 +2,8 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { Button, DatePickerField, EmptyState, MoneyInput, Screen, Section, TextField, useToast } from '@/components/ui';
+import { Button, DatePickerField, MoneyInput, Screen, Section, TextField, useToast } from '@/components/ui';
+import { AdminOnlyScreen } from '@/features/houses/AdminOnlyScreen';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useCreateGuestMember } from '@/features/members/hooks';
 import { useT } from '@/i18n';
@@ -20,7 +21,7 @@ export default function NewGuestMemberScreen() {
   const [removedAt, setRemovedAt] = useState<string | null>(null);
   const [cents, setCents] = useState<number | null>(null);
 
-  if (!house || !isAdmin) return <Screen><EmptyState icon="lock" title={t('hub.adminOnly')} /></Screen>;
+  if (!house || !isAdmin) return <AdminOnlyScreen />;
 
   const invalid = !name.trim() || !joinedAt || (removedAt !== null && removedAt < joinedAt);
 
@@ -40,7 +41,7 @@ export default function NewGuestMemberScreen() {
           onPress={() =>
             create.mutate(
               { displayName: name.trim(), joinedAt: joinedAt as string, removedAt, individualContributionCents: cents },
-              { onSuccess: () => router.back(), onError: () => toast.error(t('errors.generic')) },
+              { onSuccess: () => router.back(), onError: toast.fail },
             )
           }
         />

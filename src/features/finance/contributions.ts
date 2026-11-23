@@ -1,5 +1,5 @@
 import type { House, MemberPayment } from '@/types/domain';
-import { daysInMonth, monthRange, parseISODate } from '@/lib/dates';
+import { daysInMonth, monthKey, monthNumber, monthRange, parseISODate } from '@/lib/dates';
 import { activeMembersInMonth, type MemberLike } from './members';
 import { splitEqual } from './split';
 
@@ -20,10 +20,10 @@ function contributionForMember(house: ContributionHouse, member: MemberLike): nu
  */
 export function dueForMember(house: ContributionHouse, member: MemberLike, month: string): number {
   const full = contributionForMember(house, member);
-  const dim = daysInMonth(+month.slice(0, 4), +month.slice(5, 7));
+  const dim = daysInMonth(+month.slice(0, 4), monthNumber(month));
   const joinDay = parseISODate(member.joinedAt.slice(0, 10)).d;
-  const from = member.joinedAt.slice(0, 7) === month && joinDay > 1 ? joinDay : 0;
-  const to = member.removedAt && member.removedAt.slice(0, 7) === month ? parseISODate(member.removedAt.slice(0, 10)).d : dim;
+  const from = monthKey(member.joinedAt) === month && joinDay > 1 ? joinDay : 0;
+  const to = member.removedAt && monthKey(member.removedAt) === month ? parseISODate(member.removedAt.slice(0, 10)).d : dim;
   return Math.round((full * Math.max(0, to - from)) / dim);
 }
 
@@ -148,7 +148,7 @@ export function computePaymentStatus(
   const perMember = roommates.map((m): MemberPaymentStatus => {
     const dueCents = dueForMember(house, m, month);
     const paidCents = payments
-      .filter((p) => p.memberId === m.id && p.month.slice(0, 7) === month)
+      .filter((p) => p.memberId === m.id && monthKey(p.month) === month)
       .reduce((s, p) => s + p.amountCents, 0);
     const pendingCents = Math.max(0, dueCents - paidCents);
     let state: PaymentState = 'PENDING';

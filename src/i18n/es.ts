@@ -100,7 +100,7 @@ export const es = {
     photoUpdated: 'Foto actualizada', docType: 'Tipo de documento', documentsHint: 'Solo tú y, si lo necesitan, los admins de tu piso pueden ver estos archivos.',
     noDocuments: 'Aún no has subido ningún documento', replace: 'Reemplazar', view: 'Ver', deleteDocConfirm: '¿Eliminar este documento?',
     uploaded: 'Documento subido', deleteAccountWarn: 'Se eliminarán tus archivos y tus datos personales. Esta acción no se puede deshacer.',
-    passwordForDelete: 'Introduce tu contraseña para confirmar', recentLogin: 'Vuelve a iniciar sesión para eliminar tu cuenta.',
+    passwordForDelete: 'Introduce tu contraseña para confirmar',
     activeHouse: 'Piso activo', account: 'Cuenta',
     resetTitle: 'Nueva contraseña', resetHint: 'Elige una contraseña nueva para tu cuenta.', resetDone: 'Contraseña actualizada. Ya puedes iniciar sesión.',
     resetLinkInvalid: 'El enlace no es válido o ha caducado. Solicita uno nuevo.',

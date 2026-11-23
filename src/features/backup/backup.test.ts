@@ -5,7 +5,7 @@ import { migrations } from '@/lib/api/local/migrations';
 import type { SqlDb } from '@/lib/api/local/sql';
 import { createTestDb } from '@/lib/api/local/testDb';
 
-import { BackupError, exportBackup, importBackup, wipeAllLocalData, type BackupFiles } from './backup';
+import { BackupError, TABLES, exportBackup, importBackup, wipeAllLocalData, type BackupFiles } from './backup';
 
 function memFiles(): BackupFiles & { map: Map<string, Uint8Array> } {
   const map = new Map<string, Uint8Array>();
@@ -149,5 +149,15 @@ describe('backup', () => {
     await wipeAllLocalData(db, files);
     for (const rows of Object.values(await dump(db))) expect(rows).toEqual([]);
     expect(files.map.size).toBe(0);
+  });
+});
+
+describe('backup table list', () => {
+  it('covers every stored column, so a new migration column cannot be silently left out of backups', async () => {
+    const db = await fresh();
+    for (const [table, columns] of Object.entries(TABLES)) {
+      const stored = (await db.all<{ name: string }>(`pragma table_info(${table})`)).map((c) => c.name).filter((n) => n !== 'effective_date');
+      expect([...columns].sort()).toEqual(stored.sort());
+    }
   });
 });

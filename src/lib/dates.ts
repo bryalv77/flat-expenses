@@ -59,6 +59,16 @@ export function monthKey(iso: string): string {
   return iso.slice(0, 7);
 }
 
+/** Calendar month (1-12) of a YYYY-MM key. */
+export function monthNumber(key: string): number {
+  return Number(key.slice(5, 7));
+}
+
+/** Months since year 0, so two keys can be subtracted. */
+export function monthIndex(key: string): number {
+  return Number(key.slice(0, 4)) * 12 + monthNumber(key) - 1;
+}
+
 export function monthStart(key: string): string {
   return `${key.slice(0, 7)}-01`;
 }
@@ -81,13 +91,6 @@ export function monthRange(fromKey: string, toKey: string): string[] {
     k = addMonthsToKey(k, 1);
   }
   return out;
-}
-
-/** Number of whole months from key a to key b (b - a). */
-export function monthDiff(a: string, b: string): number {
-  const pa = parseISODate(`${a}-01`);
-  const pb = parseISODate(`${b}-01`);
-  return (pb.y - pa.y) * 12 + (pb.m - pa.m);
 }
 
 export function monthOfYear(iso: string): number {

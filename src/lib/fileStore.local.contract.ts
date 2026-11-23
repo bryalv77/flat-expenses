@@ -58,11 +58,11 @@ export function runFileStoreContract(make: () => Promise<ContractHarness> | Cont
     await h.store.upload('houses/h1/bills/b1/a.png', pick('a.png'));
     await h.store.upload('houses/h1/bills/b2/b.png', pick('b.png'));
     await h.store.upload('houses/h10/bills/b1/c.png', pick('c.png'));
-    await h.store.deleteFolder('houses/h1');
+    await h.store.deleteFolder!('houses/h1');
     expect(await h.read('houses/h1/bills/b1/a.png')).toBeUndefined();
     expect(await h.read('houses/h1/bills/b2/b.png')).toBeUndefined();
     expect(await h.read('houses/h10/bills/b1/c.png')).toBeDefined();
-    await expect(h.store.deleteFolder('houses/h1')).resolves.toBeUndefined();
+    await expect(h.store.deleteFolder!('houses/h1')).resolves.toBeUndefined();
   });
 
   it('rejects path traversal and absolute keys', async () => {
@@ -70,7 +70,7 @@ export function runFileStoreContract(make: () => Promise<ContractHarness> | Cont
       await expect(h.store.upload(bad, pick('a.png'))).rejects.toThrow(/invalid file key/i);
       await expect(h.store.getUrl(bad)).rejects.toThrow(/invalid file key/i);
       await expect(h.store.delete(bad)).rejects.toThrow(/invalid file key/i);
-      await expect(h.store.deleteFolder(bad)).rejects.toThrow(/invalid file key/i);
+      await expect(h.store.deleteFolder!(bad)).rejects.toThrow(/invalid file key/i);
     }
   });
 

@@ -67,7 +67,6 @@ describe('without Intl.NumberFormat.prototype.formatToParts (Hermes on iOS)', ()
     proto.formatToParts = undefined;
     try {
       jest.isolateModules(() => {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const f = require('./format') as typeof import('./format');
         expect(f.centsToInputString(120050, 'es')).toBe('1200,50');
         expect(f.centsToInputString(120050, 'en')).toBe('1200.50');

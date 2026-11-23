@@ -1,8 +1,8 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { ActionSheet, Badge, Button, Card, EmptyState, ListRow, Screen, Section, Text, useToast } from '@/components/ui';
+import { ActionSheet, Badge, Button, Card, EmptyState, ListRow, Screen, ScreenSpinner, Section, Text, useToast } from '@/components/ui';
 import { BillFilePreview } from '@/features/bills/components/BillFilePreview';
 import { useBill, useDeleteBill } from '@/features/bills/hooks';
 import { useCategories } from '@/features/categories/hooks';
@@ -11,12 +11,11 @@ import { useActiveHouse } from '@/features/houses/hooks';
 import { useT } from '@/i18n';
 import { formatDate, formatMoney } from '@/lib/format';
 import { haptics } from '@/lib/haptics';
-import { spacing, useTheme } from '@/theme';
+import { spacing } from '@/theme';
 
 export default function BillDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, locale } = useT();
-  const { colors } = useTheme();
   const router = useRouter();
   const toast = useToast();
   const { house, isAdmin } = useActiveHouse();
@@ -26,11 +25,7 @@ export default function BillDetailScreen() {
   const [confirm, setConfirm] = useState(false);
 
   if (bill.isLoading) {
-    return (
-      <Screen>
-        <ActivityIndicator color={colors.tint} style={styles.loading} />
-      </Screen>
-    );
+    return <ScreenSpinner />;
   }
   if (!bill.data) {
     return (
@@ -52,7 +47,7 @@ export default function BillDetailScreen() {
         toast.success(t('billsUi.deleted'));
         router.back();
       },
-      onError: () => toast.error(t('errors.generic')),
+      onError: toast.fail,
     });
   };
 
@@ -108,7 +103,6 @@ export default function BillDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  loading: { marginTop: spacing.xxxl },
   body: { gap: spacing.lg, paddingHorizontal: spacing.lg },
   file: { gap: spacing.sm },
   actions: { gap: spacing.sm },

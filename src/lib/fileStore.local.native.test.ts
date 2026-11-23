@@ -1,9 +1,9 @@
-jest.mock('expo-file-system', () => require('./fileStore.local.fake').fakeExpoFs);
-
 import { File } from 'expo-file-system';
 import { installFetch, pick, runFileStoreContract } from './fileStore.local.contract';
 import { resetFakeFs } from './fileStore.local.fake';
 import { localFileStore } from './fileStore.local.native';
+
+jest.mock('expo-file-system', () => require('./fileStore.local.fake').fakeExpoFs);
 
 describe('local FileStore (native)', () => {
   runFileStoreContract(() => {

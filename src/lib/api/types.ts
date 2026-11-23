@@ -64,8 +64,6 @@ export interface Api {
   listMyDocuments(): Promise<UserDocument[]>;
   addMyDocument(v: { id: string; type: DocumentType; storagePath: string; fileName: string; mimeType: string; sizeBytes: number }): Promise<void>;
   deleteMyDocument(v: { id: string }): Promise<void>;
-  listMemberDocuments(v: { houseId: string; userId: string }): Promise<UserDocument[]>;
-  deleteMyAccountData(): Promise<void>;
 
   // Houses
   createHouse(v: CreateHouseInput): Promise<void>;

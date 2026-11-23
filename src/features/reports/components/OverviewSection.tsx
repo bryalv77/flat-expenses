@@ -4,9 +4,9 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { StackedBarChart } from '@/components/charts';
 import { Card, Chip, EmptyState, isIconName, ListRow, Section, Text, type IconName } from '@/components/ui';
-import { getEffectiveDate } from '@/features/finance';
+import { getEffectiveDate, getEffectiveMonth } from '@/features/finance';
 import { useT } from '@/i18n';
-import { addMonthsToKey } from '@/lib/dates';
+import { addMonthsToKey, monthNumber } from '@/lib/dates';
 import { formatDate, formatMoney, formatMonth, formatMonthName } from '@/lib/format';
 import { spacing } from '@/theme';
 
@@ -30,7 +30,7 @@ export function OverviewSection({ data }: { data: ReportData }) {
   };
 
   const firstMonth = useMemo(
-    () => data.bills.reduce((min, b) => { const m = getEffectiveDate(b).slice(0, 7); return m < min ? m : min; }, data.currentMonth),
+    () => data.bills.reduce((min, b) => { const m = getEffectiveMonth(b); return m < min ? m : min; }, data.currentMonth),
     [data.bills, data.currentMonth],
   );
   const years = useMemo(() => {
@@ -46,7 +46,7 @@ export function OverviewSection({ data }: { data: ReportData }) {
 
   const chartData = series.map((row) => ({
     key: row.month,
-    label: formatMonthName(Number(row.month.slice(5, 7)), locale, 'short'), // month only: 12 bars are too narrow for "Jan 2026"
+    label: formatMonthName(monthNumber(row.month), locale, 'short'), // month only: 12 bars are too narrow for "Jan 2026"
     segments: Object.entries(row.byCategory).map(([categoryId, value]) => ({
       key: categoryId,
       value,

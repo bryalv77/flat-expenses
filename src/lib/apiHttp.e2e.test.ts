@@ -39,11 +39,9 @@ const run = Math.random().toString(36).slice(2, 8);
     process.env.EXPO_PUBLIC_API_URL = URL_;
     global.fetch = realFetch as unknown as typeof fetch;
     // require, not import(): jest runs CommonJS here, and EXPO_PUBLIC_API_URL must be set before http.ts is first loaded.
-    /* eslint-disable @typescript-eslint/no-require-imports */
     http = require('./http');
     request = http.request;
     api = require('./apiHttp').httpApi;
-    /* eslint-enable @typescript-eslint/no-require-imports */
     const res = await fetch(`${URL_}/api/auth/sign-up/email`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', origin: URL_ as string },
@@ -108,8 +106,6 @@ const run = Math.random().toString(36).slice(2, 8);
     expect(await api.listPayments({ houseId, from: '2026-01-01', to: '2026-12-01' })).toEqual([expect.objectContaining({ id: paymentId, memberId: guestId, note: null })]);
     await api.deletePayment({ houseId, id: paymentId });
 
-    // account deletion goes through Better Auth, so the data-layer entry point refuses instead of silently doing nothing
-    await expect(api.deleteMyAccountData()).rejects.toThrow('USE_AUTH_DELETE_USER');
     await api.deleteHouse({ houseId });
     expect(await api.listMyHouses()).toEqual([]);
   });

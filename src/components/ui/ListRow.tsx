@@ -94,7 +94,7 @@ export function ListRow({ title, subtitle, value, icon, iconColor, leading, trai
               }}
               style={[styles.action, { backgroundColor: a.color ?? (a.destructive ? colors.red : colors.orange) }]}
             >
-              <Text variant="subhead" style={{ color: '#FFFFFF', fontWeight: '600' }}>
+              <Text variant="subhead" style={{ color: colors.tintOnFilled, fontWeight: '600' }}>
                 {a.label}
               </Text>
             </Pressable>

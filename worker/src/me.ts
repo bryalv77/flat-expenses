@@ -3,7 +3,8 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { user, userDocuments, members } from './db/schema';
-import { DOC_MIME, MAX_BYTES, deleteObjects, parseKey } from './files';
+import { DOCUMENT_MIME_TYPES } from './config';
+import { MAX_BYTES, deleteObjects, parseKey } from './files';
 import { notFound, readBody, rowOr404, uuidParam } from './http';
 import { session, type AppEnv } from './middleware';
 
@@ -49,7 +50,7 @@ const doc = z.object({
   type: z.enum(['PASSPORT', 'NATIONAL_ID']),
   objectKey: z.string().min(1).max(500),
   fileName: z.string().min(1).max(255),
-  mimeType: z.enum(DOC_MIME),
+  mimeType: z.enum(DOCUMENT_MIME_TYPES),
   sizeBytes: z.number().int().min(0).max(MAX_BYTES.document),
 });
 

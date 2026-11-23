@@ -1,3 +1,5 @@
+import { getAppMode, loadAppMode, saveAppMode } from './appMode';
+
 const mockStore = new Map<string, string>();
 let mockFailing = false;
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -13,8 +15,6 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
     },
   },
 }));
-
-import { getAppMode, loadAppMode, saveAppMode } from './appMode';
 
 beforeEach(async () => {
   mockFailing = false;

@@ -32,9 +32,8 @@ export interface AuthContextValue {
   /** Email/password accounts only; re-authenticates with the current password. */
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   /**
-   * Deletes Storage files, anonymises DB rows and the account. Email accounts must pass their
-   * password (re-authentication). Social accounts must have signed in recently, else an
-   * `auth/requires-recent-login` error is thrown and the UI should ask the user to sign in again.
+   * Deletes the account (the Worker removes its files and anonymises its memberships).
+   * Email accounts must pass their password (re-authentication).
    */
   deleteAccount: (password?: string) => Promise<void>;
   isPasswordAccount: boolean;

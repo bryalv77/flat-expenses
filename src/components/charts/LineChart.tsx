@@ -11,7 +11,7 @@ export interface LineSeries {
   label: string;
   color: string;
   /** One value (cents) per x label; null leaves a gap. */
-  values: Array<number | null>;
+  values: (number | null)[];
   dashed?: boolean;
 }
 
@@ -38,7 +38,7 @@ export function LineChart({ xLabels, series, height = 200, selectedIndex, onSele
   const y = (v: number) => PAD.top + plotH - (v / max) * plotH;
   const labelEvery = Math.max(1, Math.ceil(n / Math.max(1, Math.floor(plotW / 38))));
 
-  const pathFor = (values: Array<number | null>) => {
+  const pathFor = (values: (number | null)[]) => {
     let d = '';
     let pen = false;
     values.forEach((v, i) => {

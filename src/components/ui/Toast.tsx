@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useT } from '@/i18n';
 import { haptics } from '@/lib/haptics';
 import { radii, spacing, useTheme } from '@/theme';
 
@@ -19,6 +20,8 @@ interface ToastApi {
   show: (message: string, kind?: ToastKind) => void;
   success: (message: string) => void;
   error: (message: string) => void;
+  /** Generic failure toast; pass the caught error so it is logged in development. */
+  fail: (error?: unknown) => void;
 }
 
 const ToastContext = createContext<ToastApi | null>(null);
@@ -28,6 +31,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const nextId = useRef(1);
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
+  const { t: tr } = useT();
 
   const show = useCallback((message: string, kind: ToastKind = 'info') => {
     const id = nextId.current++;
@@ -37,7 +41,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setItems((prev) => prev.filter((t) => t.id !== id)), 3200);
   }, []);
 
-  const api = useMemo<ToastApi>(() => ({ show, success: (m) => show(m, 'success'), error: (m) => show(m, 'error') }), [show]);
+  const api = useMemo<ToastApi>(() => ({
+    show,
+    success: (m) => show(m, 'success'),
+    error: (m) => show(m, 'error'),
+    fail: (e) => {
+      if (__DEV__ && e) console.warn(e);
+      show(tr('errors.generic'), 'error');
+    },
+  }), [show, tr]);
 
   return (
     <ToastContext.Provider value={api}>

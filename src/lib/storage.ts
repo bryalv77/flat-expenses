@@ -1,18 +1,12 @@
 import { randomUUID } from 'expo-crypto';
 import * as ImageManipulator from 'expo-image-manipulator';
 
-import { ERR } from './api/errors';
 import { API_URL, ApiError, authHeader, request } from './http';
+import { DOCUMENT_MIME_TYPES, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES, MAX_FILE_BYTES } from './limits';
 
 export type FileKind = 'avatar' | 'document' | 'bill';
 
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/webp'] as const;
-export const ALLOWED_MIME_TYPES = [...ALLOWED_IMAGE_TYPES, 'application/pdf'] as const;
-export const MAX_BYTES: Record<FileKind, number> = {
-  avatar: 2 * 1024 * 1024,
-  document: 10 * 1024 * 1024,
-  bill: 10 * 1024 * 1024,
-};
+const MAX_BYTES: Record<FileKind, number> = { avatar: MAX_AVATAR_BYTES, document: MAX_FILE_BYTES, bill: MAX_FILE_BYTES };
 
 export interface PickedFile {
   uri: string;
@@ -59,7 +53,7 @@ export function sanitizeFileName(name: string): string {
 }
 
 function isImageType(mimeType: string): boolean {
-  return (ALLOWED_IMAGE_TYPES as readonly string[]).includes(mimeType.toLowerCase());
+  return (IMAGE_MIME_TYPES as readonly string[]).includes(mimeType.toLowerCase());
 }
 
 /** Avatars have their own (image-only, smaller) rules; everything else is a document. */
@@ -67,7 +61,7 @@ export const kindOfKey = (key: string): FileKind => (key.includes('/avatar/') ? 
 
 export function validateFile(file: Pick<PickedFile, 'mimeType' | 'size'>, kind: FileKind): void {
   const type = file.mimeType.toLowerCase();
-  const allowed = kind === 'avatar' ? isImageType(type) : (ALLOWED_MIME_TYPES as readonly string[]).includes(type);
+  const allowed = kind === 'avatar' ? isImageType(type) : (DOCUMENT_MIME_TYPES as readonly string[]).includes(type);
   if (!allowed) throw new FileValidationError('unsupported-type', `Unsupported file type: ${file.mimeType}`);
   if (file.size != null && file.size > MAX_BYTES[kind]) {
     throw new FileValidationError('too-large', `File exceeds ${MAX_BYTES[kind] / 1024 / 1024} MB`);
@@ -145,11 +139,6 @@ export async function getFileUrl(storagePath: string): Promise<string> {
 }
 
 export const deleteFile = (storagePath: string): Promise<void> => request('DELETE', `/api/files/${storagePath}`); // idempotent on the Worker
-
-/** The Worker deletes users/{uid}/ itself, see ApiAuthProvider.deleteAccount. */
-export async function deleteFolder(_path: string): Promise<void> {
-  throw new Error(ERR.USE_AUTH_DELETE_USER);
-}
 
 export function newId(): string {
   return randomUUID();

@@ -103,7 +103,7 @@ export const ca: DeepPartial<Messages> = {
     photoUpdated: 'Foto actualitzada', docType: 'Tipus de document', documentsHint: 'Només tu i, si cal, els admins del teu pis podeu veure aquests fitxers.',
     noDocuments: 'Encara no has pujat cap document', replace: 'Substitueix', view: 'Veure', deleteDocConfirm: 'Vols eliminar aquest document?',
     uploaded: 'Document pujat', deleteAccountWarn: 'S’eliminaran els teus fitxers i les teves dades personals. Aquesta acció no es pot desfer.',
-    passwordForDelete: 'Introdueix la contrasenya per confirmar', recentLogin: 'Torna a iniciar la sessió per eliminar el teu compte.',
+    passwordForDelete: 'Introdueix la contrasenya per confirmar',
     activeHouse: 'Pis actiu', account: 'Compte',
     resetTitle: 'Nova contrasenya', resetHint: 'Tria una contrasenya nova per al teu compte.', resetDone: 'Contrasenya actualitzada. Ja pots iniciar sessió.',
     resetLinkInvalid: 'L\'enllaç no és vàlid o ha caducat. Sol·licita\'n un de nou.',

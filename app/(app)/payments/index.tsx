@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { Badge, BottomSheet, Button, Chip, EmptyState, ListRow, MoneyInput, Screen, Section, Text, TextField, useToast } from '@/components/ui';
+import { Badge, BottomSheet, Button, Chip, ListRow, MoneyInput, Screen, Section, Text, TextField, useToast } from '@/components/ui';
 import { computePaymentStatus } from '@/features/finance';
+import { AdminOnlyScreen } from '@/features/houses/AdminOnlyScreen';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
 import { MemberAvatar } from '@/features/members/MemberAvatar';
@@ -37,7 +38,7 @@ export default function PaymentsScreen() {
   }, [members, thisMonth]);
   const byId = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
 
-  if (!house || !isAdmin) return <Screen><EmptyState icon="lock" title={t('hub.adminOnly')} /></Screen>;
+  if (!house || !isAdmin) return <AdminOnlyScreen />;
 
   const stateTone: Record<string, [Tone, string]> = {
     PAID: ['green', t('hub.paymentStatusPaid')],
@@ -61,7 +62,7 @@ export default function PaymentsScreen() {
           setSheetMember(null);
           toast.success(t('hub.saved'));
         },
-        onError: () => toast.error(t('errors.generic')),
+        onError: toast.fail,
       },
     );
   };

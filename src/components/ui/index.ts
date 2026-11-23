@@ -16,6 +16,7 @@ export * from './LargeTitleHeader';
 export * from './ListRow';
 export * from './MoneyInput';
 export * from './Screen';
+export * from './ScreenSpinner';
 export * from './SegmentedControl';
 export * from './Section';
 export * from './Skeleton';

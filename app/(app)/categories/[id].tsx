@@ -48,8 +48,8 @@ export default function CategoryDetailScreen() {
             try {
               await update.mutateAsync({ ...input, id: category.id });
               router.back();
-            } catch {
-              toast.error(t('errors.generic'));
+            } catch (e) {
+              toast.fail(e);
             }
           }}
         />

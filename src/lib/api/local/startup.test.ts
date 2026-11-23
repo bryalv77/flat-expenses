@@ -1,8 +1,8 @@
-jest.mock('../../fileStore', () => ({ getFileStore: jest.fn() }));
-
 import { migrate } from './migrate';
 import { sweepLocalOrphans } from './startup';
 import { createTestDb } from './testDb';
+
+jest.mock('../../fileStore', () => ({ getFileStore: jest.fn() }));
 
 describe('sweepLocalOrphans', () => {
   it('deletes listed files that no bill references', async () => {

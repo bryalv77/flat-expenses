@@ -17,8 +17,7 @@ export class NotImplementedError extends Error {
 
 /** Methods that only make sense with an account; local mode refuses them instead of faking them. */
 const UNAVAILABLE = [
-  'listMyDocuments', 'addMyDocument', 'deleteMyDocument', 'listMemberDocuments', 'deleteMyAccountData',
-  'createInvite', 'revokeInvite', 'listInvites', 'redeemInvite', 'leaveHouse',
+  'listMyDocuments', 'addMyDocument', 'deleteMyDocument', 'createInvite', 'revokeInvite', 'listInvites', 'redeemInvite', 'leaveHouse',
 ] as const;
 
 export function createLocalApi(
@@ -50,6 +49,7 @@ export const localApi: Api = new Proxy({} as Api, {
   // 'then'/symbols -> undefined, else `await localApi` treats the proxy as a thenable and calls it.
   get: (_t, name) => (name === 'then' || typeof name === 'symbol') ? undefined : async (...args: unknown[]) => {
     // require, not import(): Jest's VM rejects dynamic import(); lazy so tests never load expo-sqlite.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     pending ??= (require('./sql.expo') as typeof import('./sql.expo')).getLocalDb().then((db) => createLocalApi(db));
     const api = await pending;
     return (api as never as Record<string, (...a: unknown[]) => unknown>)[name as string](...args);

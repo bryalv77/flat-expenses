@@ -6,4 +6,11 @@ module.exports = defineConfig([
   expo,
   prettier,
   globalIgnores(['dist/*', '.expo/*', 'worker/*']),
+  // jest.mock must precede the imports it affects, and mocks use require().
+  {
+    files: ['**/*.test.{ts,tsx}'],
+    rules: { 'import/first': 'off', '@typescript-eslint/no-require-imports': 'off' },
+  },
+  // RHF watch() only opts the component out of React Compiler memoization; no stale-UI risk here.
+  { rules: { 'react-hooks/incompatible-library': 'off' } },
 ]);

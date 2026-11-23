@@ -1,3 +1,5 @@
+import { enterLocalMode, getTreeKey, leaveLocalMode, startInLocalMode, subscribeTreeReset } from './appModeSwitch';
+
 const calls: string[] = [];
 jest.mock('@/lib/appMode', () => ({ saveAppMode: jest.fn(async (m: string) => void calls.push(`save:${m}`)) }));
 jest.mock('@/lib/queryClient', () => ({ queryClient: { clear: jest.fn(() => void calls.push('qc.clear')) } }));
@@ -11,8 +13,6 @@ jest.mock('@/lib/apiAuth', () => ({
 jest.mock('@/features/sync/pending', () => ({
   clearPendingSync: async () => void calls.push('pendingSync:clear'),
 }));
-
-import { enterLocalMode, getTreeKey, leaveLocalMode, startInLocalMode, subscribeTreeReset } from './appModeSwitch';
 
 beforeEach(() => (calls.length = 0));
 

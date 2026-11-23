@@ -150,7 +150,6 @@ describe('plural rules without Intl.PluralRules (Hermes on iOS)', () => {
 
   it('translatePlural keeps working when Intl.PluralRules is missing', () => {
     const original = Intl.PluralRules;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (Intl as any).PluralRules = undefined;
     try {
       expect(translatePlural('es', 'schedule.month', 2)).toBe('Cada 2 meses');

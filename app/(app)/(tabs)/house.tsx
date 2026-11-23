@@ -16,7 +16,7 @@ import { houseActions } from '@/features/profile/localMode';
 import { useT } from '@/i18n';
 import { getAppMode } from '@/lib/appMode';
 import { formatDate } from '@/lib/format';
-import { spacing, useTheme } from '@/theme';
+import { spacing } from '@/theme';
 import type { SplitMode } from '@/types/domain';
 
 const schema = z.object({
@@ -31,7 +31,6 @@ type FormValues = z.infer<typeof schema>;
 
 export default function HouseScreen() {
   const { t, locale } = useT();
-  const { colors } = useTheme();
   const router = useRouter();
   const toast = useToast();
   const { authUser } = useAuth();
@@ -81,8 +80,8 @@ export default function HouseScreen() {
         showBalanceToRoommates: v.showBalanceToRoommates,
       });
       toast.success(t('hub.saved'));
-    } catch {
-      toast.error(t('errors.generic'));
+    } catch (e) {
+      toast.fail(e);
     }
   });
 
@@ -93,8 +92,8 @@ export default function HouseScreen() {
       if (action === 'delete') await deleteHouse.mutateAsync(house.id);
       if (action === 'leave') await leave.mutateAsync(house.id);
       router.replace('/');
-    } catch {
-      toast.error(t('errors.generic'));
+    } catch (e) {
+      toast.fail(e);
     }
   };
 

@@ -6,7 +6,7 @@ import { MIN_TOUCH, radii, spacing, useTheme } from '@/theme';
 import { Text } from './Text';
 
 export interface SegmentedControlProps<T extends string> {
-  options: ReadonlyArray<{ value: T; label: string }>;
+  options: readonly { value: T; label: string }[];
   value: T;
   onChange: (value: T) => void;
 }

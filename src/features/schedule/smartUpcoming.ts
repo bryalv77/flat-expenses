@@ -1,7 +1,7 @@
 import type { ExpenseCategory } from '@/types/domain';
-import { addMonthsToKey, monthKey, monthRange } from '@/lib/dates';
+import { addMonthsToKey, monthIndex, monthKey, monthRange } from '@/lib/dates';
 import { getEffectiveMonth, type BillCore } from '@/features/finance/effectiveDate';
-import { coefficientOfVariation, mean, weightedRecentAverage } from '@/features/finance/stats';
+import { clamp, coefficientOfVariation, mean, weightedRecentAverage } from '@/features/finance/stats';
 import { getUpcomingCharges } from './occurrences';
 
 /**
@@ -31,8 +31,6 @@ const CYCLES = [1, 2, 3, 4, 6, 12];
 const WINDOW_MONTHS = 24;
 const MIN_HISTORY = 3;
 
-const idx = (key: string) => Number(key.slice(0, 4)) * 12 + Number(key.slice(5, 7)) - 1;
-
 const cv = (v: number[]) => coefficientOfVariation(v) ?? 0;
 
 /** Smallest cycle (in months) and residue such that billed months line up with `idx % cycle === residue`. */
@@ -43,7 +41,7 @@ export function detectCycle(billed: Set<string>, firstMonth: string, lastMonth: 
   for (const every of CYCLES) {
     let best: { residue: number; hits: number; expected: number } | null = null;
     for (let residue = 0; residue < every; residue++) {
-      const expected = months.filter((m) => idx(m) % every === residue);
+      const expected = months.filter((m) => monthIndex(m) % every === residue);
       const hits = expected.filter((m) => billed.has(m)).length;
       if (!best || hits > best.hits) best = { residue, hits, expected: expected.length };
     }
@@ -73,14 +71,14 @@ function estimate(totals: Map<string, number>, target: string): { cents: number;
       .slice(-3)
       .map((k) => [totals.get(k) as number, totals.get(addMonthsToKey(k, -12))] as const)
       .filter((p): p is readonly [number, number] => p[1] != null && p[1] > 0);
-    const ratio = pairs.length >= 2 ? Math.min(1.6, Math.max(0.7, (mean(pairs.map((p) => p[0])) ?? 0) / (mean(pairs.map((p) => p[1])) ?? 0))) : 1;
+    const ratio = pairs.length >= 2 ? clamp((mean(pairs.map((p) => p[0])) ?? 0) / (mean(pairs.map((p) => p[1])) ?? 0), 0.7, 1.6) : 1;
     const c = lastYear * ratio;
-    const spread = Math.min(0.5, Math.max(0.1, cv(recent)));
+    const spread = clamp(cv(recent), 0.1, 0.5);
     return { cents: Math.round(c), low: Math.round(c * (1 - spread)), high: Math.round(c * (1 + spread)), basis: 'SEASONAL' };
   }
 
   const c = weightedRecentAverage(recent) ?? 0;
-  const spread = Math.min(0.5, Math.max(0.1, cv(recent)));
+  const spread = clamp(cv(recent), 0.1, 0.5);
   return { cents: Math.round(c), low: Math.round(c * (1 - spread)), high: Math.round(c * (1 + spread)), basis: 'RECENT' };
 }
 
@@ -109,7 +107,7 @@ export function getSmartUpcoming(
     const lastBilled = sorted[sorted.length - 1];
     const cycle = first && lastBilled ? detectCycle(new Set(sorted), first, addMonthsToKey(current, -1) > lastBilled ? addMonthsToKey(current, -1) : lastBilled) : null;
     // Stopped being billed (cancelled provider)? Don't predict anything.
-    const stale = lastBilled != null && idx(current) - idx(lastBilled) > 12;
+    const stale = lastBilled != null && monthIndex(current) - monthIndex(lastBilled) > 12;
 
     if (!cycle || stale) {
       if (sorted.length >= MIN_HISTORY) continue; // irregular or discontinued: nothing reliable to say
@@ -120,7 +118,7 @@ export function getSmartUpcoming(
     }
 
     for (const month of targets) {
-      if (idx(month) % cycle.every !== cycle.residue || totals.has(month)) continue;
+      if (monthIndex(month) % cycle.every !== cycle.residue || totals.has(month)) continue;
       const est = estimate(totals, month);
       out.push({ category, month, date: null, estimateCents: est.cents, lowCents: est.low, highCents: est.high, everyMonths: cycle.every, basis: est.basis });
     }

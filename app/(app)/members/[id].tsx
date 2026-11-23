@@ -1,25 +1,22 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { Badge, Button, DatePickerField, EmptyState, ListRow, MoneyInput, Screen, Section, Text, useToast } from '@/components/ui';
+import { Badge, Button, DatePickerField, MoneyInput, Screen, Section, Text, useToast } from '@/components/ui';
 import { ConfirmSheet } from '@/features/houses/ConfirmSheet';
+import { AdminOnlyScreen } from '@/features/houses/AdminOnlyScreen';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useMyMember } from '@/features/houses/useMyMember';
 import { isGuestMember, useReactivateMember, useRemoveMember, useSetMemberContribution } from '@/features/members/hooks';
 import { MemberAvatar } from '@/features/members/MemberAvatar';
-import { useMemberDocuments } from '@/features/profile/hooks';
 import { useT } from '@/i18n';
 import { todayISO } from '@/lib/dates';
-import { formatDate, formatFileSize, formatMoney } from '@/lib/format';
-import { getFileUrl } from '@/lib/storage';
-import { spacing, useTheme } from '@/theme';
+import { formatDate, formatMoney } from '@/lib/format';
+import { spacing } from '@/theme';
 
 export default function MemberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, locale } = useT();
-  const { colors } = useTheme();
   const router = useRouter();
   const toast = useToast();
   const { house, isAdmin } = useActiveHouse();
@@ -29,24 +26,15 @@ export default function MemberDetailScreen() {
   const remove = useRemoveMember(houseId);
   const reactivate = useReactivateMember(houseId);
   const setContribution = useSetMemberContribution(houseId);
-  const { data: docs = [] } = useMemberDocuments(house?.id, member?.userId, isAdmin && Boolean(member) && !(member && isGuestMember(member)));
   const [leftOn, setLeftOn] = useState<string | null>(todayISO());
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [contribution, setLocalContribution] = useState<number | null | undefined>(undefined);
 
-  if (!house || !isAdmin || !member) return <Screen><EmptyState icon="lock" title={t('hub.adminOnly')} /></Screen>;
+  if (!house || !isAdmin || !member) return <AdminOnlyScreen />;
 
   const value = contribution === undefined ? member.individualContributionCents : contribution;
   const isRoommate = member.role === 'ROOMMATE';
   const guest = isGuestMember(member);
-
-  const openDoc = async (path: string) => {
-    try {
-      await WebBrowser.openBrowserAsync(await getFileUrl(path));
-    } catch {
-      toast.error(t('errors.generic'));
-    }
-  };
 
   return (
     <Screen>
@@ -74,28 +62,13 @@ export default function MemberDetailScreen() {
                 onPress={() =>
                   setContribution.mutate(
                     { memberId: member.id, cents: contribution ?? null },
-                    { onSuccess: () => toast.success(t('hub.saved')), onError: () => toast.error(t('errors.generic')) },
+                    { onSuccess: () => toast.success(t('hub.saved')), onError: toast.fail },
                   )
                 }
               />
             </View>
           </Section>
         ) : null}
-
-        {guest ? null : <Section header={t('hub.memberDocs')} footer={t('hub.adminOnlySensitive')}>
-          {docs.length === 0 ? <ListRow icon="lock" iconColor={colors.orange} title={t('hub.noDocs')} /> : null}
-          {docs.map((d) => (
-            <ListRow
-              key={d.id}
-              icon="document"
-              iconColor={colors.orange}
-              title={d.type === 'PASSPORT' ? t('profile.passport') : t('profile.nationalId')}
-              subtitle={`${d.fileName} · ${formatFileSize(d.sizeBytes)}`}
-              value={t('hub.openFile')}
-              onPress={() => void openDoc(d.storagePath)}
-            />
-          ))}
-        </Section>}
 
         {member.role !== 'ADMIN' ? (
           member.status === 'ACTIVE' ? (
@@ -117,7 +90,7 @@ export default function MemberDetailScreen() {
         onClose={() => setConfirmRemove(false)}
         onConfirm={() => {
           setConfirmRemove(false);
-          remove.mutate({ memberId: member.id, removedAt: leftOn as string }, { onSuccess: () => router.back(), onError: () => toast.error(t('errors.generic')) });
+          remove.mutate({ memberId: member.id, removedAt: leftOn as string }, { onSuccess: () => router.back(), onError: toast.fail });
         }}
       />
     </Screen>

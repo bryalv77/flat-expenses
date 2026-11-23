@@ -33,14 +33,6 @@ export function runHousesContract(make: ApiFactory): void {
         await expect(ctx.api.updateMyProfile({ displayName: 'x'.repeat(101) })).rejects.toThrow();
         await expect(ctx.api.updateMyProfile({ accountRole: 'OWNER' as never })).rejects.toThrow();
       });
-
-      // DIVERGENCE (not tested): listMyDocuments/addMyDocument/deleteMyDocument need a real uploaded object on the Worker and
-      // are dropped in local mode; deleteMyAccountData throws USE_AUTH_DELETE_USER on the Worker (account deletion goes through Better Auth).
-      it('listMemberDocuments is always empty for admins', async () => {
-        const houseId = await newHouse(ctx);
-        const me = await ctx.api.getMe();
-        expect(await ctx.api.listMemberDocuments({ houseId, userId: me!.id })).toEqual([]);
-      });
     });
 
     describe('houses', () => {

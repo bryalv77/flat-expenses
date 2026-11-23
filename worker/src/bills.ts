@@ -3,8 +3,8 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { billFiles, bills, categories } from './db/schema';
-import { MAX_CENTS, MAX_LIST } from './config';
-import { DOC_MIME, MAX_BYTES, deleteObjects, parseKey } from './files';
+import { DOCUMENT_MIME_TYPES, MAX_CENTS, MAX_LIST } from './config';
+import { MAX_BYTES, deleteObjects, parseKey } from './files';
 import { houseId, notFound, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
 
@@ -17,7 +17,7 @@ const date = z.iso.date();
 const fileRef = z.object({
   objectKey: z.string().max(300),
   fileName: z.string().min(1).max(150),
-  mimeType: z.enum(DOC_MIME),
+  mimeType: z.enum(DOCUMENT_MIME_TYPES),
   sizeBytes: z.number().int().min(0).max(MAX_BYTES.bill),
 }).strict();
 const shape = z.object({

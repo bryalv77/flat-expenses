@@ -71,7 +71,7 @@ export const localFileStore: FileStore = (() => {
     upload: async (...a) => (await get()).upload(...a),
     getUrl: async (...a) => (await get()).getUrl(...a),
     delete: async (...a) => (await get()).delete(...a),
-    deleteFolder: async (...a) => (await get()).deleteFolder(...a),
+    deleteFolder: async (...a) => (await get()).deleteFolder!(...a),
     list: async (...a) => (await get()).list!(...a),
   };
 })();

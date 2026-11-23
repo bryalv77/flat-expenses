@@ -31,7 +31,7 @@ export function IconPicker({ value, onChange, color }: IconPickerProps) {
             }}
             style={{ width: 44, height: 44, borderRadius: radii.sm, alignItems: 'center', justifyContent: 'center', backgroundColor: selected ? accent : colors.secondaryFill }}
           >
-            <Icon name={name} size={22} color={selected ? '#FFFFFF' : colors.label} />
+            <Icon name={name} size={22} color={selected ? colors.tintOnFilled : colors.label} />
           </Pressable>
         );
       })}

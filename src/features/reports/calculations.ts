@@ -1,5 +1,5 @@
-import type { Bill, ExpenseCategory, HouseMember, MemberPayment } from '@/types/domain';
-import { addMonthsToKey, monthOfYear, monthRange, parseISODate } from '@/lib/dates';
+import type { Bill, ExpenseCategory, MemberPayment } from '@/types/domain';
+import { addMonthsToKey, monthKey, monthOfYear, monthRange, parseISODate } from '@/lib/dates';
 import { getEffectiveDate, getEffectiveMonth, type BillCore } from '@/features/finance/effectiveDate';
 import { activeMembersInMonth, type MemberLike } from '@/features/finance/members';
 import { mean } from '@/features/finance/stats';
@@ -200,12 +200,10 @@ export function categoryStats(
   }
 
   const slope = linearSlope(amortizedSeries.map((s) => s.cents));
-  const mean = amortizedSeries.length
-    ? amortizedSeries.reduce((s, p) => s + p.cents, 0) / amortizedSeries.length
-    : 0;
+  const avg = mean(amortizedSeries.map((p) => p.cents)) ?? 0;
   // Treat |total drift over the window| < 5% of the mean as flat.
   const drift = Math.abs(slope) * Math.max(1, amortizedSeries.length - 1);
-  const trend = mean === 0 || drift < mean * 0.05 ? 'FLAT' : slope > 0 ? 'UP' : 'DOWN';
+  const trend = avg === 0 || drift < avg * 0.05 ? 'FLAT' : slope > 0 ? 'UP' : 'DOWN';
 
   return {
     billCount,
@@ -399,7 +397,7 @@ export function whoPays(
 ): WhoPays {
   const totals = totalsByMonth(bills);
   const paid: Record<string, number> = {};
-  for (const p of payments) paid[p.month.slice(0, 7)] = (paid[p.month.slice(0, 7)] ?? 0) + p.amountCents;
+  for (const p of payments) paid[monthKey(p.month)] = (paid[monthKey(p.month)] ?? 0) + p.amountCents;
   const rows = monthRange(fromMonth, toMonth).map((month) => {
     const totalCents = totals[month] ?? 0;
     const roommatesCents = paid[month] ?? 0;
@@ -472,4 +470,3 @@ export function buildBillsCsv(
   return lines.join('\r\n');
 }
 
-export type { HouseMember };

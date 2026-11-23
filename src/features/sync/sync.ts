@@ -20,6 +20,7 @@ export interface LocalHouseData {
 
 /** Wide enough to read every row regardless of its date. */
 const ALL_BILLS = { from: '0000-01-01', to: '9999-12-31' };
+/** listPayments only accepts months 20xx-MM-01 (payments contract). */
 const ALL_PAYMENTS = { from: '2000-01-01', to: '2099-12-01' };
 
 export interface SyncDeps {

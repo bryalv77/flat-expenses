@@ -1,36 +1,25 @@
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
-import { EmptyState, Screen, useToast } from '@/components/ui';
+import { EmptyState, Screen, ScreenSpinner } from '@/components/ui';
 import { BillForm, type BillFormSubmit } from '@/features/bills/components/BillForm';
 import { useBill, useUpdateBill } from '@/features/bills/hooks';
 import { useCategories } from '@/features/categories/hooks';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { toStorageFiles } from '@/features/bills/pickedFile';
+import { useBillSubmit } from '@/features/bills/useBillSubmit';
 import { useT } from '@/i18n';
-import { haptics } from '@/lib/haptics';
-import { useTheme } from '@/theme';
 
 export default function EditBillScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useT();
-  const { colors } = useTheme();
-  const router = useRouter();
-  const toast = useToast();
   const { house, isAdmin } = useActiveHouse();
   const bill = useBill(house?.id, id);
   const categories = useCategories(house?.id);
   const update = useUpdateBill(house?.id ?? '');
-  const [progress, setProgress] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { progress, error, run } = useBillSubmit();
 
   if (bill.isLoading) {
-    return (
-      <Screen>
-        <ActivityIndicator color={colors.tint} />
-      </Screen>
-    );
+    return <ScreenSpinner />;
   }
   if (!house || !isAdmin || !bill.data) {
     return (
@@ -42,32 +31,10 @@ export default function EditBillScreen() {
   }
 
   const current = bill.data;
-  const submit = ({ values, newFiles, keptFiles, removedFiles }: BillFormSubmit) => {
-    setError(null);
-    setProgress(newFiles.length ? 0 : null);
-    update.mutate(
-      {
-        id: current.id,
-        fields: values,
-        keptFiles,
-        newFiles: toStorageFiles(newFiles),
-        removedFiles,
-        onProgress: setProgress,
-      },
-      {
-        onSuccess: () => {
-          haptics.success();
-          toast.success(t('billsUi.saved'));
-          router.back();
-        },
-        onError: () => {
-          haptics.error();
-          setError(newFiles.length ? t('billsUi.uploadFailed') : t('errors.generic'));
-          setProgress(null);
-        },
-      },
+  const submit = ({ values, newFiles, keptFiles, removedFiles }: BillFormSubmit) =>
+    run(newFiles.length > 0, (onProgress, callbacks) =>
+      update.mutate({ id: current.id, fields: values, keptFiles, newFiles: toStorageFiles(newFiles), removedFiles, onProgress }, callbacks),
     );
-  };
 
   return (
     <Screen>

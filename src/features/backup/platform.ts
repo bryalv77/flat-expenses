@@ -3,9 +3,11 @@ import { Directory, File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Platform } from 'react-native';
 
+import { todayISO } from '@/lib/dates';
+
 import type { BackupFiles } from './backup';
 
-const FILE_NAME = () => `costos-backup-${new Date().toISOString().slice(0, 10)}.zip`;
+const FILE_NAME = () => `costos-backup-${todayISO()}.zip`;
 
 const nativeRoot = () => new Directory(Paths.document, 'files'); // same root as fileStore.local.native.ts
 

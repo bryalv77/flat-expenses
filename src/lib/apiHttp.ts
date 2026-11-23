@@ -2,7 +2,6 @@
 import { DEFAULT_LOCALE, isLocale } from '@/i18n/locales';
 import type { Bill, BillFile, ExpenseCategory, House, HouseInvite, HouseMember, HouseRole, MemberPayment, User, UserDocument } from '@/types/domain';
 
-import { ERR } from './api/errors';
 import type { Api } from './api/types';
 import { ApiError, qs, request } from './http';
 import { normalizeIconName } from './iconAliases';
@@ -69,12 +68,6 @@ export const httpApi: Api = {
     await request('POST', '/api/me/documents', { id: v.id, type: v.type, objectKey: v.storagePath, fileName: v.fileName, mimeType: v.mimeType, sizeBytes: v.sizeBytes });
   },
   deleteMyDocument: async (v) => request('DELETE', `/api/me/documents/${v.id}`),
-  // Identity documents are owner-only on the Worker too (issue #7 §7): admins get nothing.
-  listMemberDocuments: async () => [],
-  // Account deletion is one Better Auth call that also cleans up on the Worker (ApiAuthProvider.deleteAccount), so nothing calls this.
-  deleteMyAccountData: async () => {
-    throw new Error(ERR.USE_AUTH_DELETE_USER);
-  },
 
   // Houses
   createHouse: async ({ id, ...rest }) => {

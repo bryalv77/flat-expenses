@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Chip, EmptyState, Icon, Screen, Skeleton, Text, useToast } from '@/components/ui';
+import { Chip, EmptyState, ErrorState, Icon, Screen, Skeleton, Text, useToast } from '@/components/ui';
 import { addMonthsToKey, monthEnd, monthStart } from '@/lib/dates';
 import { useT } from '@/i18n';
 import { haptics } from '@/lib/haptics';
@@ -88,7 +88,7 @@ export default function ReportsScreen() {
               <Skeleton height={120} />
             </View>
           ) : data.isError ? (
-            <EmptyState icon="warning" title={t('common.error')} actionLabel={t('common.retry')} onAction={data.refetch} />
+            <ErrorState onRetry={data.refetch} />
           ) : (
             <>
               {section === 'overview' ? <OverviewSection data={data} /> : null}

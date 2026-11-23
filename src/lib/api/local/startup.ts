@@ -10,6 +10,7 @@ interface Deps {
 
 const defaults: Deps = {
   // require, not import(): Jest's VM rejects dynamic import().
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   getDb: () => (require('./sql.expo') as typeof import('./sql.expo')).getLocalDb(),
   list: async () => (await getFileStore().list?.('')) ?? [],
   remove: (p) => getFileStore().delete(p),

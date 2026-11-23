@@ -6,6 +6,7 @@ import {
   ActionSheet,
   Chip,
   EmptyState,
+  ErrorState,
   Icon,
   isIconName,
   ListRow,
@@ -129,7 +130,7 @@ export default function ExpensesScreen() {
         haptics.success();
         toast.success(t('billsUi.deleted'));
       },
-      onError: () => toast.error(t('errors.generic')),
+      onError: toast.fail,
     });
   };
 
@@ -178,7 +179,7 @@ export default function ExpensesScreen() {
           <Skeleton height={64} />
         </View>
       ) : bills.isError ? (
-        <EmptyState icon="warning" title={t('common.error')} actionLabel={t('common.retry')} onAction={() => void bills.refetch()} />
+        <ErrorState onRetry={bills.refetch} />
       ) : groups.length === 0 ? (
         <EmptyState
           icon="document"

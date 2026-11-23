@@ -25,7 +25,7 @@ export interface BackupFiles {
 
 // Fixed allowlist, in FK-safe insertion order. The archive is untrusted: SQL is only ever built from this.
 // `bills.effective_date` is generated, so it is neither exported nor imported.
-const TABLES: Record<string, string[]> = {
+export const TABLES: Record<string, string[]> = {
   users: ['id', 'email', 'display_name', 'photo_path', 'account_role', 'locale', 'created_at', 'updated_at'],
   houses: ['id', 'name', 'address', 'currency', 'split_mode', 'fixed_contribution_cents', 'contribution_day_of_month', 'show_balance_to_roommates', 'created_by', 'created_at', 'updated_at'],
   members: ['house_id', 'user_id', 'role', 'status', 'joined_at', 'removed_at', 'individual_contribution_cents', 'display_name', 'email', 'photo_path'],

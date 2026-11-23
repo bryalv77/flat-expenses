@@ -2,6 +2,7 @@ import { and, asc, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
+import { MAX_CONFIG_CENTS } from './config';
 import { bills, categories } from './db/schema';
 import { houseId, noContentOr404, notFound, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
@@ -14,7 +15,7 @@ const shape = z.object({
   icon: z.string().min(1).max(40),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
   amountType: z.enum(['FIXED', 'VARIABLE']),
-  expectedAmountCents: z.number().int().min(0).max(10_000_000).nullable(),
+  expectedAmountCents: z.number().int().min(0).max(MAX_CONFIG_CENTS).nullable(),
   intervalUnit: z.enum(['DAY', 'WEEK', 'MONTH', 'YEAR']),
   intervalCount: z.number().int().min(1).max(1000),
   anchorDate: z.iso.date(),

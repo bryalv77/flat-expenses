@@ -1,9 +1,10 @@
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 
-import { EmptyState, Screen, useToast } from '@/components/ui';
+import { Screen, useToast } from '@/components/ui';
 import { CategoryForm } from '@/features/categories/CategoryForm';
 import { useCreateCategory } from '@/features/categories/hooks';
+import { AdminOnlyScreen } from '@/features/houses/AdminOnlyScreen';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useT } from '@/i18n';
 import { spacing } from '@/theme';
@@ -15,7 +16,7 @@ export default function NewCategoryScreen() {
   const { house, isAdmin } = useActiveHouse();
   const create = useCreateCategory(house?.id ?? '');
 
-  if (!house || !isAdmin) return <Screen><EmptyState icon="lock" title={t('hub.adminOnly')} /></Screen>;
+  if (!house || !isAdmin) return <AdminOnlyScreen />;
 
   return (
     <Screen>
@@ -26,8 +27,8 @@ export default function NewCategoryScreen() {
             try {
               await create.mutateAsync(input);
               router.back();
-            } catch {
-              toast.error(t('errors.generic'));
+            } catch (e) {
+              toast.fail(e);
             }
           }}
         />

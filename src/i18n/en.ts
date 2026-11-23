@@ -102,7 +102,7 @@ export const en: Messages = {
     photoUpdated: 'Photo updated', docType: 'Document type', documentsHint: 'Only you and, if needed, your flat’s admins can see these files.',
     noDocuments: 'You have not uploaded any document yet', replace: 'Replace', view: 'View', deleteDocConfirm: 'Delete this document?',
     uploaded: 'Document uploaded', deleteAccountWarn: 'Your files and personal data will be deleted. This cannot be undone.',
-    passwordForDelete: 'Enter your password to confirm', recentLogin: 'Sign in again to delete your account.',
+    passwordForDelete: 'Enter your password to confirm',
     activeHouse: 'Active flat', account: 'Account',
     resetTitle: 'New password', resetHint: 'Choose a new password for your account.', resetDone: 'Password updated. You can sign in now.',
     resetLinkInvalid: 'This link is invalid or has expired. Request a new one.',

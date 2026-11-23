@@ -70,9 +70,9 @@ export default function CreateHouseScreen() {
       if (v.seedCategories) await seedSuggestedCategories(qc, houseId, t);
       haptics.success();
       router.replace('/(app)/(tabs)' as Href);
-    } catch {
+    } catch (e) {
       haptics.error();
-      toast.error(t('errors.generic'));
+      toast.fail(e);
     }
   });
 

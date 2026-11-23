@@ -103,7 +103,7 @@ export const de: DeepPartial<Messages> = {
     photoUpdated: 'Foto aktualisiert', docType: 'Dokumentart', documentsHint: 'Nur du und bei Bedarf die Admins deiner Wohnung können diese Dateien sehen.',
     noDocuments: 'Du hast noch kein Dokument hochgeladen', replace: 'Ersetzen', view: 'Ansehen', deleteDocConfirm: 'Dieses Dokument löschen?',
     uploaded: 'Dokument hochgeladen', deleteAccountWarn: 'Deine Dateien und persönlichen Daten werden gelöscht. Das lässt sich nicht rückgängig machen.',
-    passwordForDelete: 'Gib zur Bestätigung dein Passwort ein', recentLogin: 'Melde dich erneut an, um dein Konto zu löschen.',
+    passwordForDelete: 'Gib zur Bestätigung dein Passwort ein',
     activeHouse: 'Aktive Wohnung', account: 'Konto',
     resetTitle: 'Neues Passwort', resetHint: 'Wähle ein neues Passwort für dein Konto.', resetDone: 'Passwort aktualisiert. Du kannst dich jetzt anmelden.',
     resetLinkInvalid: 'Der Link ist ungültig oder abgelaufen. Fordere einen neuen an.',

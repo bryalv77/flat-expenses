@@ -36,8 +36,8 @@ export function Chip({ label, selected, onPress, icon, color }: ChipProps) {
         backgroundColor: selected ? accent : colors.secondaryFill,
       }}
     >
-      {icon ? <Icon name={icon} size={14} color={selected ? '#FFFFFF' : accent} /> : null}
-      <Text variant="subhead" style={{ color: selected ? '#FFFFFF' : colors.label, fontWeight: selected ? '600' : '400' }}>
+      {icon ? <Icon name={icon} size={14} color={selected ? colors.tintOnFilled : accent} /> : null}
+      <Text variant="subhead" style={{ color: selected ? colors.tintOnFilled : colors.label, fontWeight: selected ? '600' : '400' }}>
         {label}
       </Text>
     </Pressable>

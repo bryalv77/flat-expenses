@@ -1,20 +1,16 @@
-import { and, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
 import type { Db } from './db/client';
-import { members } from './db/schema';
-import { MAX_FILE_BYTES } from './config';
+import { DOCUMENT_MIME_TYPES, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES, MAX_FILE_BYTES } from './config';
 import { isUuid, parseJson } from './http';
-import { session, type AppEnv } from './middleware';
+import { membership, session, type AppEnv } from './middleware';
 
 // File storage on R2, uploaded through the Worker (issue #7 §6, v1). Same keys and rules as storage.rules:
 //   users/{uid}/avatar/{file}                 read: any signed-in user · write: owner · image < 2 MB
 //   users/{uid}/documents/{docId}/{file}      owner only · image or PDF < 10 MB
 //   houses/{houseId}/bills/{folder}/{file}    read: active members · write: active admins · image or PDF < 10 MB
-const IMAGE_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'] as const;
-export const DOC_MIME = [...IMAGE_MIME, 'application/pdf'] as const;
-export const MAX_BYTES = { avatar: 2 * 1024 * 1024, document: MAX_FILE_BYTES, bill: MAX_FILE_BYTES };
+export const MAX_BYTES = { avatar: MAX_AVATAR_BYTES, document: MAX_FILE_BYTES, bill: MAX_FILE_BYTES };
 
 const SEG = '[A-Za-z0-9._-]+'; // what the client's sanitizeFileName() produces; also rules out '..' tricks below
 const KEY = {
@@ -50,9 +46,7 @@ export const purgePrefix = async (bucket: R2Bucket, prefix: string) => {
 
 const roleIn = async (db: Db, houseId: string, uid: string) => {
   if (!isUuid(houseId)) return null;
-  const [m] = await db.select({ role: members.role }).from(members)
-    .where(and(eq(members.houseId, houseId), eq(members.userId, uid), eq(members.status, 'ACTIVE')));
-  return m?.role ?? null;
+  return (await membership(db, houseId, uid))?.role ?? null;
 };
 
 /** null = allowed. Unknown houses/non-members get 404 so existence isn't revealed; wrong owner or role gets 403. */
@@ -103,7 +97,7 @@ filesApp.put('/*', async (c) => {
   if (deny) return c.json({ error: deny === 404 ? 'not_found' : 'forbidden' }, deny);
 
   const mime = (c.req.header('content-type') ?? '').split(';')[0]!.trim().toLowerCase();
-  const allowed: readonly string[] = p.kind === 'avatar' ? IMAGE_MIME : DOC_MIME;
+  const allowed: readonly string[] = p.kind === 'avatar' ? IMAGE_MIME_TYPES : DOCUMENT_MIME_TYPES;
   if (!allowed.includes(mime)) return c.json({ error: 'unsupported_type' }, 415);
   const max = MAX_BYTES[p.kind];
   if (Number(c.req.header('content-length') ?? 0) > max) return c.json({ error: 'too_large' }, 413); // before buffering

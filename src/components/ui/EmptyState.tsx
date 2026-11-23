@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 
+import { useT } from '@/i18n';
 import { spacing, useTheme } from '@/theme';
 
 import { Button } from './Button';
@@ -34,4 +35,10 @@ export function EmptyState({ icon = 'tag', title, message, actionLabel, onAction
       ) : null}
     </View>
   );
+}
+
+/** Failed query: the standard error message with a retry action. */
+export function ErrorState({ onRetry }: { onRetry: () => unknown }) {
+  const { t } = useT();
+  return <EmptyState icon="warning" title={t('common.error')} actionLabel={t('common.retry')} onAction={() => void onRetry()} />;
 }
