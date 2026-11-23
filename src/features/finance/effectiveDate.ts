@@ -6,7 +6,7 @@ export type BillCore = Pick<Bill, 'categoryId' | 'amountCents' | 'chargeDate' | 
 
 /**
  * Reporting date rule: chargeDate, else periodEndDate, else the date part of createdAt.
- * Mirrors the denormalized `effectiveDate` stored on bill documents (see src/lib/db.ts).
+ * Mirrors the generated `effective_date` column of the local SQLite (api/local/migrations.ts) and of Postgres (worker/src/db/schema.ts).
  */
 export function getEffectiveDate(bill: Pick<BillCore, 'chargeDate' | 'periodEndDate' | 'createdAt'>): string {
   return dayOf(bill.chargeDate ?? bill.periodEndDate ?? bill.createdAt);

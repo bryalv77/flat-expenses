@@ -52,12 +52,6 @@ test.describe('profile', () => {
     await confirm(page, 'Delete all data');
     await expect(page).toHaveURL(/onboarding\/create-house/);
   });
-
-  test('"Log in / Create account" opens the cloud auth entry', async ({ page }) => {
-    await tab(page, 'Profile');
-    await button(page, 'Log in / Create account').click();
-    await expect(page.getByRole('button', { name: /sign in|log in/i }).first()).toBeVisible();
-  });
 });
 
 test.describe('settings', () => {

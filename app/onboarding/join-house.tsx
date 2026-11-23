@@ -3,7 +3,7 @@ import { Redirect, useRouter, type Href } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Button, Screen, Text, TextField, useToast } from '@/components/ui';
+import { Button, Screen, Text, TextField } from '@/components/ui';
 import { useRedeemInvite } from '@/features/members/hooks';
 import { formatInviteCode, isValidInviteCode, normalizeInviteCode } from '@/features/members/inviteCode';
 import { useT } from '@/i18n';
@@ -14,7 +14,6 @@ import { spacing } from '@/theme';
 export default function JoinHouseScreen() {
   const { t } = useT();
   const router = useRouter();
-  const toast = useToast();
   const redeem = useRedeemInvite();
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +42,6 @@ export default function JoinHouseScreen() {
       router.replace('/(app)/(tabs)' as Href);
     } catch {
       setError(t('onboarding.invalidCode'));
-      toast.error(t('onboarding.invalidCode'));
     }
   };
 

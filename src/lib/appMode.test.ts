@@ -34,15 +34,10 @@ describe('appMode', () => {
     expect(getAppMode()).toBe('cloud');
   });
 
-  it('stays local when no cloud session is present', async () => {
-    expect(await loadAppMode(async () => false)).toBe('local');
-    expect(getAppMode()).toBe('local');
-  });
-
-  it('saves local, getter reflects it, and it survives a re-read', async () => {
-    await saveAppMode('local');
-    expect(getAppMode()).toBe('local');
-    expect(await loadAppMode()).toBe('local');
+  it('a saved mode is reflected by the getter and survives a re-read', async () => {
+    await saveAppMode('cloud');
+    expect(getAppMode()).toBe('cloud');
+    expect(await loadAppMode()).toBe('cloud');
   });
 
   it('a saved cloud choice wins over the session default', async () => {

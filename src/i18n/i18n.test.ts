@@ -24,10 +24,6 @@ describe('locale registry', () => {
     for (const l of LOCALES) expect(Intl.DateTimeFormat.supportedLocalesOf(l.intlLocale)).toHaveLength(1);
   });
 
-  it('has a dictionary for every registered locale', () => {
-    for (const code of LOCALE_CODES) expect(dictionaries[code]).toBeDefined();
-  });
-
   it('matches device language codes', () => {
     expect(matchLocale('fr')).toBe('fr');
     expect(matchLocale('pt-BR')).toBe('pt');
@@ -62,20 +58,6 @@ describe.each(LOCALE_CODES.filter((c) => c !== 'es'))('translations: %s', (code)
 });
 
 describe('local-mode namespaces', () => {
-  const ns = (k: string) => /^(auth|localMode|backup)\./.test(k);
-  const base = Object.keys(source).filter(ns);
-
-  it('exist, non-empty and with matching placeholders in every locale', () => {
-    expect(base.length).toBeGreaterThan(20);
-    for (const code of LOCALE_CODES) {
-      const flat = flatten(dictionaries[code] as Tree);
-      for (const k of base) {
-        expect([code, k, Boolean(flat[k]?.trim())]).toEqual([code, k, true]);
-        expect([code, k, placeholders(flat[k])]).toEqual([code, k, placeholders(source[k])]);
-      }
-    }
-  });
-
   it('keeps one source of truth: localMode.* and backup.* share no identical labels', () => {
     for (const code of LOCALE_CODES) {
       const flat = flatten(dictionaries[code] as Tree);

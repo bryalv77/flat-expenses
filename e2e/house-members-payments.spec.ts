@@ -7,6 +7,7 @@ test.describe('flat settings', () => {
     await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Casa Renombrada');
     await page.getByRole('textbox', { name: 'Address', exact: true }).fill('Calle Mayor 1');
     await save(page, 'Save changes');
+    await expect(page.getByText('Saved', { exact: true }).first()).toBeVisible(); // the button stays on screen, so `save` alone can return before the write lands
     await page.reload();
     await tab(page, 'Flat');
     await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue('Casa Renombrada');
