@@ -1,46 +1,51 @@
 import { DEFAULT_LOCALE, isLocale } from '@/i18n/locales';
 import type { Bill, BillFile, ExpenseCategory, House, HouseInvite, HouseMember, HouseRole, MemberPayment, User, UserDocument } from '@/types/domain';
 
+import * as sdk from './api/generated/sdk.gen';
+import type * as Wire from './api/generated/types.gen';
 import type { Api } from './api/types';
-import { ApiError, qs, request } from './http';
+import './apiClient';
+import { ApiError } from './http';
 import { normalizeIconName } from './iconAliases';
 
-const fileOut = (f: { objectKey: string; fileName: string; mimeType: string; sizeBytes: number }): BillFile => ({
+// The wire shapes come from openapi.yaml; the mappers below turn them into the app's domain types.
+const fileOut = (f: Wire.BillFile): BillFile => ({
   storagePath: f.objectKey, fileName: f.fileName, mimeType: f.mimeType, sizeBytes: f.sizeBytes,
 });
-const fileIn = (f: BillFile) => ({ objectKey: f.storagePath, fileName: f.fileName, mimeType: f.mimeType, sizeBytes: f.sizeBytes });
+const fileIn = (f: BillFile): Wire.BillFileRef => ({
+  objectKey: f.storagePath, fileName: f.fileName, mimeType: f.mimeType as Wire.FileMimeType, sizeBytes: f.sizeBytes,
+});
 
-const toHouse = (h: any): House => ({
-  id: h.id, name: h.name, address: h.address ?? null, currency: h.currency, splitMode: h.splitMode,
-  fixedContributionCents: h.fixedContributionCents ?? null, contributionDayOfMonth: h.contributionDayOfMonth ?? null,
-  showBalanceToRoommates: h.showBalanceToRoommates ?? true,
+const toHouse = (h: Wire.House): House => ({
+  id: h.id, name: h.name, address: h.address, currency: h.currency, splitMode: h.splitMode,
+  fixedContributionCents: h.fixedContributionCents, contributionDayOfMonth: h.contributionDayOfMonth,
+  showBalanceToRoommates: h.showBalanceToRoommates,
 });
-const toMember = (m: any): HouseMember => ({
-  id: m.userId, userId: m.userId, displayName: m.displayName ?? '', email: m.email ?? '', photoPath: m.photoKey ?? null,
-  role: m.role, status: m.status, joinedAt: m.joinedAt, removedAt: m.removedAt ?? null,
-  individualContributionCents: m.individualContributionCents ?? null,
+const toMember = (m: Wire.Member): HouseMember => ({
+  id: m.userId, userId: m.userId, displayName: m.displayName ?? '', email: m.email ?? '', photoPath: m.photoKey,
+  role: m.role, status: m.status, joinedAt: m.joinedAt, removedAt: m.removedAt,
+  individualContributionCents: m.individualContributionCents,
 });
-const toCategory = (c: any): ExpenseCategory => ({
-  id: c.id, name: c.name, icon: normalizeIconName(c.icon), color: c.color, amountType: c.amountType,
-  expectedAmountCents: c.expectedAmountCents ?? null, intervalUnit: c.intervalUnit, intervalCount: c.intervalCount,
-  anchorDate: c.anchorDate, isActive: c.isActive, sortOrder: c.sortOrder, notes: c.notes ?? null, names: c.names ?? null,
+const toCategory = (c: Wire.Category): ExpenseCategory => ({
+  id: c.id, name: c.name, icon: normalizeIconName(c.icon as string), color: c.color as string, amountType: c.amountType,
+  expectedAmountCents: c.expectedAmountCents, intervalUnit: c.intervalUnit as ExpenseCategory['intervalUnit'], intervalCount: c.intervalCount as number,
+  anchorDate: c.anchorDate as string, isActive: c.isActive, sortOrder: c.sortOrder, notes: c.notes, names: c.names,
 });
-const toBill = (b: any): Bill => ({
-  id: b.id, categoryId: b.categoryId, amountCents: b.amountCents, chargeDate: b.chargeDate ?? null,
-  periodStartDate: b.periodStartDate ?? null, periodEndDate: b.periodEndDate ?? null,
-  files: (b.files ?? []).map(fileOut), notes: b.notes ?? null, ocrStatus: b.ocrStatus, ocrData: b.ocrData ?? null, createdAt: b.createdAt,
+const toBill = (b: Wire.Bill): Bill => ({
+  id: b.id, categoryId: b.categoryId, amountCents: b.amountCents, chargeDate: b.chargeDate,
+  periodStartDate: b.periodStartDate, periodEndDate: b.periodEndDate,
+  files: b.files.map(fileOut), notes: b.notes, ocrStatus: b.ocrStatus, ocrData: (b.ocrData ?? null) as Bill['ocrData'], createdAt: b.createdAt,
 });
-const toInvite = (i: any): HouseInvite => ({
+const toInvite = (i: Wire.Invite): HouseInvite => ({
   id: i.code, code: i.code, status: i.status, expiresAt: i.expiresAt, maxUses: i.maxUses, usedCount: i.usedCount,
 });
-const toPayment = (p: any): MemberPayment => ({
-  id: p.id, memberId: p.memberId, month: p.month, amountCents: p.amountCents, paidAt: p.paidAt, note: p.note ?? null,
+const toPayment = (p: Wire.Payment): MemberPayment => ({
+  id: p.id, memberId: p.memberId, month: p.month, amountCents: p.amountCents, paidAt: p.paidAt, note: p.note,
 });
-const toDocument = (d: any): UserDocument => ({
+const toDocument = (d: Wire.UserDocument): UserDocument => ({
   id: d.id, type: d.type, storagePath: d.objectKey, fileName: d.fileName, mimeType: d.mimeType, sizeBytes: d.sizeBytes, uploadedAt: d.uploadedAt,
 });
 
-const h = (houseId: string) => `/api/houses/${houseId}`;
 const notFoundAsNull = async <T>(p: Promise<T>): Promise<T | null> =>
   p.catch((e) => {
     if (e instanceof ApiError && e.status === 404) return null;
@@ -50,47 +55,52 @@ const notFoundAsNull = async <T>(p: Promise<T>): Promise<T | null> =>
 export const httpApi: Api = {
   // User. Better Auth owns the email; `upsertUser` only syncs the editable profile fields.
   upsertUser: async (v) => {
-    await request('PATCH', '/api/me', { displayName: v.displayName, locale: v.locale, accountRole: v.accountRole });
+    await sdk.updateMe({ body: { displayName: v.displayName, locale: v.locale, accountRole: v.accountRole } });
   },
   getMe: async (): Promise<User | null> => {
-    const u = await notFoundAsNull(request<any>('GET', '/api/me'));
+    const r = await notFoundAsNull(sdk.getMe());
+    const u = r?.data;
     if (!u) return null;
     const role: HouseRole = u.accountRole === 'ADMIN' ? 'ADMIN' : 'ROOMMATE'; // new accounts start as 'USER'
-    return { id: u.id, email: u.email, displayName: u.name, photoPath: u.photoKey ?? null, accountRole: role, locale: isLocale(u.locale) ? u.locale : DEFAULT_LOCALE };
+    return { id: u.id, email: u.email, displayName: u.name, photoPath: u.photoKey, accountRole: role, locale: isLocale(u.locale) ? u.locale : DEFAULT_LOCALE };
   },
   updateMyProfile: async (v) => {
-    await request('PATCH', '/api/me', { displayName: v.displayName, photoKey: v.photoPath, locale: v.locale, accountRole: v.accountRole });
+    await sdk.updateMe({ body: { displayName: v.displayName, photoKey: v.photoPath, locale: v.locale, accountRole: v.accountRole } });
   },
-  listMyDocuments: async () => (await request<any[]>('GET', '/api/me/documents')).map(toDocument),
+  listMyDocuments: async () => (await sdk.listMyDocuments()).data!.map(toDocument),
   addMyDocument: async (v) => {
-    await request('POST', '/api/me/documents', { id: v.id, type: v.type, objectKey: v.storagePath, fileName: v.fileName, mimeType: v.mimeType, sizeBytes: v.sizeBytes });
+    await sdk.addMyDocument({ body: { id: v.id, type: v.type, objectKey: v.storagePath, fileName: v.fileName, mimeType: v.mimeType as Wire.FileMimeType, sizeBytes: v.sizeBytes } });
   },
-  deleteMyDocument: async (v) => request('DELETE', `/api/me/documents/${v.id}`),
+  deleteMyDocument: async (v) => {
+    await sdk.deleteMyDocument({ path: { id: v.id } });
+  },
 
   // Houses
-  createHouse: async ({ id, ...rest }) => {
-    await request('POST', '/api/houses', { id, ...rest });
+  createHouse: async (v) => {
+    await sdk.createHouse({ body: v });
   },
-  updateHouse: async ({ houseId, ...rest }) => {
-    await request('PATCH', h(houseId), rest);
+  updateHouse: async ({ houseId, ...body }) => {
+    await sdk.updateHouse({ path: { houseId }, body });
   },
-  listMyHouses: async () => (await request<any[]>('GET', '/api/houses')).map((x) => ({ ...toHouse(x), role: x.role as HouseRole })),
+  listMyHouses: async () => (await sdk.listMyHouses()).data!.map((x) => ({ ...toHouse(x), role: x.role })),
   getHouse: async (v) => {
-    const r = await notFoundAsNull(request<{ house: any; members: any[] }>('GET', h(v.houseId)));
-    return r && { house: toHouse(r.house), members: r.members.map(toMember) };
+    const r = await notFoundAsNull(sdk.getHouse({ path: { houseId: v.houseId } }));
+    return r && { house: toHouse(r.data!.house), members: r.data!.members.map(toMember) };
   },
-  deleteHouse: async (v) => request('DELETE', h(v.houseId)), // the Worker also deletes the house's files
+  deleteHouse: async (v) => {
+    await sdk.deleteHouse({ path: { houseId: v.houseId } }); // the Worker also deletes the house's files
+  },
 
   // Members & invites
-  createInvite: async ({ houseId, ...rest }) => {
-    await request('POST', `${h(houseId)}/invites`, rest);
+  createInvite: async ({ houseId, ...body }) => {
+    await sdk.createInvite({ path: { houseId }, body });
   },
   revokeInvite: async (v) => {
-    await request('POST', `${h(v.houseId)}/invites/${v.inviteId}/revoke`);
+    await sdk.revokeInvite({ path: { houseId: v.houseId, code: v.inviteId } });
   },
   listInvites: async (v) => {
     try {
-      return (await request<any[]>('GET', `${h(v.houseId)}/invites`)).map(toInvite);
+      return (await sdk.listInvites({ path: { houseId: v.houseId } })).data!.map(toInvite);
     } catch (e) {
       if (e instanceof ApiError && e.status === 403) return []; // roommates
       throw e;
@@ -98,7 +108,7 @@ export const httpApi: Api = {
   },
   redeemInvite: async (v) => {
     try {
-      await request('POST', '/api/invites/redeem', v);
+      await sdk.redeemInvite({ body: v });
     } catch (e) {
       if (!(e instanceof ApiError)) throw e;
       const messages: Record<string, string> = {
@@ -110,55 +120,63 @@ export const httpApi: Api = {
     }
   },
   removeMember: async ({ houseId, memberId, removedAt }) => {
-    await request('POST', `${h(houseId)}/members/${memberId}/remove`, { removedAt });
+    await sdk.removeMember({ path: { houseId, memberId }, body: { removedAt } });
   },
   reactivateMember: async (v) => {
-    await request('POST', `${h(v.houseId)}/members/${v.memberId}/reactivate`);
+    await sdk.reactivateMember({ path: { houseId: v.houseId, memberId: v.memberId } });
   },
-  createGuestMember: async ({ houseId, ...rest }) => {
-    await request('POST', `${h(houseId)}/members/guests`, rest);
+  createGuestMember: async ({ houseId, ...body }) => {
+    await sdk.createGuestMember({ path: { houseId }, body });
   },
   setMemberContribution: async (v) => {
-    await request('PATCH', `${h(v.houseId)}/members/${v.memberId}`, { individualContributionCents: v.individualContributionCents });
+    await sdk.setMemberContribution({ path: { houseId: v.houseId, memberId: v.memberId }, body: { individualContributionCents: v.individualContributionCents } });
   },
-  leaveHouse: async (v) => request('POST', `${h(v.houseId)}/leave`),
-  listMembers: async (v) => (await request<any[]>('GET', `${h(v.houseId)}/members`)).map(toMember),
+  leaveHouse: async (v) => {
+    await sdk.leaveHouse({ path: { houseId: v.houseId } });
+  },
+  listMembers: async (v) => (await sdk.listMembers({ path: { houseId: v.houseId } })).data!.map(toMember),
 
-  // Categories. Delete rejects with message `CATEGORY_HAS_BILLS` (the server's error code), as before.
-  createCategory: async ({ houseId, ...rest }) => {
-    await request('POST', `${h(houseId)}/categories`, rest);
+  // Categories. Delete rejects with message `CATEGORY_HAS_BILLS` (the server's error code).
+  createCategory: async ({ houseId, ...body }) => {
+    await sdk.createCategory({ path: { houseId }, body });
   },
-  updateCategory: async ({ houseId, id, ...rest }) => {
-    await request('PATCH', `${h(houseId)}/categories/${id}`, rest);
+  updateCategory: async ({ houseId, id, ...body }) => {
+    await sdk.updateCategory({ path: { houseId, categoryId: id }, body });
   },
   archiveCategory: async (v) => {
-    await request('PATCH', `${h(v.houseId)}/categories/${v.id}`, { isActive: v.isActive });
+    await sdk.updateCategory({ path: { houseId: v.houseId, categoryId: v.id }, body: { isActive: v.isActive } });
   },
-  deleteCategory: async (v) => request('DELETE', `${h(v.houseId)}/categories/${v.id}`),
-  listCategories: async (v) => (await request<any[]>('GET', `${h(v.houseId)}/categories`)).map(toCategory),
+  deleteCategory: async (v) => {
+    await sdk.deleteCategory({ path: { houseId: v.houseId, categoryId: v.id } });
+  },
+  listCategories: async (v) => (await sdk.listCategories({ path: { houseId: v.houseId } })).data!.map(toCategory),
   setCategorySortOrder: async (v) => {
-    await request('PATCH', `${h(v.houseId)}/categories/${v.id}`, { sortOrder: v.sortOrder });
+    await sdk.updateCategory({ path: { houseId: v.houseId, categoryId: v.id }, body: { sortOrder: v.sortOrder } });
   },
 
   // Bills (files are uploaded first with uploadFile(), then referenced here)
   createBill: async ({ houseId, files, ...rest }) => {
-    await request('POST', `${h(houseId)}/bills`, { ...rest, files: files?.map(fileIn) });
+    await sdk.createBill({ path: { houseId }, body: { ...rest, files: files?.map(fileIn) } });
   },
   updateBill: async ({ houseId, id, files, ...rest }) => {
-    await request('PATCH', `${h(houseId)}/bills/${id}`, { ...rest, files: files?.map(fileIn) });
+    await sdk.updateBill({ path: { houseId, billId: id }, body: { ...rest, files: files?.map(fileIn) } });
   },
-  deleteBill: async (v) => request('DELETE', `${h(v.houseId)}/bills/${v.id}`),
+  deleteBill: async (v) => {
+    await sdk.deleteBill({ path: { houseId: v.houseId, billId: v.id } });
+  },
   getBill: async (v) => {
-    const b = await notFoundAsNull(request<any>('GET', `${h(v.houseId)}/bills/${v.id}`));
-    return b && toBill(b);
+    const r = await notFoundAsNull(sdk.getBill({ path: { houseId: v.houseId, billId: v.id } }));
+    return r && toBill(r.data!);
   },
   listBills: async (v) =>
-    (await request<any[]>('GET', `${h(v.houseId)}/bills${qs({ from: v.from, to: v.to, categoryId: v.categoryId })}`)).map(toBill),
+    (await sdk.listBills({ path: { houseId: v.houseId }, query: { from: v.from, to: v.to, categoryId: v.categoryId } })).data!.map(toBill),
 
   // Payments
-  recordPayment: async ({ houseId, ...rest }) => {
-    await request('POST', `${h(houseId)}/payments`, rest);
+  recordPayment: async ({ houseId, ...body }) => {
+    await sdk.recordPayment({ path: { houseId }, body });
   },
-  deletePayment: async (v) => request('DELETE', `${h(v.houseId)}/payments/${v.id}`),
-  listPayments: async (v) => (await request<any[]>('GET', `${h(v.houseId)}/payments${qs({ from: v.from, to: v.to })}`)).map(toPayment),
+  deletePayment: async (v) => {
+    await sdk.deletePayment({ path: { houseId: v.houseId, paymentId: v.id } });
+  },
+  listPayments: async (v) => (await sdk.listPayments({ path: { houseId: v.houseId }, query: { from: v.from, to: v.to } })).data!.map(toPayment),
 };

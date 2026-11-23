@@ -2,7 +2,9 @@ import { randomUUID } from 'expo-crypto';
 import * as ImageManipulator from 'expo-image-manipulator';
 
 import { parseFileKey, type FileKind } from './fileKeys';
-import { API_URL, ApiError, authHeader, request } from './http';
+import { deleteFile as deleteFileRequest, signFileUrl } from './api/generated/sdk.gen';
+import './apiClient';
+import { API_URL, ApiError, authHeader } from './http';
 import { DOCUMENT_MIME_TYPES, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES, MAX_FILE_BYTES } from './limits';
 
 export type { FileKind };
@@ -136,10 +138,13 @@ async function uploadToApi(storagePath: string, file: PickedFile, blob: Blob, on
 /** Download URL for a stored path; the Worker only signs links for house members. */
 export async function getFileUrl(storagePath: string): Promise<string> {
   // <Image> can't send an Authorization header, so the Worker hands out a signed link (valid 1 h, like the 50 min cache in useFileUrl).
-  return (await request<{ url: string }>('POST', '/api/files/sign', { key: storagePath })).url;
+  return (await signFileUrl({ body: { key: storagePath } })).data!.url;
 }
 
-export const deleteFile = (storagePath: string): Promise<void> => request('DELETE', `/api/files/${storagePath}`); // idempotent on the Worker
+/** Idempotent on the Worker. */
+export const deleteFile = async (storagePath: string): Promise<void> => {
+  await deleteFileRequest({ path: { key: storagePath } });
+};
 
 export function newId(): string {
   return randomUUID();

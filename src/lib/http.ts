@@ -1,4 +1,4 @@
-// Client for the Worker API (issue #7). `EXPO_PUBLIC_API_URL` empty => no cloud, the app only works in local mode.
+// Worker API settings (issue #7); the client itself is generated from openapi.yaml (see apiClient.ts). `EXPO_PUBLIC_API_URL` empty => no cloud, the app only works in local mode.
 // NOTE: Expo only inlines literal `process.env.EXPO_PUBLIC_*` accesses.
 export const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, '') ?? '';
 /** Where the hosted web app lives: password-reset emails send people to `${WEB_URL}/reset-password`. */
@@ -26,22 +26,4 @@ export class ApiError extends Error {
 export const authHeader = async (): Promise<Record<string, string>> => {
   const token = await tokenProvider();
   return token ? { authorization: `Bearer ${token}` } : {};
-};
-
-export async function request<T = void>(method: string, path: string, body?: unknown): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers: { ...(await authHeader()), ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = (await res.json().catch(() => null)) as { error?: string } | null;
-    throw new ApiError(res.status, err?.error ?? `http_${res.status}`);
-  }
-  return (res.status === 204 ? undefined : await res.json()) as T;
-}
-
-export const qs = (params: Record<string, string | undefined>) => {
-  const q = new URLSearchParams(Object.entries(params).filter((e): e is [string, string] => e[1] !== undefined));
-  return `?${q}`;
 };

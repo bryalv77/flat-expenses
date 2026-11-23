@@ -12,6 +12,12 @@ Roles: **admin** (creates the flat, categories, bills, invites, payments) and **
 - `src/lib` — API client and data layer (Worker API client, local SQLite backend), storage helpers, formatting, UI store (Zustand).
 - `worker/` — the Cloudflare Worker API (Hono, Drizzle, Neon Postgres, R2, Better Auth); see `worker/README.md`. `docs/*-api.md` list module APIs.
 
+## API contract
+
+`openapi.yaml` is the single source of truth for the Worker API: paths, request and response schemas, enums and limits. `pnpm gen:api` generates from it the zod schemas, TypeScript types and HTTP client for the app (`src/lib/api/generated`) and the zod schemas and types for the Worker (`worker/src/generated`; the Worker has its own zod install, hence its own copy). Never edit generated files; CI fails when they are out of date.
+
+To change the API: edit `openapi.yaml`, run `pnpm gen:api`, then update the Worker route and `src/lib/apiHttp.ts` the compiler points at. Rules a schema cannot express (a FIXED category needs an amount, language codes in `names`, trimming) live in `src/lib/api/rules.ts`. `src/lib/limits.ts` holds the few limits SQL and the UI need too; `src/lib/api/limits.test.ts` keeps them equal to the contract.
+
 ## Run
 
 ```bash

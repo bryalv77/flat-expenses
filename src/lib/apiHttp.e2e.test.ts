@@ -14,15 +14,24 @@ const URL_ = process.env.API_E2E_URL;
 if (!URL_) throw new Error('API_E2E_URL is not set: start the Worker (cd worker && pnpm dev:local) and run `API_E2E_URL=http://localhost:8787 pnpm test:api`.');
 
 // jest-expo swaps `fetch` for a native-backed mock that never reaches the network, so this test brings a tiny real one.
-const realFetch = (url: string, init: { method?: string; headers?: Record<string, string>; body?: string | Uint8Array } = {}) =>
-  new Promise<{ ok: boolean; status: number; json: () => Promise<unknown>; text: () => Promise<string> }>((resolve, reject) => {
+type RealInit = { method?: string; headers?: Record<string, string>; body?: string | Uint8Array };
+const realFetch = async (input: string | Request, init: RealInit = {}) => {
+  // The generated client calls fetch(Request); plain calls pass (url, init).
+  if (typeof input !== 'string') {
+    const body = input.method === 'GET' || input.method === 'HEAD' ? undefined : new Uint8Array(await input.arrayBuffer());
+    return realFetchInit(input.url, { method: input.method, headers: Object.fromEntries(input.headers.entries()), body: body?.length ? body : undefined });
+  }
+  return realFetchInit(input, init);
+};
+const realFetchInit = (url: string, init: RealInit) =>
+  new Promise<{ ok: boolean; status: number; headers: { get: (n: string) => string | null }; json: () => Promise<unknown>; text: () => Promise<string> }>((resolve, reject) => {
     const req = nodeHttp.request(url, { method: init.method ?? 'GET', headers: init.headers }, (res) => {
       const chunks: Buffer[] = [];
       res.on('data', (c: Buffer) => chunks.push(c));
       res.on('end', () => {
         const text = Buffer.concat(chunks).toString('utf8');
         const status = res.statusCode ?? 0;
-        resolve({ ok: status >= 200 && status < 300, status, text: async () => text, json: async () => JSON.parse(text) });
+        resolve({ ok: status >= 200 && status < 300, status, headers: { get: (n) => (res.headers[n.toLowerCase()] as string | undefined) ?? null }, text: async () => text, json: async () => JSON.parse(text) });
       });
     });
     req.on('error', reject);
@@ -33,7 +42,7 @@ const run = Math.random().toString(36).slice(2, 8);
 describe('httpApi against the Worker', () => {
   let api: typeof import('./db').api;
   let http: typeof import('./http');
-  let request: typeof import('./http').request;
+  let sdk: typeof import('./api/generated/sdk.gen');
   const uid = () => crypto.randomUUID();
 
   beforeAll(async () => {
@@ -41,7 +50,8 @@ describe('httpApi against the Worker', () => {
     global.fetch = realFetch as unknown as typeof fetch;
     // require, not import(): jest runs CommonJS here, and EXPO_PUBLIC_API_URL must be set before http.ts is first loaded.
     http = require('./http');
-    request = http.request;
+    sdk = require('./api/generated/sdk.gen');
+    require('./apiClient');
     api = require('./apiHttp').httpApi;
     const res = await fetch(`${URL_}/api/auth/sign-up/email`, {
       method: 'POST',
@@ -73,7 +83,7 @@ describe('httpApi against the Worker', () => {
     // bills with an uploaded file: storagePath <-> objectKey
     const billId = uid();
     const key = `houses/${houseId}/bills/${billId}/inv.png`;
-    const link = await request<{ url: string }>('POST', '/api/files/sign', { key }); // signing needs no object, but proves auth + key rules
+    const link = (await sdk.signFileUrl({ body: { key } })).data!; // signing needs no object, but proves auth + key rules
     expect(link.url).toContain(`/api/files/${key}?exp=`);
     const body = new Uint8Array(64);
     const up = await fetch(`${URL_}/api/files/${key}`, { method: 'PUT', headers: { 'content-type': 'image/png', ...(await http.authHeader()) }, body });
@@ -83,10 +93,18 @@ describe('httpApi against the Worker', () => {
     expect(bill).toMatchObject({ id: billId, amountCents: 5000, chargeDate: '2026-03-15', notes: null, files: [{ storagePath: key, fileName: 'inv.png', sizeBytes: 64 }] });
     expect(await api.listBills({ houseId, from: '2026-03-01', to: '2026-03-31', categoryId })).toHaveLength(1);
     await expect(api.deleteCategory({ houseId, id: categoryId })).rejects.toThrow('CATEGORY_HAS_BILLS');
-    const signed = (await request<{ url: string }>('POST', '/api/files/sign', { key })).url;
+    const signed = (await sdk.signFileUrl({ body: { key } })).data!.url;
     expect((await fetch(signed)).status).toBe(200); // <Image> style: no Authorization header
     await api.updateBill({ houseId, id: billId, files: [] });
     expect((await fetch(signed)).status).toBe(404); // dropped from the bill => object deleted
+
+    // deleting by key: the key's slashes must survive the generated client's path encoding
+    const key2 = `houses/${houseId}/bills/${billId}/other.png`;
+    await fetch(`${URL_}/api/files/${key2}`, { method: 'PUT', headers: { 'content-type': 'image/png', ...(await http.authHeader()) }, body });
+    const signed2 = (await sdk.signFileUrl({ body: { key: key2 } })).data!.url;
+    expect((await fetch(signed2)).status).toBe(200);
+    await (require('./storage') as typeof import('./storage')).deleteFile(key2);
+    expect((await fetch(signed2)).status).toBe(404);
 
     // invites and members
     const code = 'K7QXM' + 'A'.repeat(3);
