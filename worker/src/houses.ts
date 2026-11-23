@@ -140,7 +140,7 @@ housesApp.post('/:id/invites', guardAdmin, async (c) => {
   const { code = newCode(), ...rest } = { ...b.data, expiresAt: expiresAt! };
   const [inv] = await c.var.db.insert(invites).values({ code, houseId: houseId(c), status: 'ACTIVE', createdBy: c.var.uid, ...rest })
     .onConflictDoNothing().returning();
-  return inv ? c.json(inv, 201) : c.json({ error: 'code_taken' }, 409); // a client-chosen code can collide; the app retries
+  return inv ? c.json(inv, 201) : c.json({ error: 'code_taken' }, 409); // a client-chosen code can collide (1 in 31^8)
 });
 
 housesApp.post('/:id/invites/:code/revoke', guardAdmin, async (c) => {

@@ -84,11 +84,7 @@ export async function uploadFile(
 ): Promise<UploadedFile> {
   const blob = await (await fetch(file.uri)).blob();
   validateFile({ mimeType: file.mimeType, size: blob.size }, kindOfKey(storagePath));
-  return uploadToApi(storagePath, file, blob, onProgress);
-}
-
-/** PUT to the Worker (issue #7 §6). XHR rather than fetch so upload progress still works. */
-async function uploadToApi(storagePath: string, file: PickedFile, blob: Blob, onProgress?: (fraction: number) => void): Promise<UploadedFile> {
+  // PUT to the Worker (issue #7 §6): XHR rather than fetch so upload progress still works.
   const headers = await authHeader();
   await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();

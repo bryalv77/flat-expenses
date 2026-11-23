@@ -1,12 +1,10 @@
-import { sanitizeFileName } from './fileKeys';
+import { isSafeKey, sanitizeFileName } from './fileKeys';
 import { kindOfKey, validateFile, type PickedFile, type UploadedFile } from './storage';
 
 /** Rejects empty, absolute, backslash and `.`/`..`/empty-segment keys. A trailing slash is allowed for folders. */
 export function assertSafeKey(key: string, { folder = false } = {}): string {
   const k = folder ? key.replace(/\/$/, '') : key;
-  if (!k || k.startsWith('/') || /[\\\0]/.test(k) || /^[a-zA-Z]:/.test(k) || k.split('/').some((s) => s === '' || s === '.' || s === '..')) {
-    throw new Error(`Invalid file key: ${key}`);
-  }
+  if (!isSafeKey(k)) throw new Error(`Invalid file key: ${key}`);
   return k;
 }
 

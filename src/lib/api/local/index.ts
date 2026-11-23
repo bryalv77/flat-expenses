@@ -8,7 +8,7 @@ import { makePaymentsApi } from './payments';
 import type { SqlDb } from './sql';
 import { makeUserApi } from './user';
 
-export class NotImplementedError extends Error {
+class NotImplementedError extends Error {
   constructor(what: string) {
     super(`Not implemented: ${what}`);
     this.name = 'NotImplementedError';

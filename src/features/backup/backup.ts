@@ -2,6 +2,7 @@ import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 
 import { migrations } from '@/lib/api/local/migrations';
 import type { SqlDb, SqlParam } from '@/lib/api/local/sql';
+import { isSafeKey } from '@/lib/fileKeys';
 
 /** Archive layout: `data.json` + `files/<key>`. Import REPLACES all local data (it is a restore, not a merge). */
 export type BackupErrorCode = 'corrupt' | 'invalid' | 'newer-version' | 'too-large';
@@ -67,7 +68,6 @@ export async function exportBackup(db: SqlDb, files: BackupFiles): Promise<Uint8
   return zipSync(entries);
 }
 
-const safeKey = (k: string) => !!k && !k.startsWith('/') && !/[\\\0]/.test(k) && !/^[a-zA-Z]:/.test(k) && !k.split('/').some((s) => s === '' || s === '.' || s === '..');
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 const invalid = (m: string) => new BackupError('invalid', m);
 
@@ -91,7 +91,7 @@ function parse(archive: Uint8Array): { payload: Payload; files: Record<string, U
   for (const [name, bytes] of Object.entries(entries)) {
     if (name === 'data.json' || name.endsWith('/') && bytes.length === 0) continue;
     const key = name.startsWith('files/') ? name.slice(6) : '';
-    if (!safeKey(key)) throw invalid(`Unexpected entry: ${name}`);
+    if (!isSafeKey(key)) throw invalid(`Unexpected entry: ${name}`);
     files[key] = bytes;
   }
   if (!entries['data.json']) throw new BackupError('corrupt', 'data.json is missing');

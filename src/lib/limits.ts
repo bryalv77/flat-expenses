@@ -18,4 +18,5 @@ export const INVITE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 export const INVITE_CODE_LENGTH = 8;
 
 /** Roommates without an account: `guest_` + a dash-less UUID (the `GuestId` schema in openapi.yaml). */
+export const isGuestId = (id: string): boolean => id.startsWith('guest_');
 export const newGuestId = (uuid: string): string => `guest_${uuid.replace(/-/g, '')}`;

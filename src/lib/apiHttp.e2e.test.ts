@@ -110,8 +110,8 @@ describe('httpApi against the Worker', () => {
     const code = 'K7QXM' + 'A'.repeat(3);
     await api.createInvite({ houseId, code, expiresAt: new Date(Date.now() + 864e5).toISOString(), maxUses: 2 });
     expect(await api.listInvites({ houseId })).toEqual([expect.objectContaining({ id: code, code, status: 'ACTIVE', usedCount: 0, maxUses: 2 })]);
-    await expect(api.redeemInvite({ code })).rejects.toThrow('Already a member'); // we are the admin
-    await expect(api.redeemInvite({ code: 'ZZZZZZZZ' })).rejects.toThrow('Invalid invite code');
+    await expect(api.redeemInvite({ code })).rejects.toThrow('already_member'); // we are the admin
+    await expect(api.redeemInvite({ code: 'ZZZZZZZZ' })).rejects.toThrow('invalid_code');
     await api.revokeInvite({ houseId, inviteId: code });
     const guestId = 'guest_' + uid().replace(/-/g, '');
     await api.createGuestMember({ houseId, id: guestId, displayName: 'Bea', joinedAt: '2026-01-01', removedAt: null, individualContributionCents: null });

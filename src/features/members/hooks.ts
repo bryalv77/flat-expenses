@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { DAY_MS } from '@/lib/dates';
 import { api } from '@/lib/db';
-import { newGuestId } from '@/lib/limits';
+import { isGuestId, newGuestId } from '@/lib/limits';
 import { newId } from '@/lib/storage';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
@@ -125,9 +125,8 @@ export function useSetMemberContribution(houseId: string) {
   );
 }
 
-const GUEST_PREFIX = 'guest_';
 /** Roommates registered by an admin without an account (past or present flatmates). */
-export const isGuestMember = (m: { id: string }) => m.id.startsWith(GUEST_PREFIX);
+export const isGuestMember = (m: { id: string }) => isGuestId(m.id);
 
 export function useCreateGuestMember(houseId: string) {
   const qc = useQueryClient();

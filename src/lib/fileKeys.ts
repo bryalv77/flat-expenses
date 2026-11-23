@@ -46,3 +46,7 @@ export const storagePaths = {
   bill: (houseId: string, billId: string, fileName: string) =>
     `houses/${houseId}/bills/${billId}/${sanitizeFileName(fileName)}`,
 };
+
+/** Rejects empty, absolute, backslash, drive-letter and `.`/`..`/empty-segment keys (zip entries, local file paths). */
+export const isSafeKey = (k: string): boolean =>
+  !!k && !k.startsWith('/') && !/[\\\0]/.test(k) && !/^[a-zA-Z]:/.test(k) && !k.split('/').some((s) => s === '' || s === '.' || s === '..');

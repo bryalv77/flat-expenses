@@ -107,17 +107,7 @@ export const httpApi: Api = {
     }
   },
   redeemInvite: async (v) => {
-    try {
-      await sdk.redeemInvite({ body: v });
-    } catch (e) {
-      if (!(e instanceof ApiError)) throw e;
-      const messages: Record<string, string> = {
-        invalid_code: 'Invalid invite code',
-        invite_unavailable: 'Invite is no longer active',
-        already_member: 'Already a member of this house',
-      };
-      throw new Error(messages[e.message] ?? e.message);
-    }
+    await sdk.redeemInvite({ body: v });
   },
   removeMember: async ({ houseId, memberId, removedAt }) => {
     await sdk.removeMember({ path: { houseId, memberId }, body: { removedAt } });
