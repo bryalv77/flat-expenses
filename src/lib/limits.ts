@@ -6,6 +6,7 @@ export const MAX_AMOUNT_CENTS = 9_999_999;
 /** Max for configuration amounts (expected/fixed/individual contributions), in cents. */
 export const MAX_CONFIG_CENTS = 10_000_000;
 export const MAX_NOTES = 1000;
+export const MAX_BILL_FILES = 5;
 export const MAX_MEMBERS_LIST = 100;
 export const MAX_CATEGORIES_LIST = 200;
 
@@ -16,3 +17,7 @@ export const DOCUMENT_MIME_TYPES = [...IMAGE_MIME_TYPES, 'application/pdf'] as c
 /** No 0/O/1/I/L to avoid confusion when typing codes by hand. */
 export const INVITE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 export const INVITE_CODE_LENGTH = 8;
+
+/** Roommates without an account: `guest_` + a dash-less UUID. Same rule in the app, the local backend and the Worker. */
+export const GUEST_ID = /^guest_[0-9a-f]{32}$/;
+export const newGuestId = (uuid: string): string => `guest_${uuid.replace(/-/g, '')}`;

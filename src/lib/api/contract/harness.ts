@@ -1,3 +1,4 @@
+import { newGuestId } from '../../limits';
 import type { Api, CategoryInput } from '../types';
 
 /**
@@ -16,7 +17,7 @@ export interface Ctx {
 }
 
 export const uuid = (): string => crypto.randomUUID();
-export const guestId = (): string => `guest_${uuid().replace(/-/g, '')}`;
+export const guestId = (): string => newGuestId(uuid());
 export const today = (): string => new Date().toISOString().slice(0, 10);
 
 /** Registers beforeEach/afterEach for the current describe; the backend may be shared, so tests never assume it is empty. */

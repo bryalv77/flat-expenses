@@ -2,7 +2,7 @@ import { and, asc, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
-import { MAX_CONFIG_CENTS } from './config';
+import { MAX_CATEGORIES_LIST, MAX_CONFIG_CENTS } from './config';
 import { bills, categories } from './db/schema';
 import { houseId, noContentOr404, notFound, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
@@ -34,7 +34,7 @@ const where = (houseId: string, id: string) => and(eq(categories.houseId, houseI
 
 categoriesApp.get('/', guardMember, async (c) =>
   c.json(await c.var.db.select().from(categories).where(eq(categories.houseId, houseId(c)))
-    .orderBy(asc(categories.sortOrder), asc(categories.name)).limit(200)),
+    .orderBy(asc(categories.sortOrder), asc(categories.name)).limit(MAX_CATEGORIES_LIST)),
 );
 
 categoriesApp.post('/', guardAdmin, async (c) => {

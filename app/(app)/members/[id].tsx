@@ -10,7 +10,7 @@ import { useMyMember } from '@/features/houses/useMyMember';
 import { isGuestMember, useReactivateMember, useRemoveMember, useSetMemberContribution } from '@/features/members/hooks';
 import { MemberAvatar } from '@/features/members/MemberAvatar';
 import { useT } from '@/i18n';
-import { todayISO } from '@/lib/dates';
+import { dayOf, todayISO } from '@/lib/dates';
 import { formatDate, formatMoney } from '@/lib/format';
 import { spacing } from '@/theme';
 

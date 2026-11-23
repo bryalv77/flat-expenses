@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { billFiles, bills, categories } from './db/schema';
-import { DOCUMENT_MIME_TYPES, MAX_CENTS, MAX_LIST } from './config';
+import { DOCUMENT_MIME_TYPES, MAX_BILL_FILES, MAX_CENTS, MAX_LIST, MAX_NOTES } from './config';
 import { MAX_BYTES, deleteObjects, parseKey } from './files';
 import { houseId, notFound, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
@@ -21,13 +21,13 @@ const fileRef = z.object({
   sizeBytes: z.number().int().min(0).max(MAX_BYTES.bill),
 }).strict();
 const shape = z.object({
-  files: z.array(fileRef).max(5),
+  files: z.array(fileRef).max(MAX_BILL_FILES),
   categoryId: z.uuid(),
   amountCents: z.number().int().min(1).max(MAX_CENTS),
   chargeDate: date.nullable(),
   periodStartDate: date.nullable(),
   periodEndDate: date.nullable(),
-  notes: z.string().max(1000).nullable(),
+  notes: z.string().max(MAX_NOTES).nullable(),
 });
 const create = shape.extend({ id: z.uuid() }).partial({ id: true, files: true, chargeDate: true, periodStartDate: true, periodEndDate: true, notes: true }).strict();
 const update = shape.partial().strict();

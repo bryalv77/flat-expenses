@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import type { HouseMember } from '@/types/domain';
 
-import { MAX_CONFIG_CENTS, MAX_MEMBERS_LIST } from '../../limits';
+import { GUEST_ID, MAX_CONFIG_CENTS, MAX_MEMBERS_LIST } from '../../limits';
 import type { Api } from '../types';
 import type { LocalCtx } from './ctx';
 
@@ -28,7 +28,7 @@ const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const cents = z.number().int().min(0).max(MAX_CONFIG_CENTS).nullable();
 const guestSchema = z.object({
   houseId: z.string(),
-  id: z.string().regex(/^guest_[A-Za-z0-9]{12,40}$/),
+  id: z.string().regex(GUEST_ID),
   displayName: z.string().trim().min(1).max(100),
   joinedAt: day,
   removedAt: day.nullable(),

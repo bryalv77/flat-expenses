@@ -83,8 +83,6 @@ export interface ExpenseCategory {
   baseName?: string;
 }
 
-export const MAX_BILL_FILES = 5;
-
 export interface BillFile {
   storagePath: string;
   fileName: string;

@@ -7,7 +7,7 @@ import { categoriesApp } from './categories';
 import { paymentsApp } from './payments';
 import { houses, invites, members } from './db/schema';
 import { purgePrefix } from './files';
-import { GUEST_ID, INVITE_ALPHABET, INVITE_CODE, INVITE_CODE_LENGTH } from './config';
+import { GUEST_ID, INVITE_ALPHABET, INVITE_CODE, INVITE_CODE_LENGTH, MAX_MEMBERS_LIST, newGuestId } from './config';
 import { houseId, parseJson, readBody, rowOr404 } from './http';
 import { guardAdmin, guardMember, session, type AppEnv } from './middleware';
 
@@ -58,7 +58,7 @@ housesApp.post('/', async (c) => {
 housesApp.get('/:id', guardMember, async (c) => {
   const id = houseId(c);
   const [house] = await c.var.db.select().from(houses).where(eq(houses.id, id));
-  const list = await c.var.db.select().from(members).where(eq(members.houseId, id)).orderBy(asc(members.joinedAt)).limit(100);
+  const list = await c.var.db.select().from(members).where(eq(members.houseId, id)).orderBy(asc(members.joinedAt)).limit(MAX_MEMBERS_LIST);
   return c.json({ house, members: list });
 });
 
@@ -83,7 +83,7 @@ const target = (c: Context) =>
   and(eq(members.houseId, houseId(c)), eq(members.userId, c.req.param('memberId') ?? ''));
 
 housesApp.get('/:id/members', guardMember, async (c) =>
-  c.json(await c.var.db.select().from(members).where(eq(members.houseId, houseId(c))).orderBy(asc(members.joinedAt)).limit(100)),
+  c.json(await c.var.db.select().from(members).where(eq(members.houseId, houseId(c))).orderBy(asc(members.joinedAt)).limit(MAX_MEMBERS_LIST)),
 );
 
 // Admin registers a roommate without an account (id guest_…); dates may be historical.
@@ -97,7 +97,7 @@ housesApp.post('/:id/members/guests', guardAdmin, async (c) => {
   }));
   if (b.res) return b.res;
   const [m] = await c.var.db.insert(members).values({
-    houseId: houseId(c), userId: b.data.id ?? `guest_${crypto.randomUUID().replaceAll('-', '')}`, role: 'ROOMMATE',
+    houseId: houseId(c), userId: b.data.id ?? newGuestId(crypto.randomUUID()), role: 'ROOMMATE',
     status: b.data.removedAt ? 'REMOVED' : 'ACTIVE', joinedAt: b.data.joinedAt, removedAt: b.data.removedAt,
     individualContributionCents: b.data.individualContributionCents, displayName: b.data.displayName, email: '',
   }).returning();

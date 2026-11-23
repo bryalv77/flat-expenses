@@ -19,7 +19,8 @@ import {
 import { useT } from '@/i18n';
 import { compareISO } from '@/lib/dates';
 import { spacing, useTheme } from '@/theme';
-import { MAX_BILL_FILES, type Bill, type BillFile, type ExpenseCategory } from '@/types/domain';
+import { MAX_BILL_FILES } from '@/lib/limits';
+import type { Bill, BillFile, ExpenseCategory } from '@/types/domain';
 
 import { BillFilePreview } from './BillFilePreview';
 

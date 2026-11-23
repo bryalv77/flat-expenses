@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { Bill, BillFile } from '@/types/domain';
 
 import type { Api } from '../types';
-import { MAX_AMOUNT_CENTS, MAX_LIST, MAX_NOTES } from '../../limits';
+import { MAX_AMOUNT_CENTS, MAX_BILL_FILES, MAX_LIST, MAX_NOTES } from '../../limits';
 import type { LocalCtx } from './ctx';
 import type { SqlParam } from './sql';
 
@@ -14,7 +14,7 @@ const fileRef = z.object({
   sizeBytes: z.number().int().min(0),
 });
 const shape = z.object({
-  files: z.array(fileRef).max(5),
+  files: z.array(fileRef).max(MAX_BILL_FILES),
   categoryId: z.string().min(1),
   amountCents: z.number().int().min(1).max(MAX_AMOUNT_CENTS),
   chargeDate: z.iso.date().nullable(),

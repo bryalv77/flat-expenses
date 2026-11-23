@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { DAY_MS } from '@/lib/dates';
 import { api } from '@/lib/db';
+import { newGuestId } from '@/lib/limits';
 import { newId } from '@/lib/storage';
 import { optimisticOptions } from '@/lib/optimistic';
 import { qk } from '@/lib/queryKeys';
@@ -124,7 +125,7 @@ export function useSetMemberContribution(houseId: string) {
   );
 }
 
-export const GUEST_PREFIX = 'guest_';
+const GUEST_PREFIX = 'guest_';
 /** Roommates registered by an admin without an account (past or present flatmates). */
 export const isGuestMember = (m: { id: string }) => m.id.startsWith(GUEST_PREFIX);
 
@@ -132,7 +133,7 @@ export function useCreateGuestMember(houseId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (v: { displayName: string; joinedAt: string; removedAt: string | null; individualContributionCents: number | null }) =>
-      api.createGuestMember({ ...v, houseId, id: GUEST_PREFIX + newId().replace(/-/g, '') }),
+      api.createGuestMember({ ...v, houseId, id: newGuestId(newId()) }),
     onSuccess: () => Promise.all([qc.invalidateQueries({ queryKey: qk.members(houseId) }), qc.invalidateQueries({ queryKey: qk.house(houseId) })]),
   });
 }
