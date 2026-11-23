@@ -56,7 +56,8 @@
       "expo-localization",
       "expo-secure-store",
       "expo-sqlite",
-      "./plugins/withExcludeLocalDataFromBackup"
+      "./plugins/withExcludeLocalDataFromBackup",
+      "./plugins/withUISceneLifecycle"
     ],
     "experiments": {
       "typedRoutes": true,
