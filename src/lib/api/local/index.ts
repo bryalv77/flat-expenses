@@ -8,17 +8,13 @@ import { makePaymentsApi } from './payments';
 import type { SqlDb } from './sql';
 import { makeUserApi } from './user';
 
-class NotImplementedError extends Error {
-  constructor(what: string) {
-    super(`Not implemented: ${what}`);
-    this.name = 'NotImplementedError';
-  }
-}
-
 /** Methods that only make sense with an account; local mode refuses them instead of faking them. */
 const UNAVAILABLE = [
   'listMyDocuments', 'addMyDocument', 'deleteMyDocument', 'createInvite', 'revokeInvite', 'listInvites', 'redeemInvite', 'leaveHouse',
-] as const;
+] as const satisfies readonly (keyof Api)[];
+const unavailable = Object.fromEntries(
+  UNAVAILABLE.map((name) => [name, async () => { throw new Error(`${name} is not available in local mode`); }]),
+);
 
 export function createLocalApi(
   db: SqlDb,
@@ -31,16 +27,11 @@ export function createLocalApi(
     deleteFiles: opts.deleteFiles ?? (async () => undefined),
     deleteFolder: opts.deleteFolder ?? (async () => undefined),
   };
-  const impl: Record<string, unknown> = {
+  return {
+    ...unavailable,
     ...makeUserApi(ctx), ...makeHousesApi(ctx), ...makeMembersApi(ctx),
     ...makeCategoriesApi(ctx), ...makeBillsApi(ctx), ...makePaymentsApi(ctx),
-  };
-  // Anything not (yet) implemented rejects with a clear error instead of `undefined is not a function`.
-  return new Proxy(impl as unknown as Api, {
-    get: (t, name) => (name in t || name === 'then' || typeof name === 'symbol' ? (t as never)[name] : async () => {
-      throw new NotImplementedError(`localApi.${String(name)}${(UNAVAILABLE as readonly string[]).includes(String(name)) ? ' (not available in local mode)' : ''}`);
-    }),
-  });
+  } as Api;
 }
 
 /** App singleton: opens the on-device database on first use. */
