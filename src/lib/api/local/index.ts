@@ -50,7 +50,14 @@ export const localApi: Api = new Proxy({} as Api, {
   get: (_t, name) => (name === 'then' || typeof name === 'symbol') ? undefined : async (...args: unknown[]) => {
     // require, not import(): Jest's VM rejects dynamic import(); lazy so tests never load expo-sqlite.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    pending ??= (require('./sql.expo') as typeof import('./sql.expo')).getLocalDb().then((db) => createLocalApi(db));
+    pending ??= (require('./sql.expo') as typeof import('./sql.expo')).getLocalDb().then((db) => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { localFileStore } = require('../../fileStore.local') as typeof import('../../fileStore.local');
+      return createLocalApi(db, {
+        deleteFiles: async (paths) => void (await Promise.all(paths.map((p) => localFileStore.delete(p)))),
+        deleteFolder: (prefix) => localFileStore.deleteFolder!(prefix),
+      });
+    });
     const api = await pending;
     return (api as never as Record<string, (...a: unknown[]) => unknown>)[name as string](...args);
   },
