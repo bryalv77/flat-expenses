@@ -42,7 +42,6 @@ export default function JoinHouseScreen() {
       haptics.success();
       router.replace('/(app)/(tabs)' as Href);
     } catch {
-      haptics.error();
       setError(t('onboarding.invalidCode'));
       toast.error(t('onboarding.invalidCode'));
     }

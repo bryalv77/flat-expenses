@@ -21,7 +21,6 @@ import {
 import { useAddDocument, useDeleteDocument, useMyDocuments } from '@/features/profile/hooks';
 import { useT, type TranslationKey } from '@/i18n';
 import { formatDate, formatFileSize } from '@/lib/format';
-import { haptics } from '@/lib/haptics';
 import { FileValidationError, getFileUrl } from '@/lib/storage';
 import { spacing } from '@/theme';
 import type { DocumentType, UserDocument } from '@/types/domain';
@@ -66,7 +65,6 @@ export default function DocumentsScreen() {
       toast.success(t('account.uploaded'));
       setFormOpen(false);
     } catch (e) {
-      haptics.error();
       const key: TranslationKey =
         e instanceof FileValidationError ? (e.code === 'too-large' ? 'errors.fileTooLarge' : 'errors.fileType') : 'errors.generic';
       toast.error(t(key));

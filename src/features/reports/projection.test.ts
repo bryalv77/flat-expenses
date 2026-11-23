@@ -114,5 +114,6 @@ describe('projectMonth', () => {
       house,
     });
     expect(p.perCategory).toHaveLength(0);
+    expect(p.confidence).toBe('LOW');
   });
 });

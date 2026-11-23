@@ -36,8 +36,6 @@ export interface SyncDeps {
   onProgress?: (done: number, total: number) => void;
 }
 
-/** A member `joinedAt`/`removedAt` is an ISO datetime in local mode; the cloud guest API wants a day. */
-
 /** Reads every local house with its full content. */
 export async function readLocalHouses(local: Api): Promise<LocalHouseData[]> {
   const houses = await local.listMyHouses();
