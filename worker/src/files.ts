@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
-import { z } from 'zod';
 
 import { parseFileKey, type FileKind } from '../../src/lib/fileKeys';
 import type { Db } from './db/client';
 import { DOCUMENT_MIME_TYPES, IMAGE_MIME_TYPES, MAX_AVATAR_BYTES, MAX_FILE_BYTES } from './config';
+import { zSignFileUrlBody } from './generated/zod.gen';
 import { isUuid, parseJson } from './http';
 import { membership, session, type AppEnv } from './middleware';
 
@@ -58,7 +58,7 @@ const unhex = (h: string) => Uint8Array.from(h.match(/../g) ?? [], (x) => parseI
 const payload = (key: string, exp: number) => new TextEncoder().encode(`file:${key}:${exp}`);
 
 filesApp.post('/sign', async (c) => {
-  const b = await parseJson(c, z.object({ key: z.string().max(400) }));
+  const b = await parseJson(c, zSignFileUrlBody);
   const p = b.success ? parseKey(b.data.key) : null;
   if (!b.success || !p) return c.json({ error: 'invalid_key' }, 400);
   const deny = await denied(c.var.db, c.var.uid, p, false);

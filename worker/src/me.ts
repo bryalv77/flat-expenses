@@ -1,10 +1,9 @@
 import { and, desc, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { z } from 'zod';
 
 import { user, userDocuments, members } from './db/schema';
-import { DOCUMENT_MIME_TYPES } from './config';
-import { MAX_BYTES, deleteObjects, parseKey } from './files';
+import { deleteObjects, parseKey } from './files';
+import { zAddMyDocumentBody, zUpdateMeBody } from './generated/zod.gen';
 import { notFound, readBody, rowOr404, uuidParam } from './http';
 import { session, type AppEnv } from './middleware';
 
@@ -16,17 +15,13 @@ meApp.get('/', async (c) => {
   return rowOr404(c, u);
 });
 
-const profile = z.object({
-  displayName: z.string().trim().min(1).max(100),
-  photoKey: z.string().max(500).nullable(),
-  locale: z.string().max(10),
-  accountRole: z.enum(['ADMIN', 'ROOMMATE']),
-}).partial().strict();
+const profile = zUpdateMeBody.strict();
 
 meApp.patch('/', async (c) => {
   const b = await readBody(c, profile);
   if (b.res) return b.res;
-  const { displayName, photoKey, locale, accountRole } = b.data;
+  const { photoKey, locale, accountRole } = b.data;
+  const displayName = b.data.displayName?.trim();
   const { db, uid } = c.var;
   if (photoKey) {
     const p = parseKey(photoKey);
@@ -45,14 +40,7 @@ meApp.get('/documents', async (c) =>
   c.json(await c.var.db.select().from(userDocuments).where(eq(userDocuments.userId, c.var.uid)).orderBy(desc(userDocuments.uploadedAt)).limit(50)),
 );
 
-const doc = z.object({
-  id: z.uuid().optional(),
-  type: z.enum(['PASSPORT', 'NATIONAL_ID']),
-  objectKey: z.string().min(1).max(500),
-  fileName: z.string().min(1).max(255),
-  mimeType: z.enum(DOCUMENT_MIME_TYPES),
-  sizeBytes: z.number().int().min(0).max(MAX_BYTES.document),
-});
+const doc = zAddMyDocumentBody;
 
 meApp.post('/documents', async (c) => {
   const b = await readBody(c, doc);

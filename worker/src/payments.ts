@@ -1,9 +1,9 @@
 import { and, desc, eq, gte, lte } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { z } from 'zod';
 
 import { members, payments } from './db/schema';
-import { MAX_CENTS, MAX_LIST } from './config';
+import { MAX_LIST } from './config';
+import { zListPaymentsQuery, zRecordPaymentBody } from './generated/zod.gen';
 import { ERR } from '../../src/lib/api/errors';
 import { houseId, noContentOr404, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
@@ -11,17 +11,10 @@ import { guardAdmin, guardMember, type AppEnv } from './middleware';
 // Reads: any active member. Writes: admins. Payments are immutable (no update).
 export const paymentsApp = new Hono<AppEnv>();
 
-const month = z.iso.date().regex(/^20\d\d-(0[1-9]|1[0-2])-01$/, 'first day of a month'); // matches payments_month check
-const record = z.object({
-  id: z.uuid().optional(),
-  memberId: z.string().min(1).max(128),
-  month,
-  amountCents: z.number().int().min(1).max(MAX_CENTS),
-  note: z.string().max(200).nullish(),
-}).strict();
+const record = zRecordPaymentBody.strict();
 
 paymentsApp.get('/', guardMember, async (c) => {
-  const q = z.object({ from: month, to: month }).safeParse(c.req.query());
+  const q = zListPaymentsQuery.safeParse(c.req.query());
   if (!q.success) return c.json({ error: 'invalid', issues: q.error.issues }, 400);
   return c.json(
     await c.var.db.select().from(payments)

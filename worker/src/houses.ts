@@ -1,29 +1,26 @@
 import { and, asc, desc, eq } from 'drizzle-orm';
 import { Hono, type Context } from 'hono';
-import { z } from 'zod';
 
 import { billsApp } from './bills';
 import { categoriesApp } from './categories';
 import { paymentsApp } from './payments';
 import { houses, invites, members } from './db/schema';
 import { purgePrefix } from './files';
-import { GUEST_ID, INVITE_ALPHABET, INVITE_CODE, INVITE_CODE_LENGTH, MAX_MEMBERS_LIST, newGuestId } from './config';
+import { INVITE_ALPHABET, INVITE_CODE_LENGTH, MAX_MEMBERS_LIST, newGuestId } from './config';
+import { zCreateGuestMemberBody, zCreateHouseBody, zCreateInviteBody, zRemoveMemberBody, zSetMemberContributionBody, zUpdateHouseBody } from './generated/zod.gen';
 import { houseId, parseJson, readBody, rowOr404 } from './http';
 import { guardAdmin, guardMember, session, type AppEnv } from './middleware';
 
 export const housesApp = new Hono<AppEnv>();
 housesApp.use('*', session);
 
-const houseFields = {
-  name: z.string().trim().min(1).max(100),
-  address: z.string().trim().max(200).nullish(),
-  splitMode: z.string().min(1).max(30).optional(),
-  fixedContributionCents: z.number().int().min(0).nullish(),
-  contributionDayOfMonth: z.number().int().min(1).max(31).nullish(),
-  showBalanceToRoommates: z.boolean().optional(),
-};
-const createSchema = z.object({ id: z.uuid().optional(), ...houseFields }); // the app generates ids for optimistic updates
-const updateSchema = z.object(houseFields).partial().strict();
+const createSchema = zCreateHouseBody; // the app generates ids for optimistic updates
+const updateSchema = zUpdateHouseBody.strict();
+const cleanHouse = <T extends { name?: string; address?: string | null }>(v: T): T => ({
+  ...v,
+  ...(v.name !== undefined && { name: v.name.trim() }),
+  ...(typeof v.address === 'string' && { address: v.address.trim() }),
+});
 
 housesApp.get('/', async (c) => {
   const rows = await c.var.db
@@ -37,7 +34,7 @@ housesApp.get('/', async (c) => {
 housesApp.post('/', async (c) => {
   const body = await readBody(c, createSchema);
   if (body.res) return body.res;
-  const v = body.data;
+  const v = cleanHouse(body.data);
   const { db, uid } = c.var;
   const ud = await db.query.user.findFirst({ where: (u, { eq }) => eq(u.id, uid) });
   const id = v.id ?? crypto.randomUUID();
@@ -65,7 +62,7 @@ housesApp.get('/:id', guardMember, async (c) => {
 housesApp.patch('/:id', guardAdmin, async (c) => {
   const body = await readBody(c, updateSchema);
   if (body.res) return body.res;
-  const [house] = await c.var.db.update(houses).set(body.data).where(eq(houses.id, houseId(c))).returning();
+  const [house] = await c.var.db.update(houses).set(cleanHouse(body.data)).where(eq(houses.id, houseId(c))).returning();
   return c.json(house);
 });
 
@@ -76,8 +73,7 @@ housesApp.delete('/:id', guardAdmin, async (c) => {
   return c.body(null, 204);
 });
 
-const day = z.iso.date().transform((d) => new Date(`${d}T12:00:00Z`)); // noon UTC, so the stored date never shifts a day with the time zone
-const cents = z.number().int().min(0).nullable();
+const day = (d: string) => new Date(`${d}T12:00:00Z`); // noon UTC, so the stored date never shifts a day with the time zone
 
 const target = (c: Context) =>
   and(eq(members.houseId, houseId(c)), eq(members.userId, c.req.param('memberId') ?? ''));
@@ -88,27 +84,21 @@ housesApp.get('/:id/members', guardMember, async (c) =>
 
 // Admin registers a roommate without an account (id guest_…); dates may be historical.
 housesApp.post('/:id/members/guests', guardAdmin, async (c) => {
-  const b = await readBody(c, z.object({
-    id: z.string().regex(GUEST_ID).optional(), // client-generated
-    displayName: z.string().trim().min(1).max(100),
-    joinedAt: day,
-    removedAt: day.nullable(),
-    individualContributionCents: cents,
-  }));
+  const b = await readBody(c, zCreateGuestMemberBody);
   if (b.res) return b.res;
   const [m] = await c.var.db.insert(members).values({
     houseId: houseId(c), userId: b.data.id ?? newGuestId(crypto.randomUUID()), role: 'ROOMMATE',
-    status: b.data.removedAt ? 'REMOVED' : 'ACTIVE', joinedAt: b.data.joinedAt, removedAt: b.data.removedAt,
-    individualContributionCents: b.data.individualContributionCents, displayName: b.data.displayName, email: '',
+    status: b.data.removedAt ? 'REMOVED' : 'ACTIVE', joinedAt: day(b.data.joinedAt), removedAt: b.data.removedAt ? day(b.data.removedAt) : null,
+    individualContributionCents: b.data.individualContributionCents, displayName: b.data.displayName.trim(), email: '',
   }).returning();
   return c.json(m, 201);
 });
 
 // Admin removes a roommate; `removedAt` is the day they left (default: now).
 housesApp.post('/:id/members/:memberId/remove', guardAdmin, async (c) => {
-  const b = await readBody(c, z.object({ removedAt: day.optional() }));
+  const b = await readBody(c, zRemoveMemberBody);
   if (b.res) return b.res;
-  const [m] = await c.var.db.update(members).set({ status: 'REMOVED', removedAt: b.data.removedAt ?? new Date() }).where(target(c)).returning();
+  const [m] = await c.var.db.update(members).set({ status: 'REMOVED', removedAt: b.data.removedAt ? day(b.data.removedAt) : new Date() }).where(target(c)).returning();
   return rowOr404(c, m);
 });
 
@@ -118,7 +108,7 @@ housesApp.post('/:id/members/:memberId/reactivate', guardAdmin, async (c) => {
 });
 
 housesApp.patch('/:id/members/:memberId', guardAdmin, async (c) => {
-  const b = await readBody(c, z.object({ individualContributionCents: cents }));
+  const b = await readBody(c, zSetMemberContributionBody);
   if (b.res) return b.res;
   const [m] = await c.var.db.update(members).set(b.data).where(target(c)).returning();
   return rowOr404(c, m);
@@ -144,9 +134,10 @@ housesApp.get('/:id/invites', guardAdmin, async (c) => {
 });
 
 housesApp.post('/:id/invites', guardAdmin, async (c) => {
-  const b = await parseJson(c, z.object({ code: z.string().regex(INVITE_CODE).optional(), expiresAt: z.iso.datetime().transform((d) => new Date(d)), maxUses: z.number().int().min(1).max(100) }));
-  if (!b.success || b.data.expiresAt <= new Date()) return c.json({ error: 'invalid' }, 400);
-  const { code = newCode(), ...rest } = b.data;
+  const b = await parseJson(c, zCreateInviteBody);
+  const expiresAt = b.success ? new Date(b.data.expiresAt) : null;
+  if (!b.success || expiresAt! <= new Date()) return c.json({ error: 'invalid' }, 400);
+  const { code = newCode(), ...rest } = { ...b.data, expiresAt: expiresAt! };
   const [inv] = await c.var.db.insert(invites).values({ code, houseId: houseId(c), status: 'ACTIVE', createdBy: c.var.uid, ...rest })
     .onConflictDoNothing().returning();
   return inv ? c.json(inv, 201) : c.json({ error: 'code_taken' }, 409); // a client-chosen code can collide; the app retries

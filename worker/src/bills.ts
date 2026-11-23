@@ -3,8 +3,9 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { billFiles, bills, categories } from './db/schema';
-import { DOCUMENT_MIME_TYPES, MAX_BILL_FILES, MAX_CENTS, MAX_LIST, MAX_NOTES } from './config';
-import { MAX_BYTES, deleteObjects, parseKey } from './files';
+import { MAX_LIST } from './config';
+import { deleteObjects, parseKey } from './files';
+import { zCreateBillBody, zListBillsQuery, zUpdateBillBody } from './generated/zod.gen';
 import { houseId, notFound, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
 
@@ -13,27 +14,11 @@ import { guardAdmin, guardMember, type AppEnv } from './middleware';
 // sending `files` on PATCH replaces the whole set, and objects that are no longer referenced are deleted from R2.
 export const billsApp = new Hono<AppEnv>();
 
-const date = z.iso.date();
-const fileRef = z.object({
-  objectKey: z.string().max(300),
-  fileName: z.string().min(1).max(150),
-  mimeType: z.enum(DOCUMENT_MIME_TYPES),
-  sizeBytes: z.number().int().min(0).max(MAX_BYTES.bill),
-}).strict();
-const shape = z.object({
-  files: z.array(fileRef).max(MAX_BILL_FILES),
-  categoryId: z.uuid(),
-  amountCents: z.number().int().min(1).max(MAX_CENTS),
-  chargeDate: date.nullable(),
-  periodStartDate: date.nullable(),
-  periodEndDate: date.nullable(),
-  notes: z.string().max(MAX_NOTES).nullable(),
-});
-const create = shape.extend({ id: z.uuid() }).partial({ id: true, files: true, chargeDate: true, periodStartDate: true, periodEndDate: true, notes: true }).strict();
-const update = shape.partial().strict();
+const create = zCreateBillBody.strict();
+const update = zUpdateBillBody.strict();
 
 type Db = AppEnv['Variables']['db'];
-type FileRef = z.infer<typeof fileRef>;
+type FileRef = NonNullable<z.infer<typeof update>['files']>[number];
 
 const filesByBill = async (db: Db, billIds: string[]) => {
   const map = new Map<string, (typeof billFiles.$inferSelect)[]>();
@@ -68,7 +53,7 @@ const categoryInHouse = async (db: Db, houseId: string, categoryId: string) =>
 
 // Bills whose effective date (charge date, else period end, else creation day) is in [from, to], newest first.
 billsApp.get('/', guardMember, async (c) => {
-  const q = z.object({ from: date, to: date, categoryId: z.uuid().optional() }).safeParse(c.req.query());
+  const q = zListBillsQuery.safeParse(c.req.query());
   if (!q.success) return c.json({ error: 'invalid', issues: q.error.issues }, 400);
   const { from, to, categoryId } = q.data;
   const rows = await c.var.db.select().from(bills)

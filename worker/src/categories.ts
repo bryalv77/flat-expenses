@@ -1,8 +1,9 @@
 import { and, asc, eq } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { z } from 'zod';
 
-import { MAX_CATEGORIES_LIST, MAX_CONFIG_CENTS } from './config';
+import { fixedNeedsAmount, trimmed, trimmedNames } from '../../src/lib/api/rules';
+import { MAX_CATEGORIES_LIST } from './config';
+import { zCreateCategoryBody, zUpdateCategoryBody } from './generated/zod.gen';
 import { ERR } from '../../src/lib/api/errors';
 import { bills, categories } from './db/schema';
 import { houseId, noContentOr404, notFound, readBody, uuidParam } from './http';
@@ -11,25 +12,13 @@ import { guardAdmin, guardMember, type AppEnv } from './middleware';
 // Reads: any active member. Writes: admins.
 export const categoriesApp = new Hono<AppEnv>();
 
-const shape = z.object({
-  name: z.string().trim().min(1).max(60),
-  icon: z.string().min(1).max(40),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
-  amountType: z.enum(['FIXED', 'VARIABLE']),
-  expectedAmountCents: z.number().int().min(0).max(MAX_CONFIG_CENTS).nullable(),
-  intervalUnit: z.enum(['DAY', 'WEEK', 'MONTH', 'YEAR']),
-  intervalCount: z.number().int().min(1).max(1000),
-  anchorDate: z.iso.date(),
-  isActive: z.boolean(),
-  sortOrder: z.number().int().min(0).max(10_000),
-  notes: z.string().max(500).nullable(),
-  names: z.record(z.string().regex(/^[a-z]{2,3}$/), z.string().trim().min(1).max(60)).refine((o) => Object.keys(o).length <= 12).nullable(),
+const create = zCreateCategoryBody.strict().refine(fixedNeedsAmount, { message: 'FIXED categories need expectedAmountCents', path: ['expectedAmountCents'] });
+const update = zUpdateCategoryBody.strict();
+const clean = <T extends { name?: string; names?: Record<string, string> | null }>(v: T): T => ({
+  ...v,
+  ...(v.name !== undefined && { name: trimmed(v.name) }),
+  ...(v.names ? { names: trimmedNames(v.names) } : {}),
 });
-const fixedNeedsAmount = (v: { amountType?: string; expectedAmountCents?: number | null }) =>
-  v.amountType !== 'FIXED' || v.expectedAmountCents != null;
-const create = shape.extend({ id: z.uuid() }).partial({ id: true, expectedAmountCents: true, isActive: true, sortOrder: true, notes: true, names: true }).strict()
-  .refine(fixedNeedsAmount, { message: 'FIXED categories need expectedAmountCents', path: ['expectedAmountCents'] });
-const update = shape.partial().strict();
 
 const where = (houseId: string, id: string) => and(eq(categories.houseId, houseId), eq(categories.id, id));
 
@@ -41,7 +30,7 @@ categoriesApp.get('/', guardMember, async (c) =>
 categoriesApp.post('/', guardAdmin, async (c) => {
   const b = await readBody(c, create);
   if (b.res) return b.res;
-  const [row] = await c.var.db.insert(categories).values({ ...b.data, houseId: houseId(c) }).returning();
+  const [row] = await c.var.db.insert(categories).values({ ...clean(b.data), houseId: houseId(c) }).returning();
   return c.json(row, 201);
 });
 
@@ -53,8 +42,9 @@ categoriesApp.patch('/:categoryId', guardAdmin, uuidParam('categoryId'), async (
   const [current] = await c.var.db.select().from(categories).where(where(hid, id));
   if (!current) return notFound(c);
   // The merged result must still be valid (e.g. switching to FIXED requires an amount).
-  if (!fixedNeedsAmount({ ...current, ...b.data })) return c.json({ error: 'invalid', message: 'FIXED categories need expectedAmountCents' }, 400);
-  const [row] = await c.var.db.update(categories).set(b.data).where(where(hid, id)).returning();
+  const fields = clean(b.data);
+  if (!fixedNeedsAmount({ ...current, ...fields })) return c.json({ error: 'invalid', message: 'FIXED categories need expectedAmountCents' }, 400);
+  const [row] = await c.var.db.update(categories).set(fields).where(where(hid, id)).returning();
   return c.json(row);
 });
 
