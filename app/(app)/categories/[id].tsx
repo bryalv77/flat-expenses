@@ -7,6 +7,7 @@ import { CategoryForm } from '@/features/categories/CategoryForm';
 import { useArchiveCategory, useCategories, useDeleteCategory, useUpdateCategory } from '@/features/categories/hooks';
 import { useActiveHouse } from '@/features/houses/hooks';
 import { useT } from '@/i18n';
+import { ERR } from '@/lib/api/errors';
 import { describeSchedule } from '@/features/schedule/occurrences';
 import { spacing } from '@/theme';
 
@@ -70,7 +71,7 @@ export default function CategoryDetailScreen() {
           setConfirmDelete(false);
           remove.mutate(category.id, {
             onSuccess: () => router.back(),
-            onError: (e) => toast.error(e instanceof Error && e.message === 'CATEGORY_HAS_BILLS' ? t('categories.hasBills') : t('errors.generic')),
+            onError: (e) => toast.error(e instanceof Error && e.message === ERR.CATEGORY_HAS_BILLS ? t('categories.hasBills') : t('errors.generic')),
           });
         }}
       />

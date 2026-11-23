@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { MAX_CATEGORIES_LIST, MAX_CONFIG_CENTS } from './config';
+import { ERR } from '../../src/lib/api/errors';
 import { bills, categories } from './db/schema';
 import { houseId, noContentOr404, notFound, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
@@ -61,7 +62,7 @@ categoriesApp.patch('/:categoryId', guardAdmin, uuidParam('categoryId'), async (
 categoriesApp.delete('/:categoryId', guardAdmin, uuidParam('categoryId'), async (c) => {
   const id = c.req.param('categoryId');
   const [used] = await c.var.db.select({ id: bills.id }).from(bills).where(eq(bills.categoryId, id)).limit(1);
-  if (used) return c.json({ error: 'CATEGORY_HAS_BILLS' }, 409);
+  if (used) return c.json({ error: ERR.CATEGORY_HAS_BILLS }, 409);
   const rows = await c.var.db.delete(categories).where(where(houseId(c), id)).returning();
   return noContentOr404(c, rows);
 });

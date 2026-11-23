@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { members, payments } from './db/schema';
 import { MAX_CENTS, MAX_LIST } from './config';
+import { ERR } from '../../src/lib/api/errors';
 import { houseId, noContentOr404, readBody, uuidParam } from './http';
 import { guardAdmin, guardMember, type AppEnv } from './middleware';
 
@@ -35,7 +36,7 @@ paymentsApp.post('/', guardAdmin, async (c) => {
   const hid = houseId(c);
   // The payer must be a member of this house (active or removed: back payments for someone who left are valid).
   const [m] = await c.var.db.select({ userId: members.userId }).from(members).where(and(eq(members.houseId, hid), eq(members.userId, b.data.memberId)));
-  if (!m) return c.json({ error: 'invalid_member' }, 400);
+  if (!m) return c.json({ error: ERR.INVALID_MEMBER }, 400);
   const [row] = await c.var.db.insert(payments).values({ ...b.data, houseId: hid, recordedBy: c.var.uid }).returning();
   return c.json(row, 201);
 });
